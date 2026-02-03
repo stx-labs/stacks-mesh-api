@@ -1,5 +1,10 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../services/stacks-rpc.js';
+import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
+import {
+  convertDecodedBlockToMeshBlock,
+  convertDecodedTxToMeshTransaction,
+} from '../services/mesh-converter.js';
 import {
   BlockRequestSchema,
   BlockTransactionRequestSchema,
@@ -15,6 +20,7 @@ import {
 } from '../types/schemas.js';
 import { MeshErrors } from '../utils/errors.js';
 import { validateNetwork } from '../utils/validation.js';
+import { StacksRpcError } from '../services/stacks-rpc.js';
 
 export interface BlockRoutesConfig {
   rpcClient: StacksRpcClient;
@@ -68,6 +74,7 @@ export const blockRoutes: FastifyPluginAsyncTypebox<BlockRoutesConfig> = async (
           );
         }
         const message = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error({ error }, 'Failed to fetch block');
         return reply.status(500).send(MeshErrors.rpcError(message));
       }
     }
@@ -117,6 +124,7 @@ export const blockRoutes: FastifyPluginAsyncTypebox<BlockRoutesConfig> = async (
           );
         }
         const message = error instanceof Error ? error.message : 'Unknown error';
+        fastify.log.error({ error }, 'Failed to fetch block transaction');
         return reply.status(500).send(MeshErrors.rpcError(message));
       }
     }
@@ -138,28 +146,96 @@ class TransactionNotFoundError extends Error {
 }
 
 async function fetchAndParseBlock(
-  _rpcClient: StacksRpcClient,
+  rpcClient: StacksRpcClient,
   blockIdentifier: BlockRequest['block_identifier']
 ): Promise<Block> {
-  // TODO: Implement actual block fetching and parsing from Stacks RPC
-  // This requires parsing the binary block format from /v3/blocks/{block_id}
+  try {
+    let blockBytes: Buffer;
 
-  void _rpcClient;
+    if (blockIdentifier.index !== undefined) {
+      // Fetch by height
+      blockBytes = await rpcClient.getBlockByHeight(blockIdentifier.index);
+    } else if (blockIdentifier.hash) {
+      // Fetch by hash - remove 0x prefix if present for RPC call
+      const hash = blockIdentifier.hash.startsWith('0x')
+        ? blockIdentifier.hash.slice(2)
+        : blockIdentifier.hash;
+      blockBytes = await rpcClient.getBlockByHash(hash);
+    } else {
+      throw new Error('Block identifier must include hash or index');
+    }
 
-  throw new BlockNotFoundError(
-    blockIdentifier.hash ?? String(blockIdentifier.index)
-  );
+    // Decode the block binary
+    const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
+
+    // The block height is in the header's chain_length field
+    const blockHeight = Number(decodedBlock.header.chain_length);
+
+    // Parent block hash is in the header
+    const parentBlockHash = decodedBlock.header.parent_block_id;
+
+    // Convert to Mesh format
+    return convertDecodedBlockToMeshBlock(decodedBlock, blockHeight, parentBlockHash);
+  } catch (error) {
+    if (error instanceof StacksRpcError && error.statusCode === 404) {
+      throw new BlockNotFoundError(
+        blockIdentifier.hash ?? String(blockIdentifier.index)
+      );
+    }
+    throw error;
+  }
 }
 
 async function fetchBlockTransaction(
-  _rpcClient: StacksRpcClient,
+  rpcClient: StacksRpcClient,
   blockIdentifier: BlockTransactionRequest['block_identifier'],
   txIdentifier: BlockTransactionRequest['transaction_identifier']
 ): Promise<Transaction> {
-  // TODO: Implement actual transaction fetching within a block
+  try {
+    let blockBytes: Buffer;
 
-  void _rpcClient;
-  void blockIdentifier;
+    if (blockIdentifier.index !== undefined) {
+      blockBytes = await rpcClient.getBlockByHeight(blockIdentifier.index);
+    } else if (blockIdentifier.hash) {
+      const hash = blockIdentifier.hash.startsWith('0x')
+        ? blockIdentifier.hash.slice(2)
+        : blockIdentifier.hash;
+      blockBytes = await rpcClient.getBlockByHash(hash);
+    } else {
+      throw new Error('Block identifier must include hash or index');
+    }
 
-  throw new TransactionNotFoundError(txIdentifier.hash);
+    // Decode the block
+    const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
+
+    // Normalize the transaction hash for comparison
+    const targetTxId = txIdentifier.hash.toLowerCase();
+    const targetTxIdWithPrefix = targetTxId.startsWith('0x')
+      ? targetTxId
+      : `0x${targetTxId}`;
+    const targetTxIdWithoutPrefix = targetTxId.startsWith('0x')
+      ? targetTxId.slice(2)
+      : targetTxId;
+
+    // Find the transaction in the block
+    const decodedTx = decodedBlock.txs.find((tx) => {
+      const txId = tx.tx_id.toLowerCase();
+      return txId === targetTxIdWithPrefix || txId === targetTxIdWithoutPrefix;
+    });
+
+    if (!decodedTx) {
+      throw new TransactionNotFoundError(txIdentifier.hash);
+    }
+
+    // Convert to Mesh format
+    return convertDecodedTxToMeshTransaction(decodedTx);
+  } catch (error) {
+    if (error instanceof StacksRpcError && error.statusCode === 404) {
+      throw new BlockNotFoundError(blockIdentifier.hash ?? String(blockIdentifier.index));
+    }
+    if (error instanceof TransactionNotFoundError) {
+      throw error;
+    }
+    throw error;
+  }
 }

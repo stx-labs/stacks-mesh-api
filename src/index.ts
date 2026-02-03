@@ -23,10 +23,11 @@ function getConfigFromEnv(): ServerConfig {
   const network = (process.env.STACKS_NETWORK ?? 'mainnet') as 'mainnet' | 'testnet';
 
   // Default RPC URLs for mainnet and testnet
+  // Using Hiro's public API which proxies node RPC endpoints
   const defaultRpcUrl =
     network === 'mainnet'
-      ? 'https://stacks-node-api.mainnet.stacks.co'
-      : 'https://stacks-node-api.testnet.stacks.co';
+      ? 'https://api.hiro.so'
+      : 'https://api.testnet.hiro.so';
 
   return {
     port: parseInt(process.env.PORT ?? '3000', 10),
