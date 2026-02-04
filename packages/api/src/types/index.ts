@@ -62,4 +62,4 @@ export {
   ConstructionParseResponseSchema,
   TransactionIdentifierResponseSchema,
   CallResponseSchema,
-} from './schemas.js';
+} from '../api/schemas.js';

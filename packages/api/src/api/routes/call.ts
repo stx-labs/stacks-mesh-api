@@ -1,21 +1,16 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../services/stacks-rpc.js';
 import {
   CallRequestSchema,
   CallResponseSchema,
   MeshErrorSchema,
   type CallResponse,
-} from '../types/schemas.js';
-import { CALL_METHODS } from '../utils/constants.js';
-import { MeshErrors } from '../utils/errors.js';
-import { validateNetwork } from '../utils/validation.js';
+} from '../../api/schemas.js';
+import { CALL_METHODS } from '../../utils/constants.js';
+import { MeshErrors } from '../../utils/errors.js';
+import { validateNetwork } from '../../utils/validation.js';
+import type { RouteConfig } from '../index.js';
 
-export interface CallRoutesConfig {
-  rpcClient: StacksRpcClient;
-  network: 'mainnet' | 'testnet';
-}
-
-export const callRoutes: FastifyPluginAsyncTypebox<CallRoutesConfig> = async (
+export const callRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
   config
 ) => {

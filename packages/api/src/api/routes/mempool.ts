@@ -1,5 +1,4 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../services/stacks-rpc.js';
 import type { Transaction } from '@stacks-mesh/serializer';
 import {
   NetworkRequestSchema,
@@ -9,16 +8,12 @@ import {
   MeshErrorSchema,
   type MempoolResponse,
   type MempoolTransactionResponse,
-} from '../types/schemas.js';
-import { MeshErrors } from '../utils/errors.js';
-import { validateNetwork } from '../utils/validation.js';
+} from '../../api/schemas.js';
+import { MeshErrors } from '../../utils/errors.js';
+import { validateNetwork } from '../../utils/validation.js';
+import type { RouteConfig } from '../index.js';
 
-export interface MempoolRoutesConfig {
-  rpcClient: StacksRpcClient;
-  network: 'mainnet' | 'testnet';
-}
-
-export const mempoolRoutes: FastifyPluginAsyncTypebox<MempoolRoutesConfig> = async (
+export const mempoolRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
   config
 ) => {

@@ -1,4 +1,4 @@
-import type { NetworkIdentifier } from '../types/schemas.js';
+import type { NetworkIdentifier } from '../api/schemas.js';
 import type { MeshError } from '../types/mesh.js';
 import { STACKS_BLOCKCHAIN, MAINNET_NETWORK, TESTNET_NETWORK } from './constants.js';
 import { MeshErrors } from './errors.js';

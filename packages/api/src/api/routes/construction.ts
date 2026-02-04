@@ -1,5 +1,4 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../services/stacks-rpc.js';
 import {
   ConstructionDeriveRequestSchema,
   ConstructionPreprocessRequestSchema,
@@ -21,17 +20,13 @@ import {
   type ConstructionPreprocessResponse,
   type ConstructionMetadataResponse,
   type TransactionIdentifierResponse,
-} from '../types/schemas.js';
-import { STX_CURRENCY } from '../utils/constants.js';
-import { MeshErrors } from '../utils/errors.js';
-import { validateNetwork } from '../utils/validation.js';
+} from '../../api/schemas.js';
+import { STX_CURRENCY } from '../../utils/constants.js';
+import { MeshErrors } from '../../utils/errors.js';
+import { validateNetwork } from '../../utils/validation.js';
+import type { RouteConfig } from '../index.js';
 
-export interface ConstructionRoutesConfig {
-  rpcClient: StacksRpcClient;
-  network: 'mainnet' | 'testnet';
-}
-
-export const constructionRoutes: FastifyPluginAsyncTypebox<ConstructionRoutesConfig> = async (
+export const constructionRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
   config
 ) => {

@@ -1,5 +1,4 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../services/stacks-rpc.js';
 import {
   MetadataRequestSchema,
   NetworkRequestSchema,
@@ -10,7 +9,7 @@ import {
   type NetworkListResponse,
   type NetworkStatusResponse,
   type NetworkOptionsResponse,
-} from '../types/schemas.js';
+} from '../../api/schemas.js';
 import {
   MAINNET_IDENTIFIER,
   TESTNET_IDENTIFIER,
@@ -19,16 +18,12 @@ import {
   OPERATION_STATUSES,
   CALL_METHODS,
   STX_CURRENCY,
-} from '../utils/constants.js';
-import { MeshErrors, getAllErrors } from '../utils/errors.js';
-import { validateNetwork } from '../utils/validation.js';
+} from '../../utils/constants.js';
+import { MeshErrors, getAllErrors } from '../../utils/errors.js';
+import { validateNetwork } from '../../utils/validation.js';
+import type { RouteConfig } from '../index.js';
 
-export interface NetworkRoutesConfig {
-  rpcClient: StacksRpcClient;
-  network: 'mainnet' | 'testnet';
-}
-
-export const networkRoutes: FastifyPluginAsyncTypebox<NetworkRoutesConfig> = async (
+export const networkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
   config
 ) => {
