@@ -10,6 +10,7 @@ import type {
   StacksTenureInfo,
   StacksBroadcastResponse,
   StacksMempoolQueryResponse,
+  StacksConfirmedTransaction,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -199,8 +200,8 @@ export class StacksRpcClient {
     return this.request<unknown>('GET', `/v2/transactions/unconfirmed/${txid}`);
   }
 
-  async getConfirmedTransaction(txid: string): Promise<unknown> {
-    return this.request<unknown>('GET', `/v3/transaction/${txid}`);
+  async getConfirmedTransaction(txid: string): Promise<StacksConfirmedTransaction> {
+    return this.request<StacksConfirmedTransaction>('GET', `/v3/transaction/${txid}`);
   }
 
   async queryMempool(

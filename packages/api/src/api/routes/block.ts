@@ -164,6 +164,22 @@ async function fetchAndParseBlock(
     // Decode the block binary
     const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
 
+    // Fetch confirmed transaction data for each transaction in the block
+    const confirmedTxDataMap = new Map<string, Awaited<ReturnType<typeof rpcClient.getConfirmedTransaction>>>();
+    await Promise.all(
+      decodedBlock.txs.map(async (tx) => {
+        try {
+          // Remove 0x prefix if present for RPC call
+          const txId = tx.tx_id.startsWith('0x') ? tx.tx_id.slice(2) : tx.tx_id;
+          const confirmedTxData = await rpcClient.getConfirmedTransaction(txId);
+          confirmedTxDataMap.set(tx.tx_id, confirmedTxData);
+        } catch (error) {
+          // Log error but don't fail the whole block fetch
+          console.error(`Failed to fetch confirmed transaction data for ${tx.tx_id}:`, error);
+        }
+      })
+    );
+
     // The block height is in the header's chain_length field
     const blockHeight = Number(decodedBlock.header.chain_length);
 
@@ -171,6 +187,7 @@ async function fetchAndParseBlock(
     const parentBlockHash = decodedBlock.header.parent_block_id;
 
     // Convert to Mesh format using the serializer package
+    // Note: confirmedTxDataMap is available here if needed for future enhancements
     return convertDecodedBlockToMeshBlock(decodedBlock, blockHeight, parentBlockHash);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {

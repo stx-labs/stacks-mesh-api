@@ -340,3 +340,11 @@ export interface StacksBroadcastResponse {
   reason?: string;
   reason_data?: Record<string, unknown>;
 }
+
+export interface StacksConfirmedTransaction {
+  index_block_hash: string;
+  tx: string;
+  result: string;
+  block_height?: number | null;
+  is_canonical?: boolean;
+}
