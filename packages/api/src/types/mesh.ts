@@ -1,111 +1,37 @@
-// Mesh API Types based on Coinbase Mesh Specification
+// Re-export core Mesh types from the serializer package
+export type {
+  Block,
+  BlockIdentifier,
+  Transaction,
+  TransactionIdentifier,
+  Operation,
+  OperationIdentifier,
+  Amount,
+  Currency,
+  AccountIdentifier,
+  SubAccountIdentifier,
+  CoinChange,
+  CoinIdentifier,
+  CoinAction,
+  RelatedTransaction,
+  Direction,
+  NetworkIdentifier,
+  SubNetworkIdentifier,
+} from '@stacks-mesh/serializer';
 
-// === Identifiers ===
-
-export interface NetworkIdentifier {
-  blockchain: string;
-  network: string;
-  sub_network_identifier?: SubNetworkIdentifier;
-}
-
-export interface SubNetworkIdentifier {
-  network: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface BlockIdentifier {
-  index: number;
-  hash: string;
-}
+// Additional Mesh API types not needed by the serializer
 
 export interface PartialBlockIdentifier {
   index?: number;
   hash?: string;
 }
 
-export interface TransactionIdentifier {
-  hash: string;
-}
-
-export interface AccountIdentifier {
-  address: string;
-  sub_account?: SubAccountIdentifier;
-  metadata?: Record<string, unknown>;
-}
-
-export interface SubAccountIdentifier {
-  address: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface OperationIdentifier {
-  index: number;
-  network_index?: number;
-}
-
-export interface CoinIdentifier {
-  identifier: string;
-}
-
-// === Common Objects ===
-
-export interface Amount {
-  value: string;
-  currency: Currency;
-  metadata?: Record<string, unknown>;
-}
-
-export interface Currency {
-  symbol: string;
-  decimals: number;
-  metadata?: Record<string, unknown>;
-}
-
-export interface Operation {
-  operation_identifier: OperationIdentifier;
-  related_operations?: OperationIdentifier[];
-  type: string;
-  status?: string;
-  account?: AccountIdentifier;
-  amount?: Amount;
-  coin_change?: CoinChange;
-  metadata?: Record<string, unknown>;
-}
-
-export interface CoinChange {
-  coin_identifier: CoinIdentifier;
-  coin_action: CoinAction;
-}
-
-export type CoinAction = 'coin_created' | 'coin_spent';
-
-export interface Transaction {
-  transaction_identifier: TransactionIdentifier;
-  operations: Operation[];
-  related_transactions?: RelatedTransaction[];
-  metadata?: Record<string, unknown>;
-}
-
-export interface RelatedTransaction {
-  network_identifier?: NetworkIdentifier;
-  transaction_identifier: TransactionIdentifier;
-  direction: Direction;
-}
-
-export type Direction = 'forward' | 'backward';
-
-export interface Block {
-  block_identifier: BlockIdentifier;
-  parent_block_identifier: BlockIdentifier;
-  timestamp: number;
-  transactions: Transaction[];
-  metadata?: Record<string, unknown>;
-}
-
 export interface Coin {
   coin_identifier: CoinIdentifier;
   amount: Amount;
 }
+
+import type { CoinIdentifier, Amount } from '@stacks-mesh/serializer';
 
 export interface Peer {
   peer_id: string;
@@ -146,7 +72,7 @@ export interface OperationStatus {
 
 export interface BalanceExemption {
   sub_account_address?: string;
-  currency?: Currency;
+  currency?: import('@stacks-mesh/serializer').Currency;
   exemption_type?: ExemptionType;
 }
 
@@ -175,7 +101,7 @@ export type CurveType = 'secp256k1' | 'secp256r1' | 'edwards25519' | 'tweedle' |
 
 export interface SigningPayload {
   address?: string;
-  account_identifier?: AccountIdentifier;
+  account_identifier?: import('@stacks-mesh/serializer').AccountIdentifier;
   hex_bytes: string;
   signature_type?: SignatureType;
 }
@@ -202,19 +128,19 @@ export interface MetadataRequest {
 }
 
 export interface NetworkRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   metadata?: Record<string, unknown>;
 }
 
 export interface NetworkListResponse {
-  network_identifiers: NetworkIdentifier[];
+  network_identifiers: import('@stacks-mesh/serializer').NetworkIdentifier[];
 }
 
 export interface NetworkStatusResponse {
-  current_block_identifier: BlockIdentifier;
+  current_block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
   current_block_timestamp: number;
-  genesis_block_identifier: BlockIdentifier;
-  oldest_block_identifier?: BlockIdentifier;
+  genesis_block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
+  oldest_block_identifier?: import('@stacks-mesh/serializer').BlockIdentifier;
   sync_status?: SyncStatus;
   peers: Peer[];
 }
@@ -227,65 +153,65 @@ export interface NetworkOptionsResponse {
 // === Block API Requests/Responses ===
 
 export interface BlockRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   block_identifier: PartialBlockIdentifier;
 }
 
 export interface BlockResponse {
-  block?: Block;
-  other_transactions?: TransactionIdentifier[];
+  block?: import('@stacks-mesh/serializer').Block;
+  other_transactions?: import('@stacks-mesh/serializer').TransactionIdentifier[];
 }
 
 export interface BlockTransactionRequest {
-  network_identifier: NetworkIdentifier;
-  block_identifier: BlockIdentifier;
-  transaction_identifier: TransactionIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
+  transaction_identifier: import('@stacks-mesh/serializer').TransactionIdentifier;
 }
 
 export interface BlockTransactionResponse {
-  transaction: Transaction;
+  transaction: import('@stacks-mesh/serializer').Transaction;
 }
 
 // === Mempool API Requests/Responses ===
 
 export interface MempoolResponse {
-  transaction_identifiers: TransactionIdentifier[];
+  transaction_identifiers: import('@stacks-mesh/serializer').TransactionIdentifier[];
 }
 
 export interface MempoolTransactionRequest {
-  network_identifier: NetworkIdentifier;
-  transaction_identifier: TransactionIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  transaction_identifier: import('@stacks-mesh/serializer').TransactionIdentifier;
 }
 
 export interface MempoolTransactionResponse {
-  transaction: Transaction;
+  transaction: import('@stacks-mesh/serializer').Transaction;
   metadata?: Record<string, unknown>;
 }
 
 // === Account API Requests/Responses ===
 
 export interface AccountBalanceRequest {
-  network_identifier: NetworkIdentifier;
-  account_identifier: AccountIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  account_identifier: import('@stacks-mesh/serializer').AccountIdentifier;
   block_identifier?: PartialBlockIdentifier;
-  currencies?: Currency[];
+  currencies?: import('@stacks-mesh/serializer').Currency[];
 }
 
 export interface AccountBalanceResponse {
-  block_identifier: BlockIdentifier;
-  balances: Amount[];
+  block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
+  balances: import('@stacks-mesh/serializer').Amount[];
   metadata?: Record<string, unknown>;
 }
 
 export interface AccountCoinsRequest {
-  network_identifier: NetworkIdentifier;
-  account_identifier: AccountIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  account_identifier: import('@stacks-mesh/serializer').AccountIdentifier;
   include_mempool: boolean;
-  currencies?: Currency[];
+  currencies?: import('@stacks-mesh/serializer').Currency[];
 }
 
 export interface AccountCoinsResponse {
-  block_identifier: BlockIdentifier;
+  block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
   coins: Coin[];
   metadata?: Record<string, unknown>;
 }
@@ -293,44 +219,44 @@ export interface AccountCoinsResponse {
 // === Construction API Requests/Responses ===
 
 export interface ConstructionDeriveRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   public_key: PublicKey;
   metadata?: Record<string, unknown>;
 }
 
 export interface ConstructionDeriveResponse {
-  account_identifier?: AccountIdentifier;
+  account_identifier?: import('@stacks-mesh/serializer').AccountIdentifier;
   address?: string;
   metadata?: Record<string, unknown>;
 }
 
 export interface ConstructionPreprocessRequest {
-  network_identifier: NetworkIdentifier;
-  operations: Operation[];
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  operations: import('@stacks-mesh/serializer').Operation[];
   metadata?: Record<string, unknown>;
-  max_fee?: Amount[];
+  max_fee?: import('@stacks-mesh/serializer').Amount[];
   suggested_fee_multiplier?: number;
 }
 
 export interface ConstructionPreprocessResponse {
   options?: Record<string, unknown>;
-  required_public_keys?: AccountIdentifier[];
+  required_public_keys?: import('@stacks-mesh/serializer').AccountIdentifier[];
 }
 
 export interface ConstructionMetadataRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   options?: Record<string, unknown>;
   public_keys?: PublicKey[];
 }
 
 export interface ConstructionMetadataResponse {
   metadata: Record<string, unknown>;
-  suggested_fee?: Amount[];
+  suggested_fee?: import('@stacks-mesh/serializer').Amount[];
 }
 
 export interface ConstructionPayloadsRequest {
-  network_identifier: NetworkIdentifier;
-  operations: Operation[];
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
+  operations: import('@stacks-mesh/serializer').Operation[];
   metadata?: Record<string, unknown>;
   public_keys?: PublicKey[];
 }
@@ -341,7 +267,7 @@ export interface ConstructionPayloadsResponse {
 }
 
 export interface ConstructionCombineRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   unsigned_transaction: string;
   signatures: Signature[];
 }
@@ -351,37 +277,37 @@ export interface ConstructionCombineResponse {
 }
 
 export interface ConstructionParseRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   signed: boolean;
   transaction: string;
 }
 
 export interface ConstructionParseResponse {
-  operations: Operation[];
+  operations: import('@stacks-mesh/serializer').Operation[];
   signers?: string[];
-  account_identifier_signers?: AccountIdentifier[];
+  account_identifier_signers?: import('@stacks-mesh/serializer').AccountIdentifier[];
   metadata?: Record<string, unknown>;
 }
 
 export interface ConstructionHashRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   signed_transaction: string;
 }
 
 export interface TransactionIdentifierResponse {
-  transaction_identifier: TransactionIdentifier;
+  transaction_identifier: import('@stacks-mesh/serializer').TransactionIdentifier;
   metadata?: Record<string, unknown>;
 }
 
 export interface ConstructionSubmitRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   signed_transaction: string;
 }
 
 // === Call API Requests/Responses ===
 
 export interface CallRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   method: string;
   parameters: Record<string, unknown>;
 }
@@ -394,15 +320,15 @@ export interface CallResponse {
 // === Search API Requests/Responses ===
 
 export interface SearchTransactionsRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   operator?: Operator;
   max_block?: number;
   offset?: number;
   limit?: number;
-  transaction_identifier?: TransactionIdentifier;
-  account_identifier?: AccountIdentifier;
+  transaction_identifier?: import('@stacks-mesh/serializer').TransactionIdentifier;
+  account_identifier?: import('@stacks-mesh/serializer').AccountIdentifier;
   coin_identifier?: CoinIdentifier;
-  currency?: Currency;
+  currency?: import('@stacks-mesh/serializer').Currency;
   status?: string;
   type?: string;
   address?: string;
@@ -418,14 +344,14 @@ export interface SearchTransactionsResponse {
 }
 
 export interface BlockTransaction {
-  block_identifier: BlockIdentifier;
-  transaction: Transaction;
+  block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
+  transaction: import('@stacks-mesh/serializer').Transaction;
 }
 
 // === Events API Requests/Responses ===
 
 export interface EventsBlocksRequest {
-  network_identifier: NetworkIdentifier;
+  network_identifier: import('@stacks-mesh/serializer').NetworkIdentifier;
   offset?: number;
   limit?: number;
 }
@@ -437,7 +363,7 @@ export interface EventsBlocksResponse {
 
 export interface BlockEvent {
   sequence: number;
-  block_identifier: BlockIdentifier;
+  block_identifier: import('@stacks-mesh/serializer').BlockIdentifier;
   type: BlockEventType;
 }
 

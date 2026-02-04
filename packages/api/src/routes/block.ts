@@ -4,7 +4,9 @@ import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
 import {
   convertDecodedBlockToMeshBlock,
   convertDecodedTxToMeshTransaction,
-} from '../services/mesh-converter.js';
+  type Block,
+  type Transaction,
+} from '@stacks-mesh/serializer';
 import {
   BlockRequestSchema,
   BlockTransactionRequestSchema,
@@ -15,8 +17,6 @@ import {
   type BlockTransactionRequest,
   type BlockResponse,
   type BlockTransactionResponse,
-  type Block,
-  type Transaction,
 } from '../types/schemas.js';
 import { MeshErrors } from '../utils/errors.js';
 import { validateNetwork } from '../utils/validation.js';
@@ -174,7 +174,7 @@ async function fetchAndParseBlock(
     // Parent block hash is in the header
     const parentBlockHash = decodedBlock.header.parent_block_id;
 
-    // Convert to Mesh format
+    // Convert to Mesh format using the serializer package
     return convertDecodedBlockToMeshBlock(decodedBlock, blockHeight, parentBlockHash);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {
@@ -227,7 +227,7 @@ async function fetchBlockTransaction(
       throw new TransactionNotFoundError(txIdentifier.hash);
     }
 
-    // Convert to Mesh format
+    // Convert to Mesh format using the serializer package
     return convertDecodedTxToMeshTransaction(decodedTx);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {

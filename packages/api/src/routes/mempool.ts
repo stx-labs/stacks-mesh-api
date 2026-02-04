@@ -1,5 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../services/stacks-rpc.js';
+import type { Transaction } from '@stacks-mesh/serializer';
 import {
   NetworkRequestSchema,
   MempoolTransactionRequestSchema,
@@ -8,7 +9,6 @@ import {
   MeshErrorSchema,
   type MempoolResponse,
   type MempoolTransactionResponse,
-  type Transaction,
 } from '../types/schemas.js';
 import { MeshErrors } from '../utils/errors.js';
 import { validateNetwork } from '../utils/validation.js';

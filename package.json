@@ -1,45 +1,27 @@
 {
-  "name": "stacks-mesh-api",
+  "name": "stacks-mesh-monorepo",
   "version": "1.0.0",
-  "description": "Mesh API implementation for Stacks blockchain",
-  "main": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts",
-    "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "keywords": [
-    "stacks",
-    "mesh",
-    "rosetta",
-    "blockchain",
-    "api"
+  "private": true,
+  "description": "Mesh API implementation for Stacks blockchain - monorepo",
+  "workspaces": [
+    "packages/*"
   ],
+  "scripts": {
+    "build": "npm run build -w @stacks-mesh/serializer && npm run build -w @stacks-mesh/api",
+    "clean": "npm run clean --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev": "npm run dev -w @stacks-mesh/api",
+    "start": "npm run start -w @stacks-mesh/api"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/stx-labs/stacks-mesh-api"
   },
   "prettier": "@stacks/prettier-config",
   "license": "MIT",
-  "dependencies": {
-    "@fastify/cors": "^11.2.0",
-    "@fastify/type-provider-typebox": "^6.1.0",
-    "@hirosystems/stacks-encoding-native-js": "file:../stacks-encoding-native-js",
-    "@sinclair/typebox": "^0.34.48",
-    "env-schema": "^7.0.0",
-    "fastify": "^5.7.4",
-    "undici": "^7.20.0"
-  },
   "devDependencies": {
     "@stacks/prettier-config": "^0.0.10",
-    "@types/node": "^22.12.0",
-    "eslint": "^9.39.2",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-tsdoc": "^0.5.0",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "engines": {

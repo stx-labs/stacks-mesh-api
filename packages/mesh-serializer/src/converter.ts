@@ -1,4 +1,4 @@
-import type { Block, Transaction, Operation } from '../types/schemas.js';
+import type { Block, Transaction, Operation, Currency } from './types.js';
 import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
 import type {
   DecodedNakamotoBlockResult,
@@ -13,7 +13,7 @@ import type {
   TxPayloadNakamotoCoinbase,
   TxPayloadTenureChange,
 } from '@hirosystems/stacks-encoding-native-js';
-import { STX_CURRENCY } from '../utils/constants.js';
+import { STX_CURRENCY } from './constants.js';
 
 const {
   TxPayloadTypeID,
@@ -25,11 +25,27 @@ const {
 // Transaction status for confirmed blocks is always success (they made it into a block)
 const OPERATION_STATUS_SUCCESS = 'success';
 
+export interface ConvertBlockOptions {
+  /** Currency to use for amounts. Defaults to STX_CURRENCY */
+  currency?: Currency;
+}
+
+export interface ConvertTransactionOptions {
+  /** Currency to use for amounts. Defaults to STX_CURRENCY */
+  currency?: Currency;
+}
+
+/**
+ * Converts a decoded Stacks Nakamoto block to Mesh API Block format.
+ */
 export function convertDecodedBlockToMeshBlock(
   decodedBlock: DecodedNakamotoBlockResult,
   blockHeight: number,
-  parentBlockHash: string
+  parentBlockHash: string,
+  options?: ConvertBlockOptions
 ): Block {
+  const currency = options?.currency ?? STX_CURRENCY;
+
   return {
     block_identifier: {
       index: blockHeight,
@@ -41,13 +57,20 @@ export function convertDecodedBlockToMeshBlock(
     },
     timestamp: Number(decodedBlock.header.timestamp) * 1000, // Convert to milliseconds
     transactions: decodedBlock.txs.map((tx) =>
-      convertDecodedTxToMeshTransaction(tx)
+      convertDecodedTxToMeshTransaction(tx, { currency })
     ),
   };
 }
 
-export function convertDecodedTxToMeshTransaction(tx: DecodedTxResult): Transaction {
-  const operations = buildOperationsFromDecodedTx(tx);
+/**
+ * Converts a decoded Stacks transaction to Mesh API Transaction format.
+ */
+export function convertDecodedTxToMeshTransaction(
+  tx: DecodedTxResult,
+  options?: ConvertTransactionOptions
+): Transaction {
+  const currency = options?.currency ?? STX_CURRENCY;
+  const operations = buildOperationsFromDecodedTx(tx, currency);
   const senderAddress = getSenderAddress(tx);
 
   return {
@@ -65,7 +88,7 @@ export function convertDecodedTxToMeshTransaction(tx: DecodedTxResult): Transact
   };
 }
 
-function buildOperationsFromDecodedTx(tx: DecodedTxResult): Operation[] {
+function buildOperationsFromDecodedTx(tx: DecodedTxResult, currency: Currency): Operation[] {
   const operations: Operation[] = [];
   let operationIndex = 0;
   const status = OPERATION_STATUS_SUCCESS;
@@ -83,7 +106,7 @@ function buildOperationsFromDecodedTx(tx: DecodedTxResult): Operation[] {
       },
       amount: {
         value: `-${fee}`,
-        currency: STX_CURRENCY,
+        currency,
       },
     });
   }
@@ -106,7 +129,7 @@ function buildOperationsFromDecodedTx(tx: DecodedTxResult): Operation[] {
         },
         amount: {
           value: `-${transfer.amount}`,
-          currency: STX_CURRENCY,
+          currency,
         },
       });
 
@@ -121,7 +144,7 @@ function buildOperationsFromDecodedTx(tx: DecodedTxResult): Operation[] {
         },
         amount: {
           value: transfer.amount,
-          currency: STX_CURRENCY,
+          currency,
         },
         metadata: {
           memo: decodeMemo(transfer.memo_hex),
@@ -314,7 +337,10 @@ function getRecipientAddress(
   return recipient.address;
 }
 
-function getPayloadTypeName(typeId: TxPayloadTypeIDType): string {
+/**
+ * Get the human-readable name for a transaction payload type.
+ */
+export function getPayloadTypeName(typeId: TxPayloadTypeIDType): string {
   switch (typeId) {
     case TxPayloadTypeID.TokenTransfer:
       return 'token_transfer';
