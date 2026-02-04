@@ -1,8 +1,8 @@
 import type { NetworkIdentifier, OperationStatus } from '../types/mesh.js';
-import { STX_CURRENCY } from '@stacks-mesh/serializer';
+import { STX_CURRENCY } from '@stacks/mesh-serializer';
 
 // Re-export STX_CURRENCY from the serializer package
-export { STX_CURRENCY } from '@stacks-mesh/serializer';
+export { STX_CURRENCY } from '@stacks/mesh-serializer';
 
 // Stacks blockchain constants
 export const STACKS_BLOCKCHAIN = 'stacks';

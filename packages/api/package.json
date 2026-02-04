@@ -1,5 +1,5 @@
 {
-  "name": "@stacks-mesh/api",
+  "name": "@stacks/mesh-api",
   "version": "1.0.0",
   "description": "Mesh API implementation for Stacks blockchain",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "@hirosystems/api-toolkit": "^1.12.0",
     "@hirosystems/stacks-encoding-native-js": "file:../../../stacks-encoding-native-js",
     "@sinclair/typebox": "^0.34.48",
-    "@stacks-mesh/serializer": "*",
+    "@stacks/mesh-serializer": "*",
     "env-schema": "^7.0.0",
     "fastify": "^5.7.4",
     "undici": "^7.20.0"

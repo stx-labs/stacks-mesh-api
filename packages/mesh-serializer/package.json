@@ -1,5 +1,5 @@
 {
-  "name": "@stacks-mesh/serializer",
+  "name": "@stacks/mesh-serializer",
   "version": "1.0.0",
   "description": "Mesh API serializer for Stacks blockchain transactions and blocks",
   "type": "module",

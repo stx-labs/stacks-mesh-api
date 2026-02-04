@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @stacks-mesh/serializer && npm run build -w @stacks-mesh/api",
+    "build": "npm run build -w @stacks/mesh-serializer && npm run build -w @stacks/mesh-api",
     "clean": "npm run clean --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "npm run lint --workspaces --if-present",
-    "dev": "npm run dev -w @stacks-mesh/api",
-    "start": "npm run start -w @stacks-mesh/api"
+    "dev": "npm run dev -w @stacks/mesh-api",
+    "start": "npm run start -w @stacks/mesh-api"
   },
   "repository": {
     "type": "git",

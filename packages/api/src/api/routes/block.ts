@@ -6,7 +6,7 @@ import {
   convertDecodedTxToMeshTransaction,
   type Block,
   type Transaction,
-} from '@stacks-mesh/serializer';
+} from '@stacks/mesh-serializer';
 import {
   BlockRequestSchema,
   BlockTransactionRequestSchema,

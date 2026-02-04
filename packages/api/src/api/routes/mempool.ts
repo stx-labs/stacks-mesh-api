@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { Transaction } from '@stacks-mesh/serializer';
+import type { Transaction } from '@stacks/mesh-serializer';
 import {
   NetworkRequestSchema,
   MempoolTransactionRequestSchema,
