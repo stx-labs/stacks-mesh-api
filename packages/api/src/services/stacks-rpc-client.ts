@@ -10,7 +10,7 @@ import type {
   StacksTenureInfo,
   StacksBroadcastResponse,
   StacksMempoolQueryResponse,
-} from '../types/stacks.js';
+} from './types.js';
 
 export interface StacksRpcConfig {
   baseUrl: string;

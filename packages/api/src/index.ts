@@ -1,4 +1,4 @@
-import { StacksRpcClient } from './services/stacks-rpc.js';
+import { StacksRpcClient } from './services/stacks-rpc-client.js';
 import { ENV } from './env.js';
 import { logger, registerShutdownConfig } from '@hirosystems/api-toolkit';
 import { buildApiServer } from './api/index.js';

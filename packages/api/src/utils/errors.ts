@@ -1,4 +1,4 @@
-import type { MeshError } from '../types/mesh.js';
+import type { MeshError } from '../api/schemas.js';
 
 // Mesh API standard error codes
 export const ErrorCodes = {

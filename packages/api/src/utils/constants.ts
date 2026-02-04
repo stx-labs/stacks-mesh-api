@@ -1,5 +1,9 @@
-import type { NetworkIdentifier, OperationStatus } from '../types/mesh.js';
+import type { NetworkIdentifier } from '../api/schemas.js';
+import type { Static } from '@sinclair/typebox';
+import { OperationStatusSchema } from '../api/schemas.js';
 import { STX_CURRENCY } from '@stacks/mesh-serializer';
+
+type OperationStatus = Static<typeof OperationStatusSchema>;
 
 // Re-export STX_CURRENCY from the serializer package
 export { STX_CURRENCY } from '@stacks/mesh-serializer';

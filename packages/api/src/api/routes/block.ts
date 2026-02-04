@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../../services/stacks-rpc.js';
+import type { StacksRpcClient } from '../../services/stacks-rpc-client.js';
 import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
 import {
   convertDecodedBlockToMeshBlock,
@@ -20,7 +20,7 @@ import {
 } from '../../api/schemas.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { validateNetwork } from '../../utils/validation.js';
-import { StacksRpcError } from '../../services/stacks-rpc.js';
+import { StacksRpcError } from '../../services/stacks-rpc-client.js';
 import type { RouteConfig } from '../index.js';
 
 export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (

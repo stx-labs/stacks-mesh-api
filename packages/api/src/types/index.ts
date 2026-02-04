@@ -1,5 +1,4 @@
-export * from './mesh.js';
-export * from './stacks.js';
+export * from '../services/types.js';
 // Export schemas from schemas.ts (types are re-derived from TypeBox schemas)
 export {
   // Base identifier schemas

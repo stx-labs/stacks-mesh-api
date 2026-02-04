@@ -1,6 +1,6 @@
 import Fastify, { FastifyError } from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { StacksRpcClient } from '../services/stacks-rpc.js';
+import { StacksRpcClient } from '../services/stacks-rpc-client.js';
 import { PINO_LOGGER_CONFIG } from '@hirosystems/api-toolkit';
 import {
   accountRoutes,
