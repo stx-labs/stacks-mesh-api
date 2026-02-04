@@ -21,12 +21,9 @@ export type {
 
 // Converter functions
 export {
-  convertDecodedBlockToMeshBlock,
-  convertDecodedTxToMeshTransaction,
+  serializeDecodedNakamotoBlock as convertDecodedBlockToMeshBlock,
+  serializeDecodedTransaction as convertDecodedTxToMeshTransaction,
   getPayloadTypeName,
   type ConvertBlockOptions,
   type ConvertTransactionOptions,
 } from './converter.js';
-
-// Constants
-export { STX_CURRENCY, STACKS_DECIMALS, STACKS_SYMBOL } from './constants.js';
