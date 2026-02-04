@@ -10,35 +10,9 @@ import {
   constructionRoutes,
   callRoutes,
 } from './routes/index.js';
+import { ENV } from './env.js';
 
-export interface ServerConfig {
-  port: number;
-  host: string;
-  stacksRpcUrl: string;
-  stacksRpcApiKey?: string;
-  network: 'mainnet' | 'testnet';
-}
-
-function getConfigFromEnv(): ServerConfig {
-  const network = (process.env.STACKS_NETWORK ?? 'mainnet') as 'mainnet' | 'testnet';
-
-  // Default RPC URLs for mainnet and testnet
-  // Using Hiro's public API which proxies node RPC endpoints
-  const defaultRpcUrl =
-    network === 'mainnet'
-      ? 'https://api.hiro.so'
-      : 'https://api.testnet.hiro.so';
-
-  return {
-    port: parseInt(process.env.PORT ?? '3000', 10),
-    host: process.env.HOST ?? '0.0.0.0',
-    stacksRpcUrl: process.env.STACKS_RPC_URL ?? defaultRpcUrl,
-    stacksRpcApiKey: process.env.STACKS_RPC_API_KEY,
-    network,
-  };
-}
-
-export async function createServer(config: ServerConfig) {
+export async function createServer() {
   const fastify = Fastify({
     logger: {
       level: process.env.LOG_LEVEL ?? 'info',
@@ -75,13 +49,12 @@ export async function createServer(config: ServerConfig) {
 
   // Create Stacks RPC client
   const rpcClient = new StacksRpcClient({
-    baseUrl: config.stacksRpcUrl,
-    apiKey: config.stacksRpcApiKey,
+    baseUrl: `http://${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}`,
   });
 
   const routeConfig = {
     rpcClient,
-    network: config.network,
+    network: ENV.STACKS_NETWORK,
   };
 
   // Register all Mesh API routes
@@ -103,7 +76,7 @@ export async function createServer(config: ServerConfig) {
       name: 'Stacks Mesh API',
       version: '1.0.0',
       description: 'Mesh API implementation for the Stacks blockchain',
-      network: config.network,
+      network: ENV.STACKS_NETWORK,
       endpoints: {
         network: ['/network/list', '/network/status', '/network/options'],
         block: ['/block', '/block/transaction'],
@@ -128,17 +101,15 @@ export async function createServer(config: ServerConfig) {
 }
 
 async function main() {
-  const config = getConfigFromEnv();
-
   console.log(`Starting Stacks Mesh API server...`);
-  console.log(`  Network: ${config.network}`);
-  console.log(`  Stacks RPC: ${config.stacksRpcUrl}`);
+  console.log(`  Network: ${ENV.STACKS_NETWORK}`);
+  console.log(`  Stacks RPC: ${`http://${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}`}`);
 
-  const server = await createServer(config);
+  const server = await createServer();
 
   try {
-    await server.listen({ port: config.port, host: config.host });
-    console.log(`Server listening on http://${config.host}:${config.port}`);
+    await server.listen({ port: ENV.API_PORT, host: ENV.API_HOST });
+    console.log(`Server listening on http://${ENV.API_HOST}:${ENV.API_PORT}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
