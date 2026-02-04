@@ -1,9 +1,12 @@
 import { Static, Type } from '@sinclair/typebox';
-import { OperationAccountSchema, OperationIdentifierSchema } from './common.js';
-import { Nullable } from './common.js';
-import { StacksStatusSchema } from './transaction.js';
+import {
+  AccountIndentifierSchema,
+  Nullable,
+  OperationIdentifierSchema,
+  StatusSchema,
+} from './common.js';
 
-const StacksCurrencySchema = Type.Object({
+export const CurrencySchema = Type.Object({
   decimals: Type.Integer(),
   symbol: Type.String(),
   metadata: Type.Optional(
@@ -14,30 +17,30 @@ const StacksCurrencySchema = Type.Object({
     })
   ),
 });
-export type StacksCurrency = Static<typeof StacksCurrencySchema>;
+export type Currency = Static<typeof CurrencySchema>;
 
-const StacksAmountSchema = Type.Object({
-  currency: StacksCurrencySchema,
+export const AmountSchema = Type.Object({
+  currency: CurrencySchema,
   value: Type.String(),
 });
-export type StacksAmount = Static<typeof StacksAmountSchema>;
+export type Amount = Static<typeof AmountSchema>;
 
 const BaseOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
-  status: StacksStatusSchema,
+  status: StatusSchema,
 });
 
 const BaseAccountOperationSchema = Type.Composite([
   BaseOperationSchema,
   Type.Object({
-    account: OperationAccountSchema,
+    account: AccountIndentifierSchema,
   }),
 ]);
 
 const BaseAmountOperationSchema = Type.Composite([
   BaseAccountOperationSchema,
   Type.Object({
-    amount: StacksAmountSchema,
+    amount: AmountSchema,
   }),
 ]);
 
@@ -51,7 +54,7 @@ const CoinbaseOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksCoinbaseOperation = Static<typeof CoinbaseOperationSchema>;
+export type CoinbaseOperation = Static<typeof CoinbaseOperationSchema>;
 
 const FeeOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
@@ -62,7 +65,7 @@ const FeeOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksFeeOperation = Static<typeof FeeOperationSchema>;
+export type FeeOperation = Static<typeof FeeOperationSchema>;
 
 const TokenTransferOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
@@ -71,9 +74,7 @@ const TokenTransferOperationSchema = Type.Composite([
     metadata: Type.Optional(Type.Object({ memo: Nullable(Type.String()) })),
   }),
 ]);
-export type StacksTokenTransferOperation = Static<
-  typeof TokenTransferOperationSchema
->;
+export type TokenTransferOperation = Static<typeof TokenTransferOperationSchema>;
 
 const TokenMintOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
@@ -81,7 +82,7 @@ const TokenMintOperationSchema = Type.Composite([
     type: Type.Literal('token_mint'),
   }),
 ]);
-export type StacksTokenMintOperation = Static<typeof TokenMintOperationSchema>;
+export type TokenMintOperation = Static<typeof TokenMintOperationSchema>;
 
 const TokenBurnOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
@@ -89,7 +90,7 @@ const TokenBurnOperationSchema = Type.Composite([
     type: Type.Literal('token_burn'),
   }),
 ]);
-export type StacksTokenBurnOperation = Static<typeof TokenBurnOperationSchema>;
+export type TokenBurnOperation = Static<typeof TokenBurnOperationSchema>;
 
 const ContractCallOperationSchema = Type.Composite([
   BaseAccountOperationSchema,
@@ -112,9 +113,7 @@ const ContractCallOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksContractCallOperation = Static<
-  typeof ContractCallOperationSchema
->;
+export type ContractCallOperation = Static<typeof ContractCallOperationSchema>;
 
 const SmartContractOperationSchema = Type.Composite([
   BaseAccountOperationSchema,
@@ -128,9 +127,7 @@ const SmartContractOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksSmartContractOperation = Static<
-  typeof SmartContractOperationSchema
->;
+export type SmartContractOperation = Static<typeof SmartContractOperationSchema>;
 
 const TenureChangeOperationSchema = Type.Composite([
   BaseOperationSchema,
@@ -142,17 +139,12 @@ const TenureChangeOperationSchema = Type.Composite([
       burn_view_consensus_hash: Type.String(),
       previous_tenure_end: Type.String(),
       previous_tenure_blocks: Type.Integer(),
-      cause: Type.Union([
-        Type.Literal('block_found'),
-        Type.Literal('extended'),
-      ]),
+      cause: Type.Union([Type.Literal('block_found'), Type.Literal('extended')]),
       pubkey_hash: Type.String(),
     }),
   }),
 ]);
-export type StacksTenureChangeOperation = Static<
-  typeof TenureChangeOperationSchema
->;
+export type TenureChangeOperation = Static<typeof TenureChangeOperationSchema>;
 
 const PoisonMicroblockOperationSchema = Type.Composite([
   BaseAccountOperationSchema,
@@ -164,9 +156,7 @@ const PoisonMicroblockOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksPoisonMicroblockOperation = Static<
-  typeof PoisonMicroblockOperationSchema
->;
+export type PoisonMicroblockOperation = Static<typeof PoisonMicroblockOperationSchema>;
 
 const StxLockOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
@@ -179,7 +169,7 @@ const StxLockOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksStxLockOperation = Static<typeof StxLockOperationSchema>;
+export type StxLockOperation = Static<typeof StxLockOperationSchema>;
 
 const ContractLogOperationSchema = Type.Composite([
   BaseOperationSchema,
@@ -198,11 +188,9 @@ const ContractLogOperationSchema = Type.Composite([
     }),
   }),
 ]);
-export type StacksContractLogOperation = Static<
-  typeof ContractLogOperationSchema
->;
+export type ContractLogOperation = Static<typeof ContractLogOperationSchema>;
 
-export const StacksOperationSchema = Type.Union([
+export const OperationSchema = Type.Union([
   CoinbaseOperationSchema,
   FeeOperationSchema,
   TokenTransferOperationSchema,
@@ -215,4 +203,4 @@ export const StacksOperationSchema = Type.Union([
   StxLockOperationSchema,
   ContractLogOperationSchema,
 ]);
-export type StacksOperation = Static<typeof StacksOperationSchema>;
+export type Operation = Static<typeof OperationSchema>;

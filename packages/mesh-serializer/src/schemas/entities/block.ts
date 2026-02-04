@@ -1,16 +1,14 @@
 import { Static, Type } from '@sinclair/typebox';
-import { BlockIdentifierSchema } from './common.js';
-import { StacksTransactionSchema } from './transaction.js';
-import { StacksExecutionCostSchema } from './common.js';
-import { Nullable } from './common.js';
+import { BlockIdentifierSchema, Nullable, ExecutionCostSchema } from './common.js';
+import { TransactionSchema } from './transaction.js';
 
-export const StacksBlockMetadataSchema = Type.Object({
+export const BlockMetadataSchema = Type.Object({
   canonical: Type.Boolean(),
   burn_block_identifier: BlockIdentifierSchema,
   burn_block_timestamp: Type.Integer(),
   parent_microblock_identifier: Nullable(BlockIdentifierSchema),
   tenure_height: Type.Integer(),
-  execution_cost: StacksExecutionCostSchema,
+  execution_cost: ExecutionCostSchema,
   tx_total_size: Type.Integer(),
   tx_count: Type.Integer(),
   signatures: Type.Optional(
@@ -37,13 +35,13 @@ export const StacksBlockMetadataSchema = Type.Object({
   //   })
   // ),
 });
-export type StacksBlockMetadata = Static<typeof StacksBlockMetadataSchema>;
+export type BlockMetadata = Static<typeof BlockMetadataSchema>;
 
-export const StacksBlockSchema = Type.Object({
+export const BlockSchema = Type.Object({
   block_identifier: BlockIdentifierSchema,
   parent_block_identifier: BlockIdentifierSchema,
   timestamp: Type.Integer(),
-  transactions: Type.Array(StacksTransactionSchema),
-  metadata: Type.Optional(StacksBlockMetadataSchema),
+  transactions: Type.Array(TransactionSchema),
+  metadata: Type.Optional(BlockMetadataSchema),
 });
-export type StacksBlock = Static<typeof StacksBlockSchema>;
+export type Block = Static<typeof BlockSchema>;

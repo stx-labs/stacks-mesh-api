@@ -6,11 +6,11 @@ export const OperationIdentifierSchema = Type.Object({
 });
 export type OperationIdentifier = Static<typeof OperationIdentifierSchema>;
 
-export const OperationAccountSchema = Type.Object({
+export const AccountIndentifierSchema = Type.Object({
   address: Type.String(),
   sub_account: Type.Optional(Type.String()),
 });
-export type OperationAccount = Static<typeof OperationAccountSchema>;
+export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
 
 export const BlockIdentifierSchema = Type.Object({
   index: Type.Integer(),
@@ -23,14 +23,27 @@ export const TransactionIdentifierSchema = Type.Object({
 });
 export type TransactionIdentifier = Static<typeof TransactionIdentifierSchema>;
 
-export const StacksExecutionCostSchema = Type.Object({
+export const ExecutionCostSchema = Type.Object({
   read_count: Type.Integer(),
   read_length: Type.Integer(),
   runtime: Type.Integer(),
   write_count: Type.Integer(),
   write_length: Type.Integer(),
 });
-export type StacksExecutionCost = Static<typeof StacksExecutionCostSchema>;
+export type ExecutionCost = Static<typeof ExecutionCostSchema>;
+
+export const StatusSchema = Type.Union([
+  Type.Literal('pending'),
+  Type.Literal('success'),
+  Type.Literal('abort_by_response'),
+  Type.Literal('abort_by_post_condition'),
+  Type.Literal('dropped_replace_by_fee'),
+  Type.Literal('dropped_replace_across_fork'),
+  Type.Literal('dropped_too_expensive'),
+  Type.Literal('dropped_problematic'),
+  Type.Literal('dropped_stale_garbage_collect'),
+]);
+export type Status = Static<typeof StatusSchema>;
 
 export const Nullable = <T extends TSchema>(type: T) =>
   Type.Union([type, Type.Null()]);

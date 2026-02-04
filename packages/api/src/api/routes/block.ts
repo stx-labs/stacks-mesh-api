@@ -1,32 +1,27 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../../services/stacks-rpc-client.js';
 import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
-import {
-  convertDecodedBlockToMeshBlock,
-  convertDecodedTxToMeshTransaction,
-  type Block,
-  type Transaction,
-} from '@stacks/mesh-serializer';
-import {
-  BlockRequestSchema,
-  BlockTransactionRequestSchema,
-  BlockResponseSchema,
-  BlockTransactionResponseSchema,
-  MeshErrorSchema,
-  type BlockRequest,
-  type BlockTransactionRequest,
-  type BlockResponse,
-  type BlockTransactionResponse,
-} from '../../api/schemas.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { validateNetwork } from '../../utils/validation.js';
 import { StacksRpcError } from '../../services/stacks-rpc-client.js';
 import type { RouteConfig } from '../index.js';
+import {
+  BlockIdentifier,
+  BlockRequestSchema,
+  BlockResponse,
+  BlockResponseSchema,
+  BlockTransactionRequestSchema,
+  BlockTransactionResponse,
+  BlockTransactionResponseSchema,
+  ErrorResponseSchema,
+  Block,
+  StacksTransaction,
+  TransactionIdentifier,
+} from '@stacks/mesh-serializer';
+import { serializeDecodedNakamotoBlock } from '../../utils/converter.js';
+import { serializeDecodedTransaction } from '../../utils/converter.js';
 
-export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
-  fastify,
-  config
-) => {
+export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
   // POST /block
@@ -37,7 +32,7 @@ export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
         body: BlockRequestSchema,
         response: {
           200: BlockResponseSchema,
-          500: MeshErrorSchema,
+          500: ErrorResponseSchema,
         },
       },
     },
@@ -63,11 +58,11 @@ export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
         return reply.send(response);
       } catch (error) {
         if (error instanceof BlockNotFoundError) {
-          return reply.status(500).send(
-            MeshErrors.blockNotFound(
-              block_identifier.hash ?? String(block_identifier.index)
-            )
-          );
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.blockNotFound(block_identifier.hash ?? String(block_identifier.index))
+            );
         }
         const message = error instanceof Error ? error.message : 'Unknown error';
         fastify.log.error({ error }, 'Failed to fetch block');
@@ -84,7 +79,7 @@ export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
         body: BlockTransactionRequestSchema,
         response: {
           200: BlockTransactionResponseSchema,
-          500: MeshErrorSchema,
+          500: ErrorResponseSchema,
         },
       },
     },
@@ -110,14 +105,12 @@ export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
         return reply.send(response);
       } catch (error) {
         if (error instanceof TransactionNotFoundError) {
-          return reply.status(500).send(
-            MeshErrors.transactionNotFound(transaction_identifier.hash)
-          );
+          return reply
+            .status(500)
+            .send(MeshErrors.transactionNotFound(transaction_identifier.hash));
         }
         if (error instanceof BlockNotFoundError) {
-          return reply.status(500).send(
-            MeshErrors.blockNotFound(block_identifier.hash)
-          );
+          return reply.status(500).send(MeshErrors.blockNotFound(block_identifier.hash));
         }
         const message = error instanceof Error ? error.message : 'Unknown error';
         fastify.log.error({ error }, 'Failed to fetch block transaction');
@@ -143,7 +136,7 @@ class TransactionNotFoundError extends Error {
 
 async function fetchAndParseBlock(
   rpcClient: StacksRpcClient,
-  blockIdentifier: BlockRequest['block_identifier']
+  blockIdentifier: BlockIdentifier
 ): Promise<Block> {
   try {
     let blockBytes: Buffer;
@@ -165,9 +158,12 @@ async function fetchAndParseBlock(
     const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
 
     // Fetch confirmed transaction data for each transaction in the block
-    const confirmedTxDataMap = new Map<string, Awaited<ReturnType<typeof rpcClient.getConfirmedTransaction>>>();
+    const confirmedTxDataMap = new Map<
+      string,
+      Awaited<ReturnType<typeof rpcClient.getConfirmedTransaction>>
+    >();
     await Promise.all(
-      decodedBlock.txs.map(async (tx) => {
+      decodedBlock.txs.map(async tx => {
         try {
           // Remove 0x prefix if present for RPC call
           const txId = tx.tx_id.startsWith('0x') ? tx.tx_id.slice(2) : tx.tx_id;
@@ -188,12 +184,10 @@ async function fetchAndParseBlock(
 
     // Convert to Mesh format using the serializer package
     // Note: confirmedTxDataMap is available here if needed for future enhancements
-    return convertDecodedBlockToMeshBlock(decodedBlock, blockHeight, parentBlockHash);
+    return serializeDecodedNakamotoBlock(decodedBlock);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {
-      throw new BlockNotFoundError(
-        blockIdentifier.hash ?? String(blockIdentifier.index)
-      );
+      throw new BlockNotFoundError(blockIdentifier.hash ?? String(blockIdentifier.index));
     }
     throw error;
   }
@@ -201,9 +195,9 @@ async function fetchAndParseBlock(
 
 async function fetchBlockTransaction(
   rpcClient: StacksRpcClient,
-  blockIdentifier: BlockTransactionRequest['block_identifier'],
-  txIdentifier: BlockTransactionRequest['transaction_identifier']
-): Promise<Transaction> {
+  blockIdentifier: BlockIdentifier,
+  txIdentifier: TransactionIdentifier
+): Promise<StacksTransaction> {
   try {
     let blockBytes: Buffer;
 
@@ -223,15 +217,11 @@ async function fetchBlockTransaction(
 
     // Normalize the transaction hash for comparison
     const targetTxId = txIdentifier.hash.toLowerCase();
-    const targetTxIdWithPrefix = targetTxId.startsWith('0x')
-      ? targetTxId
-      : `0x${targetTxId}`;
-    const targetTxIdWithoutPrefix = targetTxId.startsWith('0x')
-      ? targetTxId.slice(2)
-      : targetTxId;
+    const targetTxIdWithPrefix = targetTxId.startsWith('0x') ? targetTxId : `0x${targetTxId}`;
+    const targetTxIdWithoutPrefix = targetTxId.startsWith('0x') ? targetTxId.slice(2) : targetTxId;
 
     // Find the transaction in the block
-    const decodedTx = decodedBlock.txs.find((tx) => {
+    const decodedTx = decodedBlock.txs.find(tx => {
       const txId = tx.tx_id.toLowerCase();
       return txId === targetTxIdWithPrefix || txId === targetTxIdWithoutPrefix;
     });
@@ -241,7 +231,7 @@ async function fetchBlockTransaction(
     }
 
     // Convert to Mesh format using the serializer package
-    return convertDecodedTxToMeshTransaction(decodedTx);
+    return serializeDecodedTransaction(decodedTx, 0);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {
       throw new BlockNotFoundError(blockIdentifier.hash ?? String(blockIdentifier.index));

@@ -13,9 +13,9 @@ import {
   PostConditionAuthFlag,
   ClarityVersion,
 } from '@hirosystems/stacks-encoding-native-js';
-import { StacksBlock } from './schemas/block.js';
-import { StacksTransaction } from './schemas/transaction.js';
-import { StacksOperation } from './schemas/operations.js';
+import { Block } from '@stacks/mesh-serializer';
+import { StacksTransaction } from '@stacks/mesh-serializer';
+import { Operation } from '@stacks/mesh-serializer';
 
 export type StacksSerializationOptions = {
   decodeClarityValues: boolean;
@@ -33,9 +33,9 @@ export type StacksSerializationOptions = {
 export function serializeDecodedNakamotoBlock(
   decodedBlock: DecodedNakamotoBlockResult,
   options?: StacksSerializationOptions
-): StacksBlock {
+): Block {
   const blockHeight = Number(decodedBlock.header.chain_length);
-  const block: StacksBlock = {
+  const block: Block = {
     block_identifier: {
       index: blockHeight,
       hash: `0x${decodedBlock.block_id}`,
@@ -300,7 +300,7 @@ function makeStxCurrency() {
   };
 }
 
-function makeFeeOperation(tx: StacksDbTransaction, index: number = 0): StacksOperation {
+function makeFeeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
   return {
     operation_identifier: { index },
     type: 'fee',
@@ -326,8 +326,8 @@ function makeStxTransferOperations(
   amount: string,
   memo: string | null,
   options: StacksSerializationOptions
-): StacksOperation[] {
-  const send: StacksOperation = {
+): Operation[] {
+  const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
     status: serializeTxStatus(tx.status),
@@ -339,7 +339,7 @@ function makeStxTransferOperations(
       currency: makeStxCurrency(),
     },
   };
-  const receive: StacksOperation = {
+  const receive: Operation = {
     operation_identifier: { index: index + 1 },
     type: 'token_transfer',
     status: serializeTxStatus(tx.status),
@@ -366,11 +366,11 @@ function makeContractCallOperation(
   tx: DecodedTxResult,
   index: number,
   options?: StacksSerializationOptions
-): StacksOperation {
+): Operation {
   const payload = tx.payload as TxPayloadContractCall;
   const contractId = `${payload.address}.${payload.contract_name}`;
   const functionName = payload.function_name;
-  const operation: StacksOperation = {
+  const operation: Operation = {
     operation_identifier: { index },
     type: 'contract_call',
     status: 'success', // TODO: Implement status
@@ -426,7 +426,7 @@ function makeSmartContractOperation(
   tx: DecodedTxResult,
   index: number,
   options?: StacksSerializationOptions
-): StacksOperation {
+): Operation {
   const address = tx.auth.origin_condition.signer.address;
   const payload = tx.payload as TxPayloadSmartContract | TxPayloadVersionedSmartContract;
   return {
@@ -446,7 +446,7 @@ function makeSmartContractOperation(
   };
 }
 
-function makeCoinbaseOperation(tx: StacksDbTransaction, index: number = 0): StacksOperation {
+function makeCoinbaseOperation(tx: StacksDbTransaction, index: number = 0): Operation {
   return {
     operation_identifier: { index },
     type: 'coinbase',
@@ -461,7 +461,7 @@ function makeCoinbaseOperation(tx: StacksDbTransaction, index: number = 0): Stac
   };
 }
 
-function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): StacksOperation {
+function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
   return {
     operation_identifier: { index },
     type: 'tenure_change',
@@ -481,7 +481,7 @@ function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): 
 function makePoisonMicroblockOperation(
   tx: StacksDbTransaction,
   index: number = 0
-): StacksOperation {
+): Operation {
   return {
     operation_identifier: { index },
     type: 'poison_microblock',
@@ -763,8 +763,8 @@ function makePoisonMicroblockOperation(
 function serializeStacksTransactionOperations(
   tx: DecodedTxResult,
   options?: StacksSerializationOptions
-): StacksOperation[] {
-  const ops: StacksOperation[] = [];
+): Operation[] {
+  const ops: Operation[] = [];
 
   // Add operations from transaction data.
   switch (tx.payload.type_id) {

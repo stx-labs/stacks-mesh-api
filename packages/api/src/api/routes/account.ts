@@ -1,22 +1,15 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import {
-  AccountBalanceRequestSchema,
-  AccountCoinsRequestSchema,
-  AccountBalanceResponseSchema,
-  AccountCoinsResponseSchema,
-  MeshErrorSchema,
-  type AccountBalanceResponse,
-  type AccountCoinsResponse,
-} from '../../api/schemas.js';
-import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { validateNetwork } from '../../utils/validation.js';
 import type { RouteConfig } from '../index.js';
+import {
+  AccountBalanceRequestSchema,
+  AccountBalanceResponse,
+  AccountBalanceResponseSchema,
+  ErrorResponseSchema,
+} from '@stacks/mesh-serializer';
 
-export const accountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
-  fastify,
-  config
-) => {
+export const accountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
   // POST /account/balance
@@ -27,7 +20,7 @@ export const accountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
         body: AccountBalanceRequestSchema,
         response: {
           200: AccountBalanceResponseSchema,
-          500: MeshErrorSchema,
+          500: ErrorResponseSchema,
         },
       },
     },
