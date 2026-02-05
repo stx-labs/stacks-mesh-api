@@ -1,33 +1,27 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { RouteConfig } from '../index.js';
+import { MetadataRequestSchema, NetworkListResponse, NetworkListResponseSchema } from '@stacks/mesh-serializer';
 
-export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
-  fastify,
-  config
-) => {
+export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
-  // const supportedNetworkIdentifier =
-  //   network === 'mainnet' ? MAINNET_IDENTIFIER : TESTNET_IDENTIFIER;
-
-  // // POST /network/list
-  // fastify.post(
-  //   '/network/list',
-  //   {
-  //     schema: {
-  //       body: MetadataRequestSchema,
-  //       response: {
-  //         200: NetworkListResponseSchema,
-  //       },
-  //     },
-  //   },
-  //   async (_request, reply) => {
-  //     const response: NetworkListResponse = {
-  //       network_identifiers: [supportedNetworkIdentifier],
-  //     };
-  //     return reply.send(response);
-  //   }
-  // );
+  fastify.post(
+    '/network/list',
+    {
+      schema: {
+        body: MetadataRequestSchema,
+        response: {
+          200: NetworkListResponseSchema,
+        },
+      },
+    },
+    async (_request, reply) => {
+      const response: NetworkListResponse = {
+        network_identifiers: [{ blockchain: 'stacks', network }],
+      };
+      return reply.send(response);
+    }
+  );
 
   // // POST /network/status
   // fastify.post(
