@@ -1,6 +1,17 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { RouteConfig } from '../index.js';
-import { MetadataRequestSchema, NetworkListResponse, NetworkListResponseSchema } from '@stacks/mesh-serializer';
+import {
+  ErrorResponseSchema,
+  MetadataRequestSchema,
+  NetworkListResponse,
+  NetworkListResponseSchema,
+  NetworkStatusRequestSchema,
+  NetworkStatusResponse,
+  NetworkStatusResponseSchema,
+  Peer,
+} from '@stacks/mesh-serializer';
+import { MeshErrors } from '../../utils/errors.js';
+import { validateNetwork } from '../../utils/constants.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
@@ -23,60 +34,65 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fast
     }
   );
 
-  // // POST /network/status
-  // fastify.post(
-  //   '/network/status',
-  //   {
-  //     schema: {
-  //       body: NetworkRequestSchema,
-  //       response: {
-  //         200: NetworkStatusResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const networkError = validateNetwork(request.body.network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+  fastify.post(
+    '/network/status',
+    {
+      schema: {
+        body: NetworkStatusRequestSchema,
+        response: {
+          200: NetworkStatusResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const networkError = validateNetwork(request.body.network_identifier, network);
+      if (networkError) {
+        return reply.status(500).send(networkError);
+      }
 
-  //     try {
-  //       const [nodeInfo, neighbors] = await Promise.all([
-  //         rpcClient.getInfo(),
-  //         rpcClient.getNeighbors(),
-  //       ]);
+      try {
+        const [nodeInfo, neighbors] = await Promise.all([
+          rpcClient.getInfo(),
+          rpcClient.getNeighbors(),
+        ]);
 
-  //       const response: NetworkStatusResponse = {
-  //         current_block_identifier: {
-  //           index: nodeInfo.stacks_tip_height,
-  //           hash: nodeInfo.stacks_tip,
-  //         },
-  //         current_block_timestamp: Date.now(),
-  //         genesis_block_identifier: {
-  //           index: 0,
-  //           hash: nodeInfo.genesis_chainstate_hash,
-  //         },
-  //         sync_status: {
-  //           current_index: nodeInfo.stacks_tip_height,
-  //           synced: true,
-  //         },
-  //         peers: neighbors.outbound.map((peer) => ({
-  //           peer_id: peer.public_key_hash,
-  //           metadata: {
-  //             ip: peer.ip,
-  //             port: peer.port,
-  //           },
-  //         })),
-  //       };
+        const response: NetworkStatusResponse = {
+          current_block_identifier: {
+            index: nodeInfo.stacks_tip_height,
+            hash: nodeInfo.stacks_tip,
+          },
+          current_block_timestamp: Date.now(), // TODO: use the actual block timestamp
+          genesis_block_identifier: {
+            index: 0,
+            hash: nodeInfo.genesis_chainstate_hash, // TODO: use the actual genesis block hash
+          },
+          sync_status: {
+            current_index: nodeInfo.stacks_tip_height,
+            synced: nodeInfo.is_fully_synced,
+          },
+          peers: [
+            ...neighbors.bootstrap,
+            ...neighbors.sample,
+            ...neighbors.inbound,
+            ...neighbors.outbound,
+          ].map((peer): Peer => ({
+            peer_id: peer.public_key_hash,
+            // TODO: add more metadata
+            metadata: {
+              ip: peer.ip,
+              port: peer.port,
+            },
+          })),
+        };
 
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.rpcError(message));
-  //     }
-  //   }
-  // );
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.rpcError(message));
+      }
+    }
+  );
 
   // // POST /network/options
   // fastify.post(

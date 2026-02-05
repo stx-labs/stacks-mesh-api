@@ -13,22 +13,18 @@ export interface StacksNodeInfo {
   stacks_tip: string;
   stacks_tip_consensus_hash: string;
   genesis_chainstate_hash: string;
-  unanchored_tip?: string;
-  unanchored_seq?: number;
-  exit_at_block_height?: number;
-  node_public_key?: string;
-  node_public_key_hash?: string;
-  affirmations?: {
-    heaviest: string;
-    stacks_tip: string;
-    sortition_tip: string;
-    tentative_best: string;
-  };
-  last_pox_anchor?: {
+  unanchored_tip: string | null;
+  unanchored_seq: number | null;
+  tenure_height: number;
+  exit_at_block_height: number | null;
+  is_fully_synced: boolean;
+  node_public_key: string;
+  node_public_key_hash: string;
+  last_pox_anchor: {
     anchor_block_hash: string;
     anchor_block_txid: string;
   };
-  stackerdbs?: string[];
+  stackerdbs: string[];
 }
 
 export interface StacksPoxInfo {
@@ -268,18 +264,21 @@ export interface StacksEvent {
 }
 
 export interface StacksNeighbors {
+  bootstrap: StacksPeer[];
   sample: StacksPeer[];
   inbound: StacksPeer[];
   outbound: StacksPeer[];
 }
 
 export interface StacksPeer {
-  peer_version: number;
   network_id: number;
-  public_key_hash: string;
+  peer_version: number;
   ip: string;
   port: number;
-  stackerdbs?: string[];
+  public_key_hash: string;
+  authenticated: boolean;
+  stackerdbs: string[];
+  age: number;
 }
 
 export interface StacksFeeEstimate {

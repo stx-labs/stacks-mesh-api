@@ -69,7 +69,10 @@ export type Allow = Static<typeof AllowSchema>;
 
 export const PeerSchema = Type.Object({
   peer_id: Type.String(),
-  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  metadata: Type.Object({
+    ip: Type.String(),
+    port: Type.Number(),
+  }),
 });
 export type Peer = Static<typeof PeerSchema>;
 

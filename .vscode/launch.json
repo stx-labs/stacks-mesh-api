@@ -14,6 +14,7 @@
       "env": {
         "NODE_ENV": "development"
       },
+      "preLaunchTask": "build",
       "skipFiles": ["<node_internals>/**"],
       "killBehavior": "polite",
     }
