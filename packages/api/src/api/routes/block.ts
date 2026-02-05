@@ -2,7 +2,6 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../../services/stacks-rpc-client.js';
 import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
 import { MeshErrors } from '../../utils/errors.js';
-import { validateNetwork } from '../../utils/validation.js';
 import { StacksRpcError } from '../../services/stacks-rpc-client.js';
 import type { RouteConfig } from '../index.js';
 import {
@@ -25,99 +24,99 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastif
   const { rpcClient, network } = config;
 
   // POST /block
-  fastify.post(
-    '/block',
-    {
-      schema: {
-        body: BlockRequestSchema,
-        response: {
-          200: BlockResponseSchema,
-          500: ErrorResponseSchema,
-        },
-      },
-    },
-    async (request, reply) => {
-      const { network_identifier, block_identifier } = request.body;
+  // fastify.post(
+  //   '/block',
+  //   {
+  //     schema: {
+  //       body: BlockRequestSchema,
+  //       response: {
+  //         200: BlockResponseSchema,
+  //         500: ErrorResponseSchema,
+  //       },
+  //     },
+  //   },
+  //   async (request, reply) => {
+  //     const { network_identifier, block_identifier } = request.body;
 
-      const networkError = validateNetwork(network_identifier, network);
-      if (networkError) {
-        return reply.status(500).send(networkError);
-      }
+  //     const networkError = validateNetwork(network_identifier, network);
+  //     if (networkError) {
+  //       return reply.status(500).send(networkError);
+  //     }
 
-      if (!block_identifier.hash && block_identifier.index === undefined) {
-        return reply.status(500).send(MeshErrors.blockIdentifierRequired());
-      }
+  //     if (!block_identifier.hash && block_identifier.index === undefined) {
+  //       return reply.status(500).send(MeshErrors.blockIdentifierRequired());
+  //     }
 
-      try {
-        const block = await fetchAndParseBlock(rpcClient, block_identifier);
+  //     try {
+  //       const block = await fetchAndParseBlock(rpcClient, block_identifier);
 
-        const response: BlockResponse = {
-          block,
-        };
+  //       const response: BlockResponse = {
+  //         block,
+  //       };
 
-        return reply.send(response);
-      } catch (error) {
-        if (error instanceof BlockNotFoundError) {
-          return reply
-            .status(500)
-            .send(
-              MeshErrors.blockNotFound(block_identifier.hash ?? String(block_identifier.index))
-            );
-        }
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error({ error }, 'Failed to fetch block');
-        return reply.status(500).send(MeshErrors.rpcError(message));
-      }
-    }
-  );
+  //       return reply.send(response);
+  //     } catch (error) {
+  //       if (error instanceof BlockNotFoundError) {
+  //         return reply
+  //           .status(500)
+  //           .send(
+  //             MeshErrors.blockNotFound(block_identifier.hash ?? String(block_identifier.index))
+  //           );
+  //       }
+  //       const message = error instanceof Error ? error.message : 'Unknown error';
+  //       fastify.log.error({ error }, 'Failed to fetch block');
+  //       return reply.status(500).send(MeshErrors.rpcError(message));
+  //     }
+  //   }
+  // );
 
-  // POST /block/transaction
-  fastify.post(
-    '/block/transaction',
-    {
-      schema: {
-        body: BlockTransactionRequestSchema,
-        response: {
-          200: BlockTransactionResponseSchema,
-          500: ErrorResponseSchema,
-        },
-      },
-    },
-    async (request, reply) => {
-      const { network_identifier, block_identifier, transaction_identifier } = request.body;
+  // // POST /block/transaction
+  // fastify.post(
+  //   '/block/transaction',
+  //   {
+  //     schema: {
+  //       body: BlockTransactionRequestSchema,
+  //       response: {
+  //         200: BlockTransactionResponseSchema,
+  //         500: ErrorResponseSchema,
+  //       },
+  //     },
+  //   },
+  //   async (request, reply) => {
+  //     const { network_identifier, block_identifier, transaction_identifier } = request.body;
 
-      const networkError = validateNetwork(network_identifier, network);
-      if (networkError) {
-        return reply.status(500).send(networkError);
-      }
+  //     const networkError = validateNetwork(network_identifier, network);
+  //     if (networkError) {
+  //       return reply.status(500).send(networkError);
+  //     }
 
-      try {
-        const transaction = await fetchBlockTransaction(
-          rpcClient,
-          block_identifier,
-          transaction_identifier
-        );
+  //     try {
+  //       const transaction = await fetchBlockTransaction(
+  //         rpcClient,
+  //         block_identifier,
+  //         transaction_identifier
+  //       );
 
-        const response: BlockTransactionResponse = {
-          transaction,
-        };
+  //       const response: BlockTransactionResponse = {
+  //         transaction,
+  //       };
 
-        return reply.send(response);
-      } catch (error) {
-        if (error instanceof TransactionNotFoundError) {
-          return reply
-            .status(500)
-            .send(MeshErrors.transactionNotFound(transaction_identifier.hash));
-        }
-        if (error instanceof BlockNotFoundError) {
-          return reply.status(500).send(MeshErrors.blockNotFound(block_identifier.hash));
-        }
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        fastify.log.error({ error }, 'Failed to fetch block transaction');
-        return reply.status(500).send(MeshErrors.rpcError(message));
-      }
-    }
-  );
+  //       return reply.send(response);
+  //     } catch (error) {
+  //       if (error instanceof TransactionNotFoundError) {
+  //         return reply
+  //           .status(500)
+  //           .send(MeshErrors.transactionNotFound(transaction_identifier.hash));
+  //       }
+  //       if (error instanceof BlockNotFoundError) {
+  //         return reply.status(500).send(MeshErrors.blockNotFound(block_identifier.hash));
+  //       }
+  //       const message = error instanceof Error ? error.message : 'Unknown error';
+  //       fastify.log.error({ error }, 'Failed to fetch block transaction');
+  //       return reply.status(500).send(MeshErrors.rpcError(message));
+  //     }
+  //   }
+  // );
 };
 
 class BlockNotFoundError extends Error {

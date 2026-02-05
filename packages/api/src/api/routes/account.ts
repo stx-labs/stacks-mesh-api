@@ -1,6 +1,4 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { MeshErrors } from '../../utils/errors.js';
-import { validateNetwork } from '../../utils/validation.js';
 import type { RouteConfig } from '../index.js';
 import {
   AccountBalanceRequestSchema,

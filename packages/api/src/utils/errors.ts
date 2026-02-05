@@ -1,4 +1,4 @@
-import type { MeshError } from '../api/schemas.js';
+import { ErrorResponse } from '@stacks/mesh-serializer';
 
 // Mesh API standard error codes
 export const ErrorCodes = {
@@ -46,7 +46,7 @@ export function createMeshError(
   retriable: boolean,
   description?: string,
   details?: Record<string, unknown>
-): MeshError {
+): ErrorResponse {
   return {
     code,
     message,
@@ -58,7 +58,7 @@ export function createMeshError(
 
 // Pre-defined errors for common scenarios
 export const MeshErrors = {
-  networkNotSupported: (network: string): MeshError =>
+  networkNotSupported: (network: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.NETWORK_NOT_SUPPORTED,
       'Network not supported',
@@ -66,7 +66,7 @@ export const MeshErrors = {
       `The network "${network}" is not supported by this implementation`
     ),
 
-  blockNotFound: (identifier: string): MeshError =>
+  blockNotFound: (identifier: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.BLOCK_NOT_FOUND,
       'Block not found',
@@ -74,7 +74,7 @@ export const MeshErrors = {
       `Could not find block with identifier: ${identifier}`
     ),
 
-  blockIdentifierRequired: (): MeshError =>
+  blockIdentifierRequired: (): ErrorResponse =>
     createMeshError(
       ErrorCodes.BLOCK_IDENTIFIER_REQUIRED,
       'Block identifier required',
@@ -82,15 +82,10 @@ export const MeshErrors = {
       'Either block index or block hash must be provided'
     ),
 
-  invalidBlockIdentifier: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INVALID_BLOCK_IDENTIFIER,
-      'Invalid block identifier',
-      false,
-      reason
-    ),
+  invalidBlockIdentifier: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_BLOCK_IDENTIFIER, 'Invalid block identifier', false, reason),
 
-  transactionNotFound: (txHash: string): MeshError =>
+  transactionNotFound: (txHash: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.TRANSACTION_NOT_FOUND,
       'Transaction not found',
@@ -98,15 +93,10 @@ export const MeshErrors = {
       `Could not find transaction with hash: ${txHash}`
     ),
 
-  invalidTransaction: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INVALID_TRANSACTION,
-      'Invalid transaction',
-      false,
-      reason
-    ),
+  invalidTransaction: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_TRANSACTION, 'Invalid transaction', false, reason),
 
-  transactionBroadcastError: (reason: string): MeshError =>
+  transactionBroadcastError: (reason: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.TRANSACTION_BROADCAST_ERROR,
       'Transaction broadcast failed',
@@ -114,7 +104,7 @@ export const MeshErrors = {
       reason
     ),
 
-  accountNotFound: (address: string): MeshError =>
+  accountNotFound: (address: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.ACCOUNT_NOT_FOUND,
       'Account not found',
@@ -122,7 +112,7 @@ export const MeshErrors = {
       `Could not find account with address: ${address}`
     ),
 
-  invalidAccountIdentifier: (reason: string): MeshError =>
+  invalidAccountIdentifier: (reason: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.INVALID_ACCOUNT_IDENTIFIER,
       'Invalid account identifier',
@@ -130,23 +120,13 @@ export const MeshErrors = {
       reason
     ),
 
-  invalidPublicKey: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INVALID_PUBLIC_KEY,
-      'Invalid public key',
-      false,
-      reason
-    ),
+  invalidPublicKey: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_PUBLIC_KEY, 'Invalid public key', false, reason),
 
-  invalidSignature: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INVALID_SIGNATURE,
-      'Invalid signature',
-      false,
-      reason
-    ),
+  invalidSignature: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_SIGNATURE, 'Invalid signature', false, reason),
 
-  mempoolTransactionNotFound: (txHash: string): MeshError =>
+  mempoolTransactionNotFound: (txHash: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.MEMPOOL_TRANSACTION_NOT_FOUND,
       'Mempool transaction not found',
@@ -154,15 +134,10 @@ export const MeshErrors = {
       `Could not find mempool transaction with hash: ${txHash}`
     ),
 
-  internalError: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INTERNAL_ERROR,
-      'Internal error',
-      true,
-      reason
-    ),
+  internalError: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INTERNAL_ERROR, 'Internal error', true, reason),
 
-  notImplemented: (feature: string): MeshError =>
+  notImplemented: (feature: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.NOT_IMPLEMENTED,
       'Not implemented',
@@ -170,26 +145,15 @@ export const MeshErrors = {
       `The feature "${feature}" is not implemented`
     ),
 
-  invalidRequest: (reason: string): MeshError =>
-    createMeshError(
-      ErrorCodes.INVALID_REQUEST,
-      'Invalid request',
-      false,
-      reason
-    ),
+  invalidRequest: (reason: string): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_REQUEST, 'Invalid request', false, reason),
 
-  rpcError: (reason: string, details?: Record<string, unknown>): MeshError =>
-    createMeshError(
-      ErrorCodes.RPC_ERROR,
-      'RPC error',
-      true,
-      reason,
-      details
-    ),
+  rpcError: (reason: string, details?: Record<string, unknown>): ErrorResponse =>
+    createMeshError(ErrorCodes.RPC_ERROR, 'RPC error', true, reason, details),
 };
 
 // Get all defined errors for NetworkOptionsResponse
-export function getAllErrors(): MeshError[] {
+export function getAllErrors(): ErrorResponse[] {
   return [
     createMeshError(ErrorCodes.NETWORK_NOT_SUPPORTED, 'Network not supported', false),
     createMeshError(ErrorCodes.NETWORK_OPTIONS_ERROR, 'Network options error', true),
@@ -209,7 +173,11 @@ export function getAllErrors(): MeshError[] {
     createMeshError(ErrorCodes.CONSTRUCTION_METADATA_ERROR, 'Construction metadata error', true),
     createMeshError(ErrorCodes.CONSTRUCTION_PAYLOADS_ERROR, 'Construction payloads error', false),
     createMeshError(ErrorCodes.CONSTRUCTION_COMBINE_ERROR, 'Construction combine error', false),
-    createMeshError(ErrorCodes.MEMPOOL_TRANSACTION_NOT_FOUND, 'Mempool transaction not found', true),
+    createMeshError(
+      ErrorCodes.MEMPOOL_TRANSACTION_NOT_FOUND,
+      'Mempool transaction not found',
+      true
+    ),
     createMeshError(ErrorCodes.INTERNAL_ERROR, 'Internal error', true),
     createMeshError(ErrorCodes.NOT_IMPLEMENTED, 'Not implemented', false),
     createMeshError(ErrorCodes.INVALID_REQUEST, 'Invalid request', false),
