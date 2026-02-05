@@ -348,3 +348,33 @@ export interface StacksConfirmedTransaction {
   block_height?: number | null;
   is_canonical?: boolean;
 }
+
+export interface StacksBlockReplayTransaction {
+  data: unknown;
+  events: unknown[];
+  execution_cost: unknown;
+  hex: string;
+  result: unknown;
+  result_hex: string;
+  post_condition_aborted: boolean;
+  stx_burned: number;
+  tx_index: number;
+  txid: string;
+  vm_error: string | null;
+}
+
+export interface StacksBlockReplay {
+  block_hash: string;
+  block_id: string;
+  block_height: number;
+  consensus_hash: string;
+  fees: number;
+  miner_signature: string;
+  parent_block_id: string;
+  signer_signature: string[];
+  state_index_root: string;
+  timestamp: number;
+  tx_merkle_root: string;
+  valid_merkle_root: boolean;
+  transactions: StacksBlockReplayTransaction[];
+}

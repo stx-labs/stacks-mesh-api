@@ -1,15 +1,8 @@
-import Fastify, { FastifyError } from 'fastify';
+import Fastify from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { StacksRpcClient } from '../services/stacks-rpc-client.js';
 import { PINO_LOGGER_CONFIG } from '@hirosystems/api-toolkit';
-import {
-  accountRoutes,
-  blockRoutes,
-  constructionRoutes,
-  mempoolRoutes,
-  callRoutes,
-  networkRoutes,
-} from './routes/index.js';
+import { MeshApiRoutes } from './routes/index.js';
 import cors from '@fastify/cors';
 
 export type RouteConfig = {
@@ -23,37 +16,11 @@ export async function buildApiServer(config: RouteConfig) {
     logger: PINO_LOGGER_CONFIG,
   }).withTypeProvider<TypeBoxTypeProvider>();
 
-  fastify.setErrorHandler((error: FastifyError, _request, reply) => {
-    if (error.validation) {
-      return reply.status(500).send({
-        code: 902,
-        message: 'Invalid request',
-        retriable: false,
-        description: error.message,
-        details: {
-          validation: error.validation,
-        },
-      });
-    }
-
-    return reply.status(500).send({
-      code: 900,
-      message: 'Internal error',
-      retriable: true,
-      description: error.message,
-    });
-  });
-
   await fastify.register(cors, {
     origin: true,
     methods: ['GET', 'POST', 'OPTIONS'],
   });
-  await fastify.register(networkRoutes, config);
-  await fastify.register(blockRoutes, config);
-  await fastify.register(accountRoutes, config);
-  await fastify.register(mempoolRoutes, config);
-  await fastify.register(constructionRoutes, config);
-  await fastify.register(callRoutes, config);
+  await fastify.register(MeshApiRoutes, config);
 
   return fastify;
 }

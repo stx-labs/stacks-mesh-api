@@ -1,3 +1,4 @@
+import { hexToBuffer } from '@hirosystems/api-toolkit';
 import {
   DecodedNakamotoBlockResult,
   DecodedTxResult,
@@ -13,8 +14,7 @@ import {
   PostConditionAuthFlag,
   ClarityVersion,
 } from '@hirosystems/stacks-encoding-native-js';
-import { Block } from '@stacks/mesh-serializer';
-import { StacksTransaction } from '@stacks/mesh-serializer';
+import { Block, Transaction } from '@stacks/mesh-serializer';
 import { Operation } from '@stacks/mesh-serializer';
 
 export type StacksSerializationOptions = {
@@ -87,7 +87,7 @@ export function serializeDecodedTransaction(
   tx: DecodedTxResult,
   index: number,
   options?: StacksSerializationOptions
-): StacksTransaction {
+): Transaction {
   const sender_address = tx.auth.origin_condition.signer.address;
   const sponsor_address =
     tx.auth.type_id === PostConditionAuthFlag.Sponsored
@@ -123,7 +123,7 @@ export function serializeDecodedTransaction(
       sender_address,
       sponsor_address,
       vm_error: null, // TODO: Implement vm error
-      post_conditions: serializePostConditions(tx, options),
+      post_conditions: undefined, // TODO: Implement post conditions
     },
   };
 }
@@ -138,97 +138,97 @@ export function serializeDecodedTransaction(
 //   return raw_result;
 // }
 
-function serializePostConditions(tx: StacksDbTransaction, options: StacksSerializationOptions) {
-  if (!options.includePostConditions) {
-    return undefined;
-  }
-  const serializePostConditionPrincipal = (
-    principal: PostConditionPrincipal
-  ): StacksPostConditionPrincipal => {
-    if (principal.type_id === PostConditionPrincipalTypeID.Standard) {
-      return {
-        type_id: 'principal_standard',
-        address: principal.address,
-      };
-    }
-    if (principal.type_id === PostConditionPrincipalTypeID.Contract) {
-      return {
-        type_id: 'principal_contract',
-        contract_name: principal.contract_name,
-        address: principal.address,
-      };
-    }
-    return {
-      type_id: 'principal_origin',
-    };
-  };
-  const serializePostCondition = (pc: TxPostCondition): StacksPostCondition => {
-    switch (pc.asset_info_id) {
-      case PostConditionAssetInfoID.STX:
-        return {
-          type: 'stx',
-          condition_code: pc.condition_name,
-          amount: pc.amount,
-          principal: serializePostConditionPrincipal(pc.principal),
-        };
-      case PostConditionAssetInfoID.FungibleAsset:
-        return {
-          type: 'fungible',
-          condition_code: pc.condition_name,
-          amount: pc.amount,
-          principal: serializePostConditionPrincipal(pc.principal),
-          asset: {
-            contract_name: pc.asset.contract_name,
-            asset_name: pc.asset.asset_name,
-            contract_address: pc.asset.contract_address,
-          },
-        };
-      case PostConditionAssetInfoID.NonfungibleAsset:
-        return {
-          type: 'non_fungible',
-          condition_code: pc.condition_name,
-          principal: serializePostConditionPrincipal(pc.principal),
-          asset: {
-            contract_name: pc.asset.contract_name,
-            asset_name: pc.asset.asset_name,
-            contract_address: pc.asset.contract_address,
-          },
-          asset_value: {
-            hex: pc.asset_value.hex,
-            repr: pc.asset_value.repr,
-          },
-        };
-    }
-  };
-  const serializePostConditionMode = (byte: number): StacksPostConditionMode => {
-    switch (byte) {
-      case 1:
-        return 'allow';
-      case 2:
-        return 'deny';
-    }
-    throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
-  };
-  const decodedPostConditions = decodePostConditions(tx.post_conditions);
-  const normalizedPostConditions = decodedPostConditions.post_conditions.map(pc =>
-    serializePostCondition(pc)
-  );
-  return {
-    mode: serializePostConditionMode(decodedPostConditions.post_condition_mode),
-    post_conditions: normalizedPostConditions,
-  };
-}
+// function serializePostConditions(tx: StacksDbTransaction, options: StacksSerializationOptions) {
+//   if (!options.includePostConditions) {
+//     return undefined;
+//   }
+//   const serializePostConditionPrincipal = (
+//     principal: PostConditionPrincipal
+//   ): StacksPostConditionPrincipal => {
+//     if (principal.type_id === PostConditionPrincipalTypeID.Standard) {
+//       return {
+//         type_id: 'principal_standard',
+//         address: principal.address,
+//       };
+//     }
+//     if (principal.type_id === PostConditionPrincipalTypeID.Contract) {
+//       return {
+//         type_id: 'principal_contract',
+//         contract_name: principal.contract_name,
+//         address: principal.address,
+//       };
+//     }
+//     return {
+//       type_id: 'principal_origin',
+//     };
+//   };
+//   const serializePostCondition = (pc: TxPostCondition): StacksPostCondition => {
+//     switch (pc.asset_info_id) {
+//       case PostConditionAssetInfoID.STX:
+//         return {
+//           type: 'stx',
+//           condition_code: pc.condition_name,
+//           amount: pc.amount,
+//           principal: serializePostConditionPrincipal(pc.principal),
+//         };
+//       case PostConditionAssetInfoID.FungibleAsset:
+//         return {
+//           type: 'fungible',
+//           condition_code: pc.condition_name,
+//           amount: pc.amount,
+//           principal: serializePostConditionPrincipal(pc.principal),
+//           asset: {
+//             contract_name: pc.asset.contract_name,
+//             asset_name: pc.asset.asset_name,
+//             contract_address: pc.asset.contract_address,
+//           },
+//         };
+//       case PostConditionAssetInfoID.NonfungibleAsset:
+//         return {
+//           type: 'non_fungible',
+//           condition_code: pc.condition_name,
+//           principal: serializePostConditionPrincipal(pc.principal),
+//           asset: {
+//             contract_name: pc.asset.contract_name,
+//             asset_name: pc.asset.asset_name,
+//             contract_address: pc.asset.contract_address,
+//           },
+//           asset_value: {
+//             hex: pc.asset_value.hex,
+//             repr: pc.asset_value.repr,
+//           },
+//         };
+//     }
+//   };
+//   const serializePostConditionMode = (byte: number): StacksPostConditionMode => {
+//     switch (byte) {
+//       case 1:
+//         return 'allow';
+//       case 2:
+//         return 'deny';
+//     }
+//     throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
+//   };
+//   const decodedPostConditions = decodePostConditions(tx.post_conditions);
+//   const normalizedPostConditions = decodedPostConditions.post_conditions.map(pc =>
+//     serializePostCondition(pc)
+//   );
+//   return {
+//     mode: serializePostConditionMode(decodedPostConditions.post_condition_mode),
+//     post_conditions: normalizedPostConditions,
+//   };
+// }
 
-function serializeTenureChangeCause(cause: number) {
-  switch (cause) {
-    case 0:
-      return 'block_found';
-    case 1:
-      return 'extended';
-    default:
-      throw new Error(`Unexpected tenure change cause value ${cause}`);
-  }
-}
+// function serializeTenureChangeCause(cause: number) {
+//   switch (cause) {
+//     case 0:
+//       return 'block_found';
+//     case 1:
+//       return 'extended';
+//     default:
+//       throw new Error(`Unexpected tenure change cause value ${cause}`);
+//   }
+// }
 
 // function serializeTxStatus(txStatus: StacksDbTxStatus) {
 //   switch (txStatus) {
@@ -300,201 +300,201 @@ function makeStxCurrency() {
   };
 }
 
-function makeFeeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
-  return {
-    operation_identifier: { index },
-    type: 'fee',
-    status: serializeTxStatus(tx.status),
-    account: {
-      address: tx.sponsor_address ?? tx.sender_address,
-    },
-    amount: {
-      currency: makeStxCurrency(),
-      value: (0n - BigInt(tx.fee_rate)).toString(),
-    },
-    metadata: {
-      sponsored: !!tx.sponsor_address,
-    },
-  };
-}
+// function makeFeeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
+//   return {
+//     operation_identifier: { index },
+//     type: 'fee',
+//     status: serializeTxStatus(tx.status),
+//     account: {
+//       address: tx.sponsor_address ?? tx.sender_address,
+//     },
+//     amount: {
+//       currency: makeStxCurrency(),
+//       value: (0n - BigInt(tx.fee_rate)).toString(),
+//     },
+//     metadata: {
+//       sponsored: !!tx.sponsor_address,
+//     },
+//   };
+// }
 
-function makeStxTransferOperations(
-  tx: StacksDbTransaction,
-  index: number,
-  sender: string,
-  receiver: string,
-  amount: string,
-  memo: string | null,
-  options: StacksSerializationOptions
-): Operation[] {
-  const send: Operation = {
-    operation_identifier: { index },
-    type: 'token_transfer',
-    status: serializeTxStatus(tx.status),
-    account: {
-      address: sender,
-    },
-    amount: {
-      value: (0n - BigInt(amount)).toString(),
-      currency: makeStxCurrency(),
-    },
-  };
-  const receive: Operation = {
-    operation_identifier: { index: index + 1 },
-    type: 'token_transfer',
-    status: serializeTxStatus(tx.status),
-    account: {
-      address: receiver,
-    },
-    amount: {
-      value: amount,
-      currency: makeStxCurrency(),
-    },
-  };
-  if (memo) {
-    send.metadata = {
-      memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
-    };
-    receive.metadata = {
-      memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
-    };
-  }
-  return [send, receive];
-}
+// function makeStxTransferOperations(
+//   tx: StacksDbTransaction,
+//   index: number,
+//   sender: string,
+//   receiver: string,
+//   amount: string,
+//   memo: string | null,
+//   options: StacksSerializationOptions
+// ): Operation[] {
+//   const send: Operation = {
+//     operation_identifier: { index },
+//     type: 'token_transfer',
+//     status: serializeTxStatus(tx.status),
+//     account: {
+//       address: sender,
+//     },
+//     amount: {
+//       value: (0n - BigInt(amount)).toString(),
+//       currency: makeStxCurrency(),
+//     },
+//   };
+//   const receive: Operation = {
+//     operation_identifier: { index: index + 1 },
+//     type: 'token_transfer',
+//     status: serializeTxStatus(tx.status),
+//     account: {
+//       address: receiver,
+//     },
+//     amount: {
+//       value: amount,
+//       currency: makeStxCurrency(),
+//     },
+//   };
+//   if (memo) {
+//     send.metadata = {
+//       memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
+//     };
+//     receive.metadata = {
+//       memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
+//     };
+//   }
+//   return [send, receive];
+// }
 
-function makeContractCallOperation(
-  tx: DecodedTxResult,
-  index: number,
-  options?: StacksSerializationOptions
-): Operation {
-  const payload = tx.payload as TxPayloadContractCall;
-  const contractId = `${payload.address}.${payload.contract_name}`;
-  const functionName = payload.function_name;
-  const operation: Operation = {
-    operation_identifier: { index },
-    type: 'contract_call',
-    status: 'success', // TODO: Implement status
-    account: {
-      address: tx.auth.origin_condition.signer.address,
-    },
-    metadata: {
-      args: payload.function_args.map(arg => ({
-        hex: arg.hex,
-        repr: arg.repr,
-        name: 'arg.name', // TODO: Implement name
-        type: 'arg.type_id', // TODO: Implement type
-      })),
-      contract_identifier: contractId,
-      function_name: functionName,
-    },
-  };
+// function makeContractCallOperation(
+//   tx: DecodedTxResult,
+//   index: number,
+//   options?: StacksSerializationOptions
+// ): Operation {
+//   const payload = tx.payload as TxPayloadContractCall;
+//   const contractId = `${payload.address}.${payload.contract_name}`;
+//   const functionName = payload.function_name;
+//   const operation: Operation = {
+//     operation_identifier: { index },
+//     type: 'contract_call',
+//     status: 'success', // TODO: Implement status
+//     account: {
+//       address: tx.auth.origin_condition.signer.address,
+//     },
+//     metadata: {
+//       args: payload.function_args.map(arg => ({
+//         hex: arg.hex,
+//         repr: arg.repr,
+//         name: 'arg.name', // TODO: Implement name
+//         type: 'arg.type_id', // TODO: Implement type
+//       })),
+//       contract_identifier: contractId,
+//       function_name: functionName,
+//     },
+//   };
 
-  if (options.decodeClarityValues) {
-    let functionAbi: ClarityAbiFunction | undefined;
-    if (tx.abi !== null) {
-      const contractAbi: ClarityAbi = typeof tx.abi === 'string' ? JSON.parse(tx.abi) : tx.abi;
-      if (contractAbi) {
-        functionAbi = contractAbi.functions.find(fn => fn.name === functionName);
-        if (!functionAbi) {
-          throw new Error(
-            `Could not find function name "${functionName}" in ABI for ${contractId}`
-          );
-        }
-      }
-    }
-    operation.metadata.args = tx.contract_call_function_args
-      ? decodeClarityValueList(tx.contract_call_function_args).map((c, fnArgIndex) => {
-          const functionArgAbi = functionAbi
-            ? functionAbi.args[fnArgIndex++]
-            : { name: '', type: undefined };
-          return {
-            hex: c.hex,
-            repr: c.repr,
-            name: functionArgAbi.name,
-            type: functionArgAbi.type
-              ? getTypeString(functionArgAbi.type)
-              : decodeClarityValueToTypeName(c.hex),
-          };
-        })
-      : [];
-  }
+//   if (options.decodeClarityValues) {
+//     let functionAbi: ClarityAbiFunction | undefined;
+//     if (tx.abi !== null) {
+//       const contractAbi: ClarityAbi = typeof tx.abi === 'string' ? JSON.parse(tx.abi) : tx.abi;
+//       if (contractAbi) {
+//         functionAbi = contractAbi.functions.find(fn => fn.name === functionName);
+//         if (!functionAbi) {
+//           throw new Error(
+//             `Could not find function name "${functionName}" in ABI for ${contractId}`
+//           );
+//         }
+//       }
+//     }
+//     operation.metadata.args = tx.contract_call_function_args
+//       ? decodeClarityValueList(tx.contract_call_function_args).map((c, fnArgIndex) => {
+//           const functionArgAbi = functionAbi
+//             ? functionAbi.args[fnArgIndex++]
+//             : { name: '', type: undefined };
+//           return {
+//             hex: c.hex,
+//             repr: c.repr,
+//             name: functionArgAbi.name,
+//             type: functionArgAbi.type
+//               ? getTypeString(functionArgAbi.type)
+//               : decodeClarityValueToTypeName(c.hex),
+//           };
+//         })
+//       : [];
+//   }
 
-  return operation;
-}
+//   return operation;
+// }
 
-function makeSmartContractOperation(
-  tx: DecodedTxResult,
-  index: number,
-  options?: StacksSerializationOptions
-): Operation {
-  const address = tx.auth.origin_condition.signer.address;
-  const payload = tx.payload as TxPayloadSmartContract | TxPayloadVersionedSmartContract;
-  return {
-    operation_identifier: { index },
-    type: 'contract_deploy',
-    status: 'success', // TODO: Implement status
-    account: {
-      address,
-    },
-    metadata: {
-      contract_identifier: `${address}.${payload.contract_name}`,
-      source_code: options?.includeContractSourceCode ? payload.code_body : undefined,
-      clarity_version:
-        (payload as TxPayloadVersionedSmartContract).clarity_version ?? ClarityVersion.Clarity1,
-      abi: undefined, // TODO: Implement abi
-    },
-  };
-}
+// function makeSmartContractOperation(
+//   tx: DecodedTxResult,
+//   index: number,
+//   options?: StacksSerializationOptions
+// ): Operation {
+//   const address = tx.auth.origin_condition.signer.address;
+//   const payload = tx.payload as TxPayloadSmartContract | TxPayloadVersionedSmartContract;
+//   return {
+//     operation_identifier: { index },
+//     type: 'contract_deploy',
+//     status: 'success', // TODO: Implement status
+//     account: {
+//       address,
+//     },
+//     metadata: {
+//       contract_identifier: `${address}.${payload.contract_name}`,
+//       source_code: options?.includeContractSourceCode ? payload.code_body : undefined,
+//       clarity_version:
+//         (payload as TxPayloadVersionedSmartContract).clarity_version ?? ClarityVersion.Clarity1,
+//       abi: undefined, // TODO: Implement abi
+//     },
+//   };
+// }
 
-function makeCoinbaseOperation(tx: StacksDbTransaction, index: number = 0): Operation {
-  return {
-    operation_identifier: { index },
-    type: 'coinbase',
-    status: serializeTxStatus(tx.status),
-    account: {
-      address: unwrap(tx.sender_address),
-    },
-    metadata: {
-      alt_recipient: tx.coinbase_alt_recipient ?? null,
-      vrf_proof: tx.coinbase_vrf_proof ?? null,
-    },
-  };
-}
+// function makeCoinbaseOperation(tx: StacksDbTransaction, index: number = 0): Operation {
+//   return {
+//     operation_identifier: { index },
+//     type: 'coinbase',
+//     status: serializeTxStatus(tx.status),
+//     account: {
+//       address: unwrap(tx.sender_address),
+//     },
+//     metadata: {
+//       alt_recipient: tx.coinbase_alt_recipient ?? null,
+//       vrf_proof: tx.coinbase_vrf_proof ?? null,
+//     },
+//   };
+// }
 
-function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
-  return {
-    operation_identifier: { index },
-    type: 'tenure_change',
-    status: serializeTxStatus(tx.status),
-    metadata: {
-      tenure_consensus_hash: unwrap(tx.tenure_change_tenure_consensus_hash),
-      prev_tenure_consensus_hash: unwrap(tx.tenure_change_prev_tenure_consensus_hash),
-      burn_view_consensus_hash: unwrap(tx.tenure_change_burn_view_consensus_hash),
-      previous_tenure_blocks: unwrap(tx.tenure_change_previous_tenure_blocks),
-      previous_tenure_end: unwrap(tx.tenure_change_previous_tenure_end),
-      cause: serializeTenureChangeCause(unwrap(tx.tenure_change_cause)),
-      pubkey_hash: unwrap(tx.tenure_change_pubkey_hash),
-    },
-  };
-}
+// function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
+//   return {
+//     operation_identifier: { index },
+//     type: 'tenure_change',
+//     status: serializeTxStatus(tx.status),
+//     metadata: {
+//       tenure_consensus_hash: unwrap(tx.tenure_change_tenure_consensus_hash),
+//       prev_tenure_consensus_hash: unwrap(tx.tenure_change_prev_tenure_consensus_hash),
+//       burn_view_consensus_hash: unwrap(tx.tenure_change_burn_view_consensus_hash),
+//       previous_tenure_blocks: unwrap(tx.tenure_change_previous_tenure_blocks),
+//       previous_tenure_end: unwrap(tx.tenure_change_previous_tenure_end),
+//       cause: serializeTenureChangeCause(unwrap(tx.tenure_change_cause)),
+//       pubkey_hash: unwrap(tx.tenure_change_pubkey_hash),
+//     },
+//   };
+// }
 
-function makePoisonMicroblockOperation(
-  tx: StacksDbTransaction,
-  index: number = 0
-): Operation {
-  return {
-    operation_identifier: { index },
-    type: 'poison_microblock',
-    status: serializeTxStatus(tx.status),
-    account: {
-      address: unwrap(tx.sender_address),
-    },
-    metadata: {
-      microblock_header_1: unwrap(tx.poison_microblock_header_1),
-      microblock_header_2: unwrap(tx.poison_microblock_header_2),
-    },
-  };
-}
+// function makePoisonMicroblockOperation(
+//   tx: StacksDbTransaction,
+//   index: number = 0
+// ): Operation {
+//   return {
+//     operation_identifier: { index },
+//     type: 'poison_microblock',
+//     status: serializeTxStatus(tx.status),
+//     account: {
+//       address: unwrap(tx.sender_address),
+//     },
+//     metadata: {
+//       microblock_header_1: unwrap(tx.poison_microblock_header_1),
+//       microblock_header_2: unwrap(tx.poison_microblock_header_2),
+//     },
+//   };
+// }
 
 // function makeStxBurnOperation(
 //   tx: StacksDbTransaction,
@@ -767,43 +767,43 @@ function serializeStacksTransactionOperations(
   const ops: Operation[] = [];
 
   // Add operations from transaction data.
-  switch (tx.payload.type_id) {
-    case TxPayloadTypeID.TokenTransfer:
-      ops.push(makeFeeOperation(tx));
-      ops.push(
-        ...makeStxTransferOperations(
-          tx,
-          ops.length,
-          tx.sender_address,
-          unwrap(tx.token_transfer_recipient_address),
-          unwrap(tx.token_transfer_amount),
-          tx.token_transfer_memo,
-          options
-        )
-      );
-      break;
-    case TxPayloadTypeID.SmartContract:
-    case TxPayloadTypeID.VersionedSmartContract:
-      ops.push(makeFeeOperation(tx));
-      ops.push(makeSmartContractOperation(tx, ops.length, options));
-      break;
-    case TxPayloadTypeID.ContractCall:
-      ops.push(makeFeeOperation(tx));
-      ops.push(makeContractCallOperation(tx, ops.length, options));
-      break;
-    case TxPayloadTypeID.PoisonMicroblock:
-      ops.push(makePoisonMicroblockOperation(tx));
-      break;
-    case TxPayloadTypeID.Coinbase:
-    case TxPayloadTypeID.CoinbaseToAltRecipient:
-    case TxPayloadTypeID.NakamotoCoinbase:
-      ops.push(makeCoinbaseOperation(tx));
-      // TODO: Add miner rewards and unlocks
-      break;
-    case TxPayloadTypeID.TenureChange:
-      ops.push(makeTenureChangeOperation(tx));
-      break;
-  }
+  // switch (tx.payload.type_id) {
+  //   case TxPayloadTypeID.TokenTransfer:
+  //     ops.push(makeFeeOperation(tx));
+  //     ops.push(
+  //       ...makeStxTransferOperations(
+  //         tx,
+  //         ops.length,
+  //         tx.sender_address,
+  //         unwrap(tx.token_transfer_recipient_address),
+  //         unwrap(tx.token_transfer_amount),
+  //         tx.token_transfer_memo,
+  //         options
+  //       )
+  //     );
+  //     break;
+  //   case TxPayloadTypeID.SmartContract:
+  //   case TxPayloadTypeID.VersionedSmartContract:
+  //     ops.push(makeFeeOperation(tx));
+  //     ops.push(makeSmartContractOperation(tx, ops.length, options));
+  //     break;
+  //   case TxPayloadTypeID.ContractCall:
+  //     ops.push(makeFeeOperation(tx));
+  //     ops.push(makeContractCallOperation(tx, ops.length, options));
+  //     break;
+  //   case TxPayloadTypeID.PoisonMicroblock:
+  //     ops.push(makePoisonMicroblockOperation(tx));
+  //     break;
+  //   case TxPayloadTypeID.Coinbase:
+  //   case TxPayloadTypeID.CoinbaseToAltRecipient:
+  //   case TxPayloadTypeID.NakamotoCoinbase:
+  //     ops.push(makeCoinbaseOperation(tx));
+  //     // TODO: Add miner rewards and unlocks
+  //     break;
+  //   case TxPayloadTypeID.TenureChange:
+  //     ops.push(makeTenureChangeOperation(tx));
+  //     break;
+  // }
 
   // Add operations from transaction events.
   // TODO: Complete all event types.

@@ -15,13 +15,13 @@ import {
   BlockTransactionResponseSchema,
   ErrorResponseSchema,
   Block,
-  StacksTransaction,
+  Transaction,
   TransactionIdentifier,
 } from '@stacks/mesh-serializer';
 import { serializeDecodedNakamotoBlock } from '../../utils/converter.js';
 import { serializeDecodedTransaction } from '../../utils/converter.js';
 
-export const blockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
   // POST /block
@@ -143,13 +143,13 @@ async function fetchAndParseBlock(
 
     if (blockIdentifier.index !== undefined) {
       // Fetch by height
-      blockBytes = await rpcClient.getBlockByHeight(blockIdentifier.index);
+      blockBytes = await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index);
     } else if (blockIdentifier.hash) {
       // Fetch by hash - remove 0x prefix if present for RPC call
       const hash = blockIdentifier.hash.startsWith('0x')
         ? blockIdentifier.hash.slice(2)
         : blockIdentifier.hash;
-      blockBytes = await rpcClient.getBlockByHash(hash);
+      blockBytes = await rpcClient.getNakamotoBlockByHash(hash);
     } else {
       throw new Error('Block identifier must include hash or index');
     }
@@ -197,17 +197,17 @@ async function fetchBlockTransaction(
   rpcClient: StacksRpcClient,
   blockIdentifier: BlockIdentifier,
   txIdentifier: TransactionIdentifier
-): Promise<StacksTransaction> {
+): Promise<Transaction> {
   try {
     let blockBytes: Buffer;
 
     if (blockIdentifier.index !== undefined) {
-      blockBytes = await rpcClient.getBlockByHeight(blockIdentifier.index);
+      blockBytes = await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index);
     } else if (blockIdentifier.hash) {
       const hash = blockIdentifier.hash.startsWith('0x')
         ? blockIdentifier.hash.slice(2)
         : blockIdentifier.hash;
-      blockBytes = await rpcClient.getBlockByHash(hash);
+      blockBytes = await rpcClient.getNakamotoBlockByHash(hash);
     } else {
       throw new Error('Block identifier must include hash or index');
     }

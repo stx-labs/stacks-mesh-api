@@ -6,6 +6,7 @@ import { buildApiServer } from './api/index.js';
 export async function initApp() {
   const rpcClient = new StacksRpcClient({
     baseUrl: `http://${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}`,
+    authToken: ENV.STACKS_CORE_RPC_AUTH_TOKEN,
   });
   const apiServer = await buildApiServer({
     rpcClient,

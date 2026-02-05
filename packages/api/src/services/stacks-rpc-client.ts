@@ -11,82 +11,57 @@ import type {
   StacksBroadcastResponse,
   StacksMempoolQueryResponse,
   StacksConfirmedTransaction,
+  StacksBlockReplay,
 } from './types.js';
 
 export interface StacksRpcConfig {
   baseUrl: string;
-  apiKey?: string;
+  authToken: string;
   timeout?: number;
 }
 
 export class StacksRpcClient {
-  private baseUrl: string;
-  private apiKey?: string;
-  private timeout: number;
+  private readonly config: StacksRpcConfig;
 
   constructor(config: StacksRpcConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, '');
-    this.apiKey = config.apiKey;
-    this.timeout = config.timeout ?? 30000;
+    this.config = config;
   }
 
   private async request<T>(
     method: 'GET' | 'POST',
     path: string,
-    body?: unknown
+    body: unknown | null = null,
+    authenticated: boolean = false,
   ): Promise<T> {
-    const url = `${this.baseUrl}${path}`;
-    const headers: Record<string, string> = {
-      'content-type': 'application/json',
-    };
-
-    if (this.apiKey) {
-      headers['authorization'] = this.apiKey;
-    }
-
-    const { statusCode, body: responseBody } = await request(url, {
+    return this.requestRaw<T>(
       method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-      bodyTimeout: this.timeout,
-      headersTimeout: this.timeout,
-    });
-
-    if (statusCode < 200 || statusCode >= 300) {
-      const errorText = await responseBody.text();
-      throw new StacksRpcError(
-        `RPC request failed: ${statusCode}`,
-        statusCode,
-        errorText
-      );
-    }
-
-    return await responseBody.json() as T;
+      path,
+      body ? JSON.stringify(body) : undefined,
+      authenticated,
+      { 'content-type': 'application/json' },
+      'json'
+    );
   }
 
-  private async requestRaw(
+  private async requestRaw<T>(
     method: 'GET' | 'POST',
     path: string,
-    body?: Uint8Array,
-    contentType?: string
-  ): Promise<Buffer> {
-    const url = `${this.baseUrl}${path}`;
-    const headers: Record<string, string> = {};
-
-    if (contentType) {
-      headers['content-type'] = contentType;
-    }
-
-    if (this.apiKey) {
-      headers['authorization'] = this.apiKey;
-    }
-
+    body: string | Uint8Array | null = null,
+    authenticated: boolean = false,
+    headers?: Record<string, string>,
+    responseType: 'json' | 'buffer' = 'buffer'
+  ): Promise<T> {
+    const url = `${this.config.baseUrl}${path}`;
+    const requestHeaders = {
+      ...(authenticated ? { 'authorization': this.config.authToken } : {}),
+      ...(headers || {}),
+    };
     const { statusCode, body: responseBody } = await request(url, {
       method,
-      headers,
+      headers: requestHeaders,
       body,
-      bodyTimeout: this.timeout,
-      headersTimeout: this.timeout,
+      bodyTimeout: this.config.timeout ?? 30000,
+      headersTimeout: this.config.timeout ?? 30000,
     });
 
     if (statusCode < 200 || statusCode >= 300) {
@@ -98,7 +73,11 @@ export class StacksRpcClient {
       );
     }
 
-    return Buffer.from(await responseBody.arrayBuffer());
+    if (responseType === 'json') {
+      return await responseBody.json() as T;
+    } else {
+      return Buffer.from(await responseBody.arrayBuffer()) as T;
+    }
   }
 
   // === Node Information ===
@@ -139,16 +118,20 @@ export class StacksRpcClient {
 
   // === Blocks ===
 
-  async getBlockByHash(blockHash: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/blocks/${blockHash}`);
+  async getNakamotoBlockByHash(blockHash: string): Promise<Buffer> {
+    return this.requestRaw('GET', `/v3/blocks/${blockHash}`, undefined, undefined);
   }
 
-  async getBlockByHeight(height: number): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/blocks/height/${height}`);
+  async getNakamotoBlockByHeight(height: number): Promise<Buffer> {
+    return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
   }
 
-  async getLegacyBlock(blockId: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v2/blocks/${blockId}`);
+  async getLegacyBlockByHash(blockId: string): Promise<Buffer> {
+    return this.requestRaw('GET', `/v2/blocks/${blockId}`, undefined, undefined);
+  }
+
+  async replayNakamotoBlock(blockHash: string): Promise<StacksBlockReplay> {
+    return this.request<StacksBlockReplay>('GET', `/v3/blocks/replay/${blockHash}`, null, true);
   }
 
   // === Tenures ===
@@ -158,28 +141,24 @@ export class StacksRpcClient {
   }
 
   async getTenureBlocks(blockId: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/tenures/${blockId}`);
+    return this.requestRaw('GET', `/v3/tenures/${blockId}`, undefined, undefined);
   }
 
   // === Transactions ===
 
   async broadcastTransaction(txHex: string): Promise<StacksBroadcastResponse> {
     const txBytes = hexToBytes(txHex);
-    const url = `${this.baseUrl}/v2/transactions`;
+    const url = `${this.config.baseUrl}/v2/transactions`;
     const headers: Record<string, string> = {
       'content-type': 'application/octet-stream',
     };
-
-    if (this.apiKey) {
-      headers['authorization'] = this.apiKey;
-    }
 
     const { statusCode, body: responseBody } = await request(url, {
       method: 'POST',
       headers,
       body: txBytes,
-      bodyTimeout: this.timeout,
-      headersTimeout: this.timeout,
+      bodyTimeout: this.config.timeout ?? 30000,
+      headersTimeout: this.config.timeout ?? 30000,
     });
 
     if (statusCode < 200 || statusCode >= 300) {
