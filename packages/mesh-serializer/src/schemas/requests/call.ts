@@ -22,5 +22,20 @@ export const ContractCallReadOnlyRequestSchema = Type.Composite([
 ]);
 export type ContractCallReadOnlyRequest = Static<typeof ContractCallReadOnlyRequestSchema>;
 
-export const CallRequestSchema = Type.Union([ContractCallReadOnlyRequestSchema]);
+export const ContractGetInterfaceRequestSchema = Type.Composite([
+  BaseCallRequestSchema,
+  Type.Object({
+    method: Type.Literal('contract_get_interface'),
+    parameters: Type.Object({
+      deployer_address: Type.String(),
+      contract_name: Type.String(),
+    }),
+  }),
+]);
+export type ContractGetInterfaceRequest = Static<typeof ContractGetInterfaceRequestSchema>;
+
+export const CallRequestSchema = Type.Union([
+  ContractCallReadOnlyRequestSchema,
+  ContractGetInterfaceRequestSchema,
+]);
 export type CallRequest = Static<typeof CallRequestSchema>;

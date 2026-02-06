@@ -378,14 +378,18 @@ export interface StacksBlockReplay {
   transactions: StacksBlockReplayTransaction[];
 }
 
-export interface ContractCallReadOnlySuccessResponse {
+export interface StacksContractCallReadOnlySuccess {
   okay: true;
   result: string;
 }
 
-export interface ContractCallReadOnlyErrorResponse {
+export interface StacksContractCallReadOnlyError {
   okay: false;
   cause: string;
 }
 
-export type ContractCallReadOnlyResponse = ContractCallReadOnlySuccessResponse | ContractCallReadOnlyErrorResponse;
+export type StacksContractCallReadOnlyResult =
+  | StacksContractCallReadOnlySuccess
+  | StacksContractCallReadOnlyError;
+
+export type StacksContractInterface = Record<string, unknown>;

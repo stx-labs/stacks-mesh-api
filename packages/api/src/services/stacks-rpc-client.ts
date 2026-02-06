@@ -12,7 +12,8 @@ import type {
   StacksMempoolQueryResponse,
   StacksConfirmedTransaction,
   StacksBlockReplay,
-  ContractCallReadOnlyResponse,
+  StacksContractCallReadOnlyResult,
+  StacksContractInterface,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -213,12 +214,10 @@ export class StacksRpcClient {
   async getContractInterface(
     contractAddress: string,
     contractName: string,
-    tip?: string
-  ): Promise<unknown> {
-    const params = tip ? `?tip=${tip}` : '';
-    return this.request<unknown>(
+  ): Promise<StacksContractInterface> {
+    return this.request<StacksContractInterface>(
       'GET',
-      `/v2/contracts/interface/${contractAddress}/${contractName}${params}`
+      `/v2/contracts/interface/${contractAddress}/${contractName}`,
     );
   }
 
@@ -248,12 +247,12 @@ export class StacksRpcClient {
     args: string[],
     sender: string,
     sponsor?: string,
-  ): Promise<ContractCallReadOnlyResponse> {
+  ): Promise<StacksContractCallReadOnlyResult> {
     const body: Record<string, unknown> = { sender, arguments: args };
     if (sponsor) {
       body.sponsor = sponsor;
     }
-    return this.request<ContractCallReadOnlyResponse>(
+    return this.request<StacksContractCallReadOnlyResult>(
       'POST',
       `/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`,
       body

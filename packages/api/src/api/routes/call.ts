@@ -53,6 +53,17 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
           }
         }
 
+        case 'contract_get_interface': {
+          const interfaceResult = await rpcClient.getContractInterface(
+            parameters.deployer_address,
+            parameters.contract_name
+          );
+          return reply.send({
+            idempotent: true,
+            result: interfaceResult,
+          });
+        }
+
         // case 'contract_get_data_var': {
         //   const principal = parameters.principal as string;
         //   const contractName = parameters.contract_name as string;
