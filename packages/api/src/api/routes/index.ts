@@ -7,6 +7,7 @@ import { MempoolRoutes } from './mempool.js';
 import { ConstructionRoutes } from './construction.js';
 import { CallRoutes } from './call.js';
 import { FastifyError } from 'fastify';
+import { validateMeshRequest } from '../middleware/validation.js';
 
 export const MeshApiRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   fastify.setErrorHandler((error: FastifyError, _request, reply) => {
@@ -29,6 +30,8 @@ export const MeshApiRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fast
       description: error.message,
     });
   });
+
+  fastify.addHook('preHandler', validateMeshRequest(config));
 
   await fastify.register(NetworkRoutes, config);
   await fastify.register(BlockRoutes, config);

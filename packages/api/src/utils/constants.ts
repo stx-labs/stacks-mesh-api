@@ -1,5 +1,4 @@
-import { ErrorResponse, NetworkIdentifier, OperationStatus } from '@stacks/mesh-serializer';
-import { MeshErrors } from './errors.js';
+import { OperationStatus } from '@stacks/mesh-serializer';
 
 export const MESH_SPECIFICATION_VERSION = '1.5.1';
 
@@ -19,30 +18,7 @@ export function getStacksNetworkName(networkId: number): 'mainnet' | 'testnet' {
   }
 }
 
-/**
- * Validates that the network identifier from the request matches the configured network
- * @param networkIdentifier - The network identifier from the request
- * @param configNetwork - The network from the RouteConfig
- * @returns ErrorResponse if validation fails, undefined if validation succeeds
- */
-export function validateNetwork(
-  networkIdentifier: NetworkIdentifier,
-  configNetwork: 'mainnet' | 'testnet'
-): ErrorResponse | undefined {
-  if (networkIdentifier.blockchain !== 'stacks') {
-    return MeshErrors.networkNotSupported(networkIdentifier.blockchain);
-  }
-
-  if (networkIdentifier.network !== configNetwork) {
-    return MeshErrors.networkNotSupported(
-      `${networkIdentifier.blockchain}/${networkIdentifier.network} (expected stacks/${configNetwork})`
-    );
-  }
-
-  return undefined;
-}
-
-export const MESH_OPERATION_STATUSES: OperationStatus[] = [
+export const OPERATION_STATUSES: OperationStatus[] = [
   {
     status: 'success',
     successful: true,
@@ -77,7 +53,7 @@ export const MESH_OPERATION_STATUSES: OperationStatus[] = [
   },
 ];
 
-export const MESH_OPERATION_TYPES = [
+export const OPERATION_TYPES = [
   'coinbase',
   'fee',
   'token_transfer',
@@ -91,4 +67,9 @@ export const MESH_OPERATION_TYPES = [
   'contract_log',
 ];
 
-export const MESH_CALL_METHODS = ['token_transfer', 'smart_contract', 'contract_call'];
+export const CALL_METHODS = ['token_transfer', 'smart_contract', 'contract_call'];
+
+export const STX_CURRENCY = {
+  symbol: 'STX',
+  decimals: 6
+};
