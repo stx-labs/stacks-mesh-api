@@ -377,3 +377,15 @@ export interface StacksBlockReplay {
   valid_merkle_root: boolean;
   transactions: StacksBlockReplayTransaction[];
 }
+
+export interface ContractCallReadOnlySuccessResponse {
+  okay: true;
+  result: string;
+}
+
+export interface ContractCallReadOnlyErrorResponse {
+  okay: false;
+  cause: string;
+}
+
+export type ContractCallReadOnlyResponse = ContractCallReadOnlySuccessResponse | ContractCallReadOnlyErrorResponse;

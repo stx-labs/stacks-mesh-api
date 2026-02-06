@@ -12,6 +12,7 @@ import type {
   StacksMempoolQueryResponse,
   StacksConfirmedTransaction,
   StacksBlockReplay,
+  ContractCallReadOnlyResponse,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -175,8 +176,8 @@ export class StacksRpcClient {
     return { txid: txid.replace(/"/g, '') };
   }
 
-  async getUnconfirmedTransaction(txid: string): Promise<unknown> {
-    return this.request<unknown>('GET', `/v2/transactions/unconfirmed/${txid}`);
+  async getUnconfirmedTransaction(txid: string): Promise<Buffer> {
+    return this.requestRaw('GET', `/v2/transactions/unconfirmed/${txid}`);
   }
 
   async getConfirmedTransaction(txid: string): Promise<StacksConfirmedTransaction> {
@@ -246,13 +247,16 @@ export class StacksRpcClient {
     functionName: string,
     args: string[],
     sender: string,
-    tip?: string
-  ): Promise<{ okay: boolean; result?: string; cause?: string }> {
-    const params = tip ? `?tip=${tip}` : '';
-    return this.request<{ okay: boolean; result?: string; cause?: string }>(
+    sponsor?: string,
+  ): Promise<ContractCallReadOnlyResponse> {
+    const body: Record<string, unknown> = { sender, arguments: args };
+    if (sponsor) {
+      body.sponsor = sponsor;
+    }
+    return this.request<ContractCallReadOnlyResponse>(
       'POST',
-      `/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}${params}`,
-      { sender, arguments: args }
+      `/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`,
+      body
     );
   }
 

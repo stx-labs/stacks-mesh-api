@@ -67,9 +67,13 @@ export const OPERATION_TYPES = [
   'contract_log',
 ];
 
-export const CALL_METHODS = ['token_transfer', 'smart_contract', 'contract_call'];
+export const CALL_METHODS = [
+  'contract_call_read_only',
+  'contract_get_map_entry',
+  'contract_get_data_var',
+];
 
 export const STX_CURRENCY = {
   symbol: 'STX',
-  decimals: 6
+  decimals: 6,
 };

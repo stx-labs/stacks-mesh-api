@@ -1,5 +1,7 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { RouteConfig } from '../index.js';
+import { ErrorResponseSchema, MempoolTransactionRequestSchema, MempoolTransactionResponseSchema } from '@stacks/mesh-serializer';
+import { MeshErrors } from '../../utils/errors.js';
 
 export const MempoolRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
@@ -40,7 +42,6 @@ export const MempoolRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   //   }
   // );
 
-  // // POST /mempool/transaction
   // fastify.post(
   //   '/mempool/transaction',
   //   {
@@ -48,50 +49,32 @@ export const MempoolRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   //       body: MempoolTransactionRequestSchema,
   //       response: {
   //         200: MempoolTransactionResponseSchema,
-  //         500: MeshErrorSchema,
+  //         500: ErrorResponseSchema,
   //       },
   //     },
   //   },
   //   async (request, reply) => {
-  //     const { network_identifier, transaction_identifier } = request.body;
+  //     const { transaction_identifier } = request.body;
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
-
-  //     try {
-  //       const txData = await rpcClient.getUnconfirmedTransaction(
-  //         transaction_identifier.hash
+  //     const txData = await rpcClient.getUnconfirmedTransaction(
+  //       transaction_identifier.hash
+  //     );
+  //     if (!txData) {
+  //       return reply.status(500).send(
+  //         MeshErrors.transactionNotFound(transaction_identifier.hash)
   //       );
-
-  //       if (!txData) {
-  //         return reply.status(500).send(
-  //           MeshErrors.mempoolTransactionNotFound(transaction_identifier.hash)
-  //         );
-  //       }
-
-  //       const transaction = convertStacksTxToMeshTx(txData, transaction_identifier.hash);
-
-  //       const response: MempoolTransactionResponse = {
-  //         transaction,
-  //         metadata: {
-  //           raw_tx: txData,
-  //         },
-  //       };
-
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-
-  //       if (message.includes('404') || message.includes('not found')) {
-  //         return reply.status(500).send(
-  //           MeshErrors.mempoolTransactionNotFound(transaction_identifier.hash)
-  //         );
-  //       }
-
-  //       return reply.status(500).send(MeshErrors.rpcError(message));
   //     }
+
+  //     const transaction = convertStacksTxToMeshTx(txData, transaction_identifier.hash);
+
+  //     const response: MempoolTransactionResponse = {
+  //       transaction,
+  //       metadata: {
+  //         raw_tx: txData,
+  //       },
+  //     };
+
+  //     return reply.send(response);
   //   }
   // );
 };
