@@ -11,3 +11,9 @@ export const NetworkStatusRequestSchema = Type.Object({
   metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
 export type NetworkStatusRequest = Static<typeof NetworkStatusRequestSchema>;
+
+export const NetworkOptionsRequestSchema = Type.Object({
+  network_identifier: NetworkIdentifierSchema,
+  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+});
+export type NetworkOptionsRequest = Static<typeof NetworkOptionsRequestSchema>;

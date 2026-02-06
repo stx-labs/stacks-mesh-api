@@ -8,6 +8,7 @@ import cors from '@fastify/cors';
 export type RouteConfig = {
   rpcClient: StacksRpcClient;
   network: 'mainnet' | 'testnet';
+  nodeVersion: string;
 };
 
 export async function buildApiServer(config: RouteConfig) {

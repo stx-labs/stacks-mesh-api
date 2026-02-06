@@ -1,4 +1,4 @@
-import { BlockIdentifierSchema } from "../entities/common.js";
+import { BlockIdentifierSchema, StatusSchema } from "../entities/common.js";
 import { NetworkIdentifierSchema } from "../entities/network.js";
 import { Static, Type } from "@sinclair/typebox";
 import { ErrorResponseSchema } from "./error.js";
@@ -34,7 +34,7 @@ export const BalanceExemptionSchema = Type.Object({
 export type BalanceExemption = Static<typeof BalanceExemptionSchema>;
 
 export const OperationStatusSchema = Type.Object({
-  status: Type.String(),
+  status: StatusSchema,
   successful: Type.Boolean(),
 });
 export type OperationStatus = Static<typeof OperationStatusSchema>;
