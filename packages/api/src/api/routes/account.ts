@@ -4,9 +4,11 @@ import {
   AccountBalanceRequestSchema,
   AccountBalanceResponse,
   AccountBalanceResponseSchema,
+  AccountCoinsRequestSchema,
   ErrorResponseSchema,
 } from '@stacks/mesh-serializer';
 import { STX_CURRENCY } from '../../utils/constants.js';
+import { MeshErrors } from '../../utils/errors.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -23,7 +25,7 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fast
       },
     },
     async (request, reply) => {
-      const { network_identifier, account_identifier, block_identifier } = request.body;
+      const { account_identifier, block_identifier } = request.body;
 
       // Build tip parameter for historical queries
       const tip = block_identifier?.hash;
@@ -80,46 +82,24 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fast
     }
   );
 
-  // // POST /account/coins
-  // fastify.post(
-  //   '/account/coins',
-  //   {
-  //     schema: {
-  //       body: AccountCoinsRequestSchema,
-  //       response: {
-  //         200: AccountCoinsResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier } = request.body;
-
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
-
-  //     try {
-  //       // Stacks is account-based, not UTXO-based
-  //       const nodeInfo = await rpcClient.getInfo();
-
-  //       const response: AccountCoinsResponse = {
-  //         block_identifier: {
-  //           index: nodeInfo.stacks_tip_height,
-  //           hash: nodeInfo.stacks_tip,
-  //         },
-  //         coins: [],
-  //         metadata: {
-  //           note: 'Stacks is an account-based blockchain, not UTXO-based. Use /account/balance instead.',
-  //         },
-  //       };
-
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.rpcError(message));
-  //     }
-  //   }
-  // );
+  fastify.post(
+    '/account/coins',
+    {
+      schema: {
+        body: AccountCoinsRequestSchema,
+        response: {
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (_request, reply) => {
+      return reply
+        .status(500)
+        .send(
+          MeshErrors.notImplemented(
+            '/account/coins is not supported for account-based blockchains. Use /account/balance instead.'
+          )
+        );
+    }
+  );
 };

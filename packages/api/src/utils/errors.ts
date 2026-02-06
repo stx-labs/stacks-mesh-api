@@ -137,12 +137,12 @@ export const MeshErrors = {
   internalError: (reason: string): ErrorResponse =>
     createMeshError(ErrorCodes.INTERNAL_ERROR, 'Internal error', true, reason),
 
-  notImplemented: (feature: string): ErrorResponse =>
+  notImplemented: (message: string): ErrorResponse =>
     createMeshError(
       ErrorCodes.NOT_IMPLEMENTED,
       'Not implemented',
       false,
-      `The feature "${feature}" is not implemented`
+      message
     ),
 
   invalidRequest: (reason: string): ErrorResponse =>

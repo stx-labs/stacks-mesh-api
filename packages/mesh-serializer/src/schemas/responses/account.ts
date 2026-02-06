@@ -8,10 +8,3 @@ export const AccountBalanceResponseSchema = Type.Object({
   metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
 export type AccountBalanceResponse = Static<typeof AccountBalanceResponseSchema>;
-
-export const AccountCoinsResponseSchema = Type.Object({
-  block_identifier: BlockIdentifierSchema,
-  coins: Type.Null(),
-  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
-});
-export type AccountCoinsResponse = Static<typeof AccountCoinsResponseSchema>;
