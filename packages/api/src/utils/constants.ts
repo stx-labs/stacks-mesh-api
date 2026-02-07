@@ -71,6 +71,7 @@ export const CALL_METHODS = [
   'contract_call_read_only',
   'contract_get_map_entry',
   'contract_get_data_var',
+  'contract_get_constant_val',
   'contract_get_interface',
   'contract_get_source',
 ];

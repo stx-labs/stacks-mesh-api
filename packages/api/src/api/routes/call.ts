@@ -24,6 +24,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
     async (request, reply) => {
       const { method, parameters } = request.body;
 
+      // TODO: Decode clarity values
       switch (method) {
         case 'contract_call_read_only': {
           const callResult = await rpcClient.callReadOnlyFunction(
@@ -75,27 +76,42 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
           });
         }
 
-        // case 'contract_get_data_var': {
-        //   const principal = parameters.principal as string;
-        //   const contractName = parameters.contract_name as string;
-        //   const varName = parameters.var_name as string;
+        case 'contract_get_constant_val': {
+          const constantValResult = await rpcClient.getContractConstantVal(
+            parameters.deployer_address,
+            parameters.contract_name,
+            parameters.constant_name
+          );
+          return reply.send({
+            idempotent: true,
+            result: {
+              okay: true,
+              result: constantValResult,
+            },
+          });
+        }
 
-        //   if (!principal || !contractName || !varName) {
-        //     return reply
-        //       .status(500)
-        //       .send(
-        //         MeshErrors.invalidRequest(
-        //           'principal, contract_name, and var_name parameters are required'
-        //         )
-        //       );
-        //   }
+        case 'contract_get_data_var': {
+          const principal = parameters.principal as string;
+          const contractName = parameters.contract_name as string;
+          const varName = parameters.var_name as string;
 
-        //   const varData = await rpcClient.getDataVar(principal, contractName, varName);
-        //   result = {
-        //     data: varData.data,
-        //   };
-        //   break;
-        // }
+          if (!principal || !contractName || !varName) {
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidRequest(
+                  'principal, contract_name, and var_name parameters are required'
+                )
+              );
+          }
+
+          const varData = await rpcClient.getDataVar(principal, contractName, varName);
+          result = {
+            data: varData.data,
+          };
+          break;
+        }
 
         // case 'contract_get_map_entry': {
         //   const contractAddress = parameters.contract_address as string;

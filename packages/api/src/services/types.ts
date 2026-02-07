@@ -399,3 +399,7 @@ export interface StacksContractSource {
   publish_height: number;
   proof?: string;
 }
+
+export interface StacksContractConstantVal {
+  data: string;
+}

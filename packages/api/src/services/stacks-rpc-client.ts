@@ -14,6 +14,8 @@ import type {
   StacksBlockReplay,
   StacksContractCallReadOnlyResult,
   StacksContractInterface,
+  StacksContractSource,
+  StacksContractConstantVal,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -224,11 +226,21 @@ export class StacksRpcClient {
   async getContractSource(
     contractAddress: string,
     contractName: string,
-    options?: { proof?: boolean; tip?: string }
-  ): Promise<{ source: string; publish_height: number; proof?: string }> {
-    return this.request<{ source: string; publish_height: number; proof?: string }>(
+  ): Promise<StacksContractSource> {
+    return this.request<StacksContractSource>(
       'GET',
       `/v2/contracts/source/${contractAddress}/${contractName}`,
+    );
+  }
+
+  async getContractConstantVal(
+    contractAddress: string,
+    contractName: string,
+    constantName: string,
+  ): Promise<StacksContractConstantVal> {
+    return this.request<StacksContractConstantVal>(
+      'GET',
+      `/v2/constant_val/${contractAddress}/${contractName}/${constantName}`,
     );
   }
 
