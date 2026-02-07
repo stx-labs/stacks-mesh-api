@@ -403,3 +403,8 @@ export interface StacksContractSource {
 export interface StacksContractConstantVal {
   data: string;
 }
+
+export interface StacksContractDataVar {
+  data: string;
+  proof?: string;
+}

@@ -54,10 +54,25 @@ export const ContractGetConstantValResponseSchema = Type.Composite([
 ]);
 export type ContractGetConstantValResponse = Static<typeof ContractGetConstantValResponseSchema>;
 
+export const ContractGetDataVarResponseSchema = Type.Composite([
+  BaseCallResponseSchema,
+  Type.Object({
+    result: Type.Object({
+      okay: Type.Literal(true),
+      result: Type.Object({
+        data: Type.String(),
+        proof: Type.Optional(Type.String()),
+      }),
+    }),
+  }),
+]);
+export type ContractGetDataVarResponse = Static<typeof ContractGetDataVarResponseSchema>;
+
 export const CallResponseSchema = Type.Union([
   ContractCallReadOnlyResponseSchema,
   ContractGetInterfaceResponseSchema,
   ContractGetSourceResponseSchema,
   ContractGetConstantValResponseSchema,
+  ContractGetDataVarResponseSchema,
 ]);
 export type CallResponse = Static<typeof CallResponseSchema>;

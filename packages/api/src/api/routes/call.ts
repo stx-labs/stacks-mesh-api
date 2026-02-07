@@ -92,25 +92,18 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
         }
 
         case 'contract_get_data_var': {
-          const principal = parameters.principal as string;
-          const contractName = parameters.contract_name as string;
-          const varName = parameters.var_name as string;
-
-          if (!principal || !contractName || !varName) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidRequest(
-                  'principal, contract_name, and var_name parameters are required'
-                )
-              );
-          }
-
-          const varData = await rpcClient.getDataVar(principal, contractName, varName);
-          result = {
-            data: varData.data,
-          };
-          break;
+          const varData = await rpcClient.getContractDataVar(
+            parameters.deployer_address,
+            parameters.contract_name,
+            parameters.var_name
+          );
+          return reply.send({
+            idempotent: false,
+            result: {
+              okay: true,
+              result: varData,
+            },
+          });
         }
 
         // case 'contract_get_map_entry': {

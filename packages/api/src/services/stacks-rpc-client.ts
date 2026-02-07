@@ -16,6 +16,7 @@ import type {
   StacksContractInterface,
   StacksContractSource,
   StacksContractConstantVal,
+  StacksContractDataVar,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -285,23 +286,14 @@ export class StacksRpcClient {
     );
   }
 
-  async getDataVar(
+  async getContractDataVar(
     principal: string,
     contractName: string,
     varName: string,
-    options?: { proof?: boolean; tip?: string }
-  ): Promise<{ data?: string; proof?: string }> {
-    const params = new URLSearchParams();
-    if (options?.proof !== undefined) {
-      params.set('proof', String(options.proof ? 1 : 0));
-    }
-    if (options?.tip) {
-      params.set('tip', options.tip);
-    }
-    const query = params.toString();
-    return this.request<{ data?: string; proof?: string }>(
+  ): Promise<StacksContractDataVar> {
+    return this.request<StacksContractDataVar>(
       'GET',
-      `/v2/data_var/${principal}/${contractName}/${varName}${query ? `?${query}` : ''}`
+      `/v2/data_var/${principal}/${contractName}/${varName}`,
     );
   }
 }

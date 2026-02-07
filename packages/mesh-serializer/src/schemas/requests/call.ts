@@ -59,10 +59,24 @@ export const ContractGetConstantValRequestSchema = Type.Composite([
 ]);
 export type ContractGetConstantValRequest = Static<typeof ContractGetConstantValRequestSchema>;
 
+export const ContractGetDataVarRequestSchema = Type.Composite([
+  BaseCallRequestSchema,
+  Type.Object({
+    method: Type.Literal('contract_get_data_var'),
+    parameters: Type.Object({
+      deployer_address: Type.String(),
+      contract_name: Type.String(),
+      var_name: Type.String(),
+    }),
+  }),
+]);
+export type ContractGetDataVarRequest = Static<typeof ContractGetDataVarRequestSchema>;
+
 export const CallRequestSchema = Type.Union([
   ContractCallReadOnlyRequestSchema,
   ContractGetInterfaceRequestSchema,
   ContractGetSourceRequestSchema,
   ContractGetConstantValRequestSchema,
+  ContractGetDataVarRequestSchema,
 ]);
 export type CallRequest = Static<typeof CallRequestSchema>;
