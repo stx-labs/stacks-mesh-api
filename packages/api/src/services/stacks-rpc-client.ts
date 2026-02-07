@@ -226,17 +226,9 @@ export class StacksRpcClient {
     contractName: string,
     options?: { proof?: boolean; tip?: string }
   ): Promise<{ source: string; publish_height: number; proof?: string }> {
-    const params = new URLSearchParams();
-    if (options?.proof !== undefined) {
-      params.set('proof', String(options.proof ? 1 : 0));
-    }
-    if (options?.tip) {
-      params.set('tip', options.tip);
-    }
-    const query = params.toString();
     return this.request<{ source: string; publish_height: number; proof?: string }>(
       'GET',
-      `/v2/contracts/source/${contractAddress}/${contractName}${query ? `?${query}` : ''}`
+      `/v2/contracts/source/${contractAddress}/${contractName}`,
     );
   }
 

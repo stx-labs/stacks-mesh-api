@@ -29,8 +29,21 @@ export const ContractGetInterfaceResponseSchema = Type.Composite([
 ]);
 export type ContractGetInterfaceResponse = Static<typeof ContractGetInterfaceResponseSchema>;
 
+export const ContractGetSourceResponseSchema = Type.Composite([
+  BaseCallResponseSchema,
+  Type.Object({
+    result: Type.Object({
+      source: Type.String(),
+      publish_height: Type.Integer(),
+      proof: Type.Optional(Type.String()),
+    }),
+  }),
+]);
+export type ContractGetSourceResponse = Static<typeof ContractGetSourceResponseSchema>;
+
 export const CallResponseSchema = Type.Union([
   ContractCallReadOnlyResponseSchema,
   ContractGetInterfaceResponseSchema,
+  ContractGetSourceResponseSchema,
 ]);
 export type CallResponse = Static<typeof CallResponseSchema>;

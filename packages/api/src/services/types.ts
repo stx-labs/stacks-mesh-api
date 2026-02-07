@@ -393,3 +393,9 @@ export type StacksContractCallReadOnlyResult =
   | StacksContractCallReadOnlyError;
 
 export type StacksContractInterface = Record<string, unknown>;
+
+export interface StacksContractSource {
+  source: string;
+  publish_height: number;
+  proof?: string;
+}
