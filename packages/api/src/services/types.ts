@@ -408,3 +408,8 @@ export interface StacksContractDataVar {
   data: string;
   proof?: string;
 }
+
+export interface StacksContractMapEntry {
+  data: string;
+  proof?: string;
+}

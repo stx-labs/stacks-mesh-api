@@ -17,6 +17,7 @@ import type {
   StacksContractSource,
   StacksContractConstantVal,
   StacksContractDataVar,
+  StacksContractMapEntry,
 } from './types.js';
 
 export interface StacksRpcConfig {
@@ -269,19 +270,10 @@ export class StacksRpcClient {
     contractName: string,
     mapName: string,
     key: string,
-    options?: { proof?: boolean; tip?: string }
-  ): Promise<{ data?: string; proof?: string }> {
-    const params = new URLSearchParams();
-    if (options?.proof !== undefined) {
-      params.set('proof', String(options.proof ? 1 : 0));
-    }
-    if (options?.tip) {
-      params.set('tip', options.tip);
-    }
-    const query = params.toString();
-    return this.request<{ data?: string; proof?: string }>(
+  ): Promise<StacksContractMapEntry> {
+    return this.request<StacksContractMapEntry>(
       'POST',
-      `/v2/map_entry/${contractAddress}/${contractName}/${mapName}${query ? `?${query}` : ''}`,
+      `/v2/map_entry/${contractAddress}/${contractName}/${mapName}`,
       key
     );
   }

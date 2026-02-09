@@ -44,6 +44,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
               },
             });
           } else {
+            // TODO: Should this be an error response?
             return reply.send({
               idempotent: false,
               result: {
@@ -106,53 +107,21 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
           });
         }
 
-        // case 'contract_get_map_entry': {
-        //   const contractAddress = parameters.contract_address as string;
-        //   const contractName = parameters.contract_name as string;
-        //   const mapName = parameters.map_name as string;
-        //   const key = parameters.key as string;
-
-        //   if (!contractAddress || !contractName || !mapName || !key) {
-        //     return reply
-        //       .status(500)
-        //       .send(
-        //         MeshErrors.invalidRequest(
-        //           'contract_address, contract_name, map_name, and key parameters are required'
-        //         )
-        //       );
-        //   }
-
-        //   const mapEntry = await rpcClient.getMapEntry(
-        //     contractAddress,
-        //     contractName,
-        //     mapName,
-        //     key
-        //   );
-        //   result = {
-        //     data: mapEntry.data,
-        //   };
-        //   break;
-        // }
-
-        // case 'estimate_fee': {
-        //   const transactionPayload = parameters.transaction_payload as string;
-        //   if (!transactionPayload) {
-        //     const transferFee = await rpcClient.getTransferFee();
-        //     result = {
-        //       fee_rate: transferFee.fee,
-        //       estimated_fee: transferFee.fee * 180,
-        //     };
-        //   } else {
-        //     const feeEstimate = await rpcClient.estimateFee(transactionPayload);
-        //     result = {
-        //       estimated_cost: feeEstimate.estimated_cost,
-        //       estimated_cost_scalar: feeEstimate.estimated_cost_scalar,
-        //       estimations: feeEstimate.estimations,
-        //     };
-        //   }
-        //   idempotent = false;
-        //   break;
-        // }
+        case 'contract_get_map_entry': {
+          const mapEntry = await rpcClient.getMapEntry(
+            parameters.deployer_address,
+            parameters.contract_name,
+            parameters.map_name,
+            parameters.key
+          );
+          return reply.send({
+            idempotent: false,
+            result: {
+              okay: true,
+              result: mapEntry,
+            },
+          });
+        }
 
         default:
           return reply
