@@ -1,0 +1,57 @@
+{
+  "block": {
+    "block_identifier": {
+      "index": 557923,
+      "hash": "0x05b7fbc03e541271a29baf21ad43e68e48070df018ebe5baa13892f3828be9bd"
+    },
+    "parent_block_identifier": {
+      "index": 557922,
+      "hash": "0x8de0fa074023b893f73c8491ab5c93bb3f5af4bd5f0449578b99b508cca61595"
+    },
+    "timestamp": 1738687125000,
+    "transactions": [
+      {
+        "transaction_identifier": {
+          "hash": "0x1578f4cbec524cefaebb3cb599fdf003cbce27be0eb7e8bfb864ffa4715fb0d3"
+        },
+        "operations": [
+          {
+            "operation_identifier": { "index": 0 },
+            "status": "success",
+            "type": "tenure_change",
+            "metadata": {
+              "tenure_consensus_hash": "0xe86587f4ed4ca465b87649ace9341d9fdfd113ba",
+              "prev_tenure_consensus_hash": "0xe86587f4ed4ca465b87649ace9341d9fdfd113ba",
+              "burn_view_consensus_hash": "0xe86587f4ed4ca465b87649ace9341d9fdfd113ba",
+              "previous_tenure_end": "0x8de0fa074023b893f73c8491ab5c93bb3f5af4bd5f0449578b99b508cca61595",
+              "previous_tenure_blocks": 8,
+              "cause": "extended",
+              "pubkey_hash": "0x37e79a837b4071a1fc6c1b49208e7d2141a25905"
+            }
+          }
+        ],
+        "metadata": {
+          "canonical": true,
+          "execution_cost": {
+            "read_count": 0,
+            "read_length": 0,
+            "runtime": 0,
+            "write_count": 0,
+            "write_length": 0
+          },
+          "fee_rate": "0",
+          "nonce": 10154,
+          "type": "tenure_change",
+          "position": { "index": 0 },
+          "result": "0x0703",
+          "sender_address": "37e79a837b4071a1fc6c1b49208e7d2141a25905",
+          "sponsor_address": null,
+          "sponsored": false,
+          "status": "success",
+          "vm_error": null,
+          "raw_tx": "0x0000000001040037e79a837b4071a1fc6c1b49208e7d2141a2590500000000000027aa000000000000000000019fdaf9aa9e0ae649bec2086008678bdd2b1281f09edf99cace03b7f82a63948d39773d94a22472b23041b473622797383f2cf58dd7360184af114197b21ebb3c01020000000007e86587f4ed4ca465b87649ace9341d9fdfd113bae86587f4ed4ca465b87649ace9341d9fdfd113bae86587f4ed4ca465b87649ace9341d9fdfd113ba8de0fa074023b893f73c8491ab5c93bb3f5af4bd5f0449578b99b508cca61595000000080137e79a837b4071a1fc6c1b49208e7d2141a25905"
+        }
+      }
+    ]
+  }
+}

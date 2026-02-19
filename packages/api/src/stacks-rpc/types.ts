@@ -281,14 +281,16 @@ export interface StacksPeer {
   age: number;
 }
 
+export interface StacksCost {
+  read_count: number;
+  read_length: number;
+  runtime: number;
+  write_count: number;
+  write_length: number;
+}
+
 export interface StacksFeeEstimate {
-  estimated_cost: {
-    read_count: number;
-    read_length: number;
-    runtime: number;
-    write_count: number;
-    write_length: number;
-  };
+  estimated_cost: StacksCost;
   estimated_cost_scalar: number;
   estimations: {
     fee: number;
@@ -348,18 +350,83 @@ export interface StacksConfirmedTransaction {
   is_canonical?: boolean;
 }
 
+export type StacksBlockReplayTransactionSpendingCondition =
+  | {
+      Singlesig: {
+        hash_mode: 'P2PKH' | 'P2WPKH';
+        signer: string;
+        nonce: number;
+        tx_fee: number;
+        key_encoding: 'Compressed' | 'Uncompressed';
+        signature: string;
+      };
+    }
+  | {
+      Multisig: {
+        hash_mode: 'P2SH' | 'P2WSH';
+        signer: string;
+        nonce: number;
+        tx_fee: number;
+        fields: unknown[]; // TODO: implement
+        signatures_required: number;
+      };
+    }
+  | {
+      OrderIndependentMultisig: {
+        hash_mode: 'P2SH' | 'P2WSH';
+        signer: string;
+        nonce: number;
+        tx_fee: number;
+        fields: unknown[]; // TODO: implement
+        signatures_required: number;
+      };
+    };
+
+export interface StacksBlockReplayTransactionPayloadTenureChange {
+  TenureChange: {
+    tenure_consensus_hash: string;
+    prev_tenure_consensus_hash: string;
+    burn_view_consensus_hash: string;
+    previous_tenure_end: string;
+    previous_tenure_blocks: number;
+    cause: 'Extended';
+    pubkey_hash: string;
+  };
+}
+
+export type StacksBlockReplayTransactionPayload = StacksBlockReplayTransactionPayloadTenureChange;
+
+export interface StacksBlockReplayTransactionData {
+  version: 'Mainnet' | 'Testnet';
+  chain_id: number;
+  auth:
+    | { Standard: StacksBlockReplayTransactionSpendingCondition }
+    | { Sponsored: StacksBlockReplayTransactionSpendingCondition[] }; // TODO: test
+  anchor_mode: 'OnChainOnly' | 'OffChainOnly' | 'Any';
+  post_condition_mode: 'Allow' | 'Deny';
+  post_conditions: unknown[]; // TODO: implement
+  payload: StacksBlockReplayTransactionPayload;
+}
+
+export type StacksBlockReplayTransactionResult = {
+  Response: { committed: boolean; data: unknown }; // TODO: finish
+};
+
 export interface StacksBlockReplayTransaction {
-  data: unknown;
-  events: unknown[];
-  execution_cost: unknown;
-  hex: string;
-  result: unknown;
-  result_hex: string;
-  post_condition_aborted: boolean;
-  stx_burned: number;
-  tx_index: number;
   txid: string;
+  tx_index: number;
+  data: StacksBlockReplayTransactionData;
+  hex: string;
+  result: StacksBlockReplayTransactionResult;
+  result_hex: string;
+  stx_burned: number;
+  execution_cost: StacksCost;
+  events: unknown[];
+  post_condition_aborted: boolean;
   vm_error: string | null;
+  cpu_instructions: number | null;
+  cpu_cycles: number | null;
+  cpu_ref_cycles: number | null;
 }
 
 export interface StacksBlockReplay {

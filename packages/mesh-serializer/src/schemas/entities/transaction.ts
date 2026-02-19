@@ -1,4 +1,4 @@
-import { Static, Type } from '@sinclair/typebox';
+import { Optional, Static, Type } from '@sinclair/typebox';
 import { BlockIdentifierSchema, StatusSchema, TransactionIdentifierSchema } from './common.js';
 import { ExecutionCostSchema } from './common.js';
 import { Nullable } from './common.js';
@@ -17,13 +17,13 @@ export type TransactionType = Static<typeof TransactionTypeSchema>;
 
 export const TransactionPositionSchema = Type.Object({
   index: Type.Integer(),
-  microblock_identifier: Nullable(BlockIdentifierSchema),
+  microblock_identifier: Optional(BlockIdentifierSchema),
 });
 export type TransactionPosition = Static<typeof TransactionPositionSchema>;
 
 export const TransactionMetadataSchema = Type.Object({
   canonical: Type.Boolean(),
-  microblock_canonical: Type.Boolean(),
+  microblock_canonical: Optional(Type.Boolean()),
   execution_cost: ExecutionCostSchema,
   fee_rate: Type.String(),
   nonce: Type.Integer(),

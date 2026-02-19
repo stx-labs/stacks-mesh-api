@@ -21,6 +21,9 @@ import type {
 } from './types.js';
 import { logger, timeout } from '@stacks/api-toolkit';
 
+/**
+ * Configuration for the Stacks RPC client.
+ */
 export interface StacksRpcConfig {
   hostname: string;
   port: number;
@@ -28,6 +31,9 @@ export interface StacksRpcConfig {
   timeout?: number;
 }
 
+/**
+ * A client for the Stacks RPC API.
+ */
 export class StacksRpcClient {
   private readonly config: StacksRpcConfig;
   private readonly logger = logger.child({ module: 'StacksRpcClient' });

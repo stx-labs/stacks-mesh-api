@@ -1,41 +1,43 @@
 import { hexToBuffer } from '@stacks/api-toolkit';
+import { Block, Transaction, Operation } from '@stacks/mesh-serializer';
 import {
-  DecodedNakamotoBlockResult,
-  DecodedTxResult,
-  TxPayloadTypeID,
-  TxPayloadTokenTransfer,
-  TxPayloadSmartContract,
-  TxPayloadVersionedSmartContract,
-  TxPayloadContractCall,
-  TxPayloadCoinbase,
-  TxPayloadCoinbaseToAltRecipient,
-  TxPayloadNakamotoCoinbase,
-  TxPayloadTenureChange,
-  PostConditionAuthFlag,
-  ClarityVersion,
-} from '@hirosystems/stacks-encoding-native-js';
-import { Block, Transaction } from '@stacks/mesh-serializer';
-import { Operation } from '@stacks/mesh-serializer';
-import { StacksBlockReplay } from '../services/types.js';
+  StacksBlockReplay,
+  StacksBlockReplayTransaction,
+  StacksBlockReplayTransactionPayload,
+  StacksBlockReplayTransactionPayloadTenureChange,
+  StacksBlockReplayTransactionSpendingCondition,
+} from '../stacks-rpc/types.js';
+
+export function removeHexPrefix(hex: string): string {
+  if (hex.startsWith('0x')) {
+    return hex.slice(2);
+  }
+  return hex;
+}
+
+export function addHexPrefix(hex: string): string {
+  if (!hex.startsWith('0x')) {
+    return `0x${hex}`;
+  }
+  return hex;
+}
 
 /**
  * Converts a decoded Stacks Nakamoto block to Mesh API Block format.
  */
-export function serializeReplayedNakamotoBlock(
-  replay: StacksBlockReplay,
-): Block {
+export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block {
   const blockHeight = replay.block_height;
   const block: Block = {
     block_identifier: {
       index: blockHeight,
-      hash: `0x${replay.block_hash}`,
+      hash: addHexPrefix(replay.block_id),
     },
     parent_block_identifier: {
       index: blockHeight > 0 ? blockHeight - 1 : 0,
-      hash: `0x${replay.parent_block_id}`,
+      hash: addHexPrefix(replay.parent_block_id),
     },
-    timestamp: Number(replay.timestamp) * 1000, // Convert to milliseconds
-    transactions: [],
+    timestamp: Number(replay.timestamp) * 1000,
+    transactions: replay.transactions.map(tx => serializeReplayedNakamotoTransaction(tx)),
   };
   // if (options?.includeBlockMetadata || options?.includeBlockSignatures) {
   //   block.metadata = {
@@ -68,62 +70,103 @@ export function serializeReplayedNakamotoBlock(
   return block;
 }
 
-/**
- * Converts a decoded Stacks transaction to Mesh API Transaction format.
- */
-export function serializeDecodedTransaction(
-  tx: DecodedTxResult,
-  index: number,
-): Transaction {
-  const sender_address = tx.auth.origin_condition.signer.address;
-  const sponsor_address =
-    tx.auth.type_id === PostConditionAuthFlag.Sponsored
-      ? tx.auth.sponsor_condition.signer.address
-      : null;
+function getTransactionSenderData(tx: StacksBlockReplayTransaction): {
+  sender_address: string;
+  sponsor_address: string | null;
+  sender_nonce: number;
+  sponsor_nonce: number | null;
+  tx_fee: number;
+} {
+  const getSignerData = (auth: StacksBlockReplayTransactionSpendingCondition) => {
+    if ('Singlesig' in auth) {
+      return {
+        address: auth.Singlesig.signer,
+        nonce: auth.Singlesig.nonce,
+        tx_fee: auth.Singlesig.tx_fee,
+      };
+    }
+    if ('Multisig' in auth) {
+      return {
+        address: auth.Multisig.signer,
+        nonce: auth.Multisig.nonce,
+        tx_fee: auth.Multisig.tx_fee,
+      };
+    }
+    if ('OrderIndependentMultisig' in auth) {
+      return {
+        address: auth.OrderIndependentMultisig.signer,
+        nonce: auth.OrderIndependentMultisig.nonce,
+        tx_fee: auth.OrderIndependentMultisig.tx_fee,
+      };
+    }
+    throw new Error(`Unexpected spending condition type: ${JSON.stringify(auth)}`);
+  };
+  if ('Sponsored' in tx.data.auth) {
+    const sender = getSignerData(tx.data.auth.Sponsored[0]);
+    const sponsor = getSignerData(tx.data.auth.Sponsored[1]);
+    return {
+      sender_address: sender.address,
+      sender_nonce: sender.nonce,
+      sponsor_address: sponsor.address,
+      sponsor_nonce: sponsor.nonce,
+      tx_fee: sender.tx_fee,
+    };
+  }
+  const sender = getSignerData(tx.data.auth.Standard);
+  return {
+    sender_address: sender.address,
+    sender_nonce: sender.nonce,
+    sponsor_address: null,
+    sponsor_nonce: null,
+    tx_fee: sender.tx_fee,
+  };
+}
 
+function serializeReplayedNakamotoTransaction(tx: StacksBlockReplayTransaction): Transaction {
+  const { sender_address, sponsor_address, tx_fee, sender_nonce, sponsor_nonce } =
+    getTransactionSenderData(tx);
   return {
     transaction_identifier: {
-      hash: `0x${tx.tx_id}`,
+      hash: addHexPrefix(tx.txid),
     },
     operations: serializeStacksTransactionOperations(tx),
     metadata: {
-      status: 'success', // TODO: Implement status
-      type: serializeTxType(tx.payload.type_id),
+      status: serializeTxStatus(tx),
+      type: serializeTxType(tx.data.payload),
       sponsored: sponsor_address !== null,
-      canonical: true, // TODO: Implement canonical
-      microblock_canonical: true,
+      canonical: true,
       execution_cost: {
-        read_count: 0, // TODO: Implement read count
-        read_length: 0, // TODO: Implement read length
-        runtime: 0, // TODO: Implement runtime
-        write_count: 0, // TODO: Implement write count
-        write_length: 0, // TODO: Implement write length
+        read_count: tx.execution_cost.read_count,
+        read_length: tx.execution_cost.read_length,
+        runtime: tx.execution_cost.runtime,
+        write_count: tx.execution_cost.write_count,
+        write_length: tx.execution_cost.write_length,
       },
-      fee_rate: tx.auth.origin_condition.tx_fee,
-      nonce: Number(tx.auth.origin_condition.nonce),
+      fee_rate: tx_fee.toString(),
+      nonce: sponsor_nonce ?? sender_nonce,
       position: {
-        index,
-        microblock_identifier: null, // TODO: Implement microblock identifier
+        index: tx.tx_index,
       },
-      raw_tx: undefined, // TODO: Implement raw tx based on options
-      result: 'ok', // TODO: Implement result
+      raw_tx: addHexPrefix(tx.hex),
+      result: serializeTxResult(tx),
       sender_address,
       sponsor_address,
-      vm_error: null, // TODO: Implement vm error
+      vm_error: tx.vm_error,
       post_conditions: undefined, // TODO: Implement post conditions
     },
   };
 }
 
-// function serializeTxResult(raw_result: string, options: StacksSerializationOptions) {
-//   if (options.decodeClarityValues) {
-//     return {
-//       hex: raw_result,
-//       repr: decodeClarityValueToRepr(raw_result),
-//     };
-//   }
-//   return raw_result;
-// }
+function serializeTxResult(tx: StacksBlockReplayTransaction) {
+  // TODO: Decode clarity values
+  // if (options.decodeClarityValues) {
+  //   return {
+  //     hex: raw_result,
+  //     repr: decodeClarityValueToRepr(raw_result),
+  //   };
+  // }
+  return addHexPrefix(tx.result_hex);
+}
 
 // function serializePostConditions(tx: StacksDbTransaction, options: StacksSerializationOptions) {
 //   if (!options.includePostConditions) {
@@ -206,61 +249,48 @@ export function serializeDecodedTransaction(
 //   };
 // }
 
-// function serializeTenureChangeCause(cause: number) {
-//   switch (cause) {
-//     case 0:
-//       return 'block_found';
-//     case 1:
-//       return 'extended';
-//     default:
-//       throw new Error(`Unexpected tenure change cause value ${cause}`);
-//   }
-// }
+function serializeTxStatus(tx: StacksBlockReplayTransaction): 'success' {
+  return 'success'; // TODO: Implement status
+  // switch (txStatus) {
+  //   case StacksDbTxStatus.Pending:
+  //     return 'pending';
+  //   case StacksDbTxStatus.Success:
+  //     return 'success';
+  //   case StacksDbTxStatus.AbortByResponse:
+  //     return 'abort_by_response';
+  //   case StacksDbTxStatus.AbortByPostCondition:
+  //     return 'abort_by_post_condition';
+  //   case StacksDbTxStatus.DroppedReplaceByFee:
+  //     return 'dropped_replace_by_fee';
+  //   case StacksDbTxStatus.DroppedReplaceAcrossFork:
+  //     return 'dropped_replace_across_fork';
+  //   case StacksDbTxStatus.DroppedTooExpensive:
+  //     return 'dropped_too_expensive';
+  //   case StacksDbTxStatus.DroppedProblematic:
+  //     return 'dropped_problematic';
+  //   case StacksDbTxStatus.DroppedStaleGarbageCollect:
+  //   case StacksDbTxStatus.DroppedApiGarbageCollect:
+  //     return 'dropped_stale_garbage_collect';
+  //   default:
+  //     throw new Error(`Unexpected DbTxStatus: ${txStatus}`);
+  // }
+}
 
-// function serializeTxStatus(txStatus: StacksDbTxStatus) {
-//   switch (txStatus) {
-//     case StacksDbTxStatus.Pending:
-//       return 'pending';
-//     case StacksDbTxStatus.Success:
-//       return 'success';
-//     case StacksDbTxStatus.AbortByResponse:
-//       return 'abort_by_response';
-//     case StacksDbTxStatus.AbortByPostCondition:
-//       return 'abort_by_post_condition';
-//     case StacksDbTxStatus.DroppedReplaceByFee:
-//       return 'dropped_replace_by_fee';
-//     case StacksDbTxStatus.DroppedReplaceAcrossFork:
-//       return 'dropped_replace_across_fork';
-//     case StacksDbTxStatus.DroppedTooExpensive:
-//       return 'dropped_too_expensive';
-//     case StacksDbTxStatus.DroppedProblematic:
-//       return 'dropped_problematic';
-//     case StacksDbTxStatus.DroppedStaleGarbageCollect:
-//     case StacksDbTxStatus.DroppedApiGarbageCollect:
-//       return 'dropped_stale_garbage_collect';
-//     default:
-//       throw new Error(`Unexpected DbTxStatus: ${txStatus}`);
-//   }
-// }
-
-function serializeTxType(type: TxPayloadTypeID) {
-  switch (type) {
-    case TxPayloadTypeID.TokenTransfer:
-      return 'token_transfer';
-    case TxPayloadTypeID.SmartContract:
-    case TxPayloadTypeID.VersionedSmartContract:
-      return 'contract_deploy';
-    case TxPayloadTypeID.ContractCall:
-      return 'contract_call';
-    case TxPayloadTypeID.PoisonMicroblock:
-      return 'poison_microblock';
-    case TxPayloadTypeID.Coinbase:
-    case TxPayloadTypeID.CoinbaseToAltRecipient:
-    case TxPayloadTypeID.NakamotoCoinbase:
-      return 'coinbase';
-    case TxPayloadTypeID.TenureChange:
-      return 'tenure_change';
+function serializeTxType(payload: StacksBlockReplayTransactionPayload) {
+  if ('TenureChange' in payload) {
+    return 'tenure_change';
+  } else if ('TokenTransfer' in payload) {
+    return 'token_transfer';
+  } else if ('SmartContract' in payload) {
+    return 'contract_deploy';
+  } else if ('ContractCall' in payload) {
+    return 'contract_call';
+  } else if ('PoisonMicroblock' in payload) {
+    return 'poison_microblock';
+  } else if ('Coinbase' in payload) {
+    return 'coinbase';
   }
+  throw new Error(`Unexpected transaction payload type: ${JSON.stringify(payload)}`);
 }
 
 function parseTransactionMemo(memoHex: string | undefined): string | null {
@@ -448,22 +478,46 @@ function makeStxCurrency() {
 //   };
 // }
 
-// function makeTenureChangeOperation(tx: StacksDbTransaction, index: number = 0): Operation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'tenure_change',
-//     status: serializeTxStatus(tx.status),
-//     metadata: {
-//       tenure_consensus_hash: unwrap(tx.tenure_change_tenure_consensus_hash),
-//       prev_tenure_consensus_hash: unwrap(tx.tenure_change_prev_tenure_consensus_hash),
-//       burn_view_consensus_hash: unwrap(tx.tenure_change_burn_view_consensus_hash),
-//       previous_tenure_blocks: unwrap(tx.tenure_change_previous_tenure_blocks),
-//       previous_tenure_end: unwrap(tx.tenure_change_previous_tenure_end),
-//       cause: serializeTenureChangeCause(unwrap(tx.tenure_change_cause)),
-//       pubkey_hash: unwrap(tx.tenure_change_pubkey_hash),
-//     },
-//   };
-// }
+function makeTenureChangeOperation(
+  tx: StacksBlockReplayTransaction,
+  payload: StacksBlockReplayTransactionPayloadTenureChange,
+  index: number = 0
+): Operation {
+  const getCause = (cause: string) => {
+    switch (cause) {
+      case 'BlockFound':
+        return 'block_found';
+      case 'Extended':
+        return 'extended';
+      case 'ExtendedRuntime':
+        return 'extended_runtime';
+      case 'ExtendedReadCount':
+        return 'extended_read_count';
+      case 'ExtendedReadLength':
+        return 'extended_read_length';
+      case 'ExtendedWriteCount':
+        return 'extended_write_count';
+      case 'ExtendedWriteLength':
+        return 'extended_write_length';
+      default:
+        throw new Error(`Unexpected tenure change cause: ${cause}`);
+    }
+  };
+  return {
+    operation_identifier: { index },
+    type: 'tenure_change',
+    status: serializeTxStatus(tx),
+    metadata: {
+      tenure_consensus_hash: addHexPrefix(payload.TenureChange.tenure_consensus_hash),
+      prev_tenure_consensus_hash: addHexPrefix(payload.TenureChange.prev_tenure_consensus_hash),
+      burn_view_consensus_hash: addHexPrefix(payload.TenureChange.burn_view_consensus_hash),
+      previous_tenure_blocks: payload.TenureChange.previous_tenure_blocks,
+      previous_tenure_end: addHexPrefix(payload.TenureChange.previous_tenure_end),
+      cause: getCause(payload.TenureChange.cause),
+      pubkey_hash: addHexPrefix(payload.TenureChange.pubkey_hash),
+    },
+  };
+}
 
 // function makePoisonMicroblockOperation(
 //   tx: StacksDbTransaction,
@@ -747,11 +801,12 @@ function makeStxCurrency() {
 //   };
 // }
 
-function serializeStacksTransactionOperations(
-  tx: DecodedTxResult,
-): Operation[] {
+function serializeStacksTransactionOperations(tx: StacksBlockReplayTransaction): Operation[] {
   const ops: Operation[] = [];
 
+  if ('TenureChange' in tx.data.payload) {
+    ops.push(makeTenureChangeOperation(tx, tx.data.payload));
+  }
   // Add operations from transaction data.
   // switch (tx.payload.type_id) {
   //   case TxPayloadTypeID.TokenTransfer:
@@ -785,9 +840,6 @@ function serializeStacksTransactionOperations(
   //   case TxPayloadTypeID.NakamotoCoinbase:
   //     ops.push(makeCoinbaseOperation(tx));
   //     // TODO: Add miner rewards and unlocks
-  //     break;
-  //   case TxPayloadTypeID.TenureChange:
-  //     ops.push(makeTenureChangeOperation(tx));
   //     break;
   // }
 

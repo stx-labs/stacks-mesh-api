@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { StacksRpcClient } from '../services/stacks-rpc-client.js';
+import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
 import { PINO_LOGGER_CONFIG } from '@stacks/api-toolkit';
 import { MeshApiRoutes } from './routes/index.js';
 import cors from '@fastify/cors';

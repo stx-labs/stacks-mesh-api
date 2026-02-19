@@ -1,4 +1,4 @@
-import { StacksRpcClient } from './services/stacks-rpc-client.js';
+import { StacksRpcClient } from './stacks-rpc/stacks-rpc-client.js';
 import { ENV } from './env.js';
 import { logger, registerShutdownConfig } from '@stacks/api-toolkit';
 import { buildApiServer } from './api/index.js';
