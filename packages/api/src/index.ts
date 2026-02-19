@@ -6,16 +6,16 @@ import { getStacksNetworkName } from './utils/constants.js';
 
 export async function initApp() {
   const rpcClient = new StacksRpcClient({
-    baseUrl: `http://${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}`,
+    hostname: ENV.STACKS_CORE_RPC_HOST,
+    port: ENV.STACKS_CORE_RPC_PORT,
     authToken: ENV.STACKS_CORE_RPC_AUTH_TOKEN,
+    timeout: ENV.STACKS_CORE_RPC_TIMEOUT_MS,
   });
-  const nodeInfo = await rpcClient.getInfo();
-  // TODO: use this to check node connection status
-  const network = getStacksNetworkName(nodeInfo.network_id);
+  const nodeInfo = await rpcClient.waitForNodeReady();
 
   const apiServer = await buildApiServer({
     rpcClient,
-    network,
+    network: getStacksNetworkName(nodeInfo.network_id),
     nodeVersion: nodeInfo.server_version,
   });
   registerShutdownConfig({
@@ -25,7 +25,6 @@ export async function initApp() {
       await apiServer.close();
     },
   });
-
   await apiServer.listen({
     host: ENV.API_HOST,
     port: ENV.API_PORT,

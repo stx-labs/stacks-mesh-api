@@ -19,25 +19,30 @@ import type {
   StacksContractDataVar,
   StacksContractMapEntry,
 } from './types.js';
+import { logger, timeout } from '@stacks/api-toolkit';
 
 export interface StacksRpcConfig {
-  baseUrl: string;
+  hostname: string;
+  port: number;
   authToken: string;
   timeout?: number;
 }
 
 export class StacksRpcClient {
   private readonly config: StacksRpcConfig;
+  private readonly logger = logger.child({ module: 'StacksRpcClient' });
+  private readonly baseUrl: string;
 
   constructor(config: StacksRpcConfig) {
     this.config = config;
+    this.baseUrl = `http://${this.config.hostname}:${this.config.port}`;
   }
 
   private async request<T>(
     method: 'GET' | 'POST',
     path: string,
     body: unknown | null = null,
-    authenticated: boolean = false,
+    authenticated: boolean = false
   ): Promise<T> {
     return this.requestRaw<T>(
       method,
@@ -57,30 +62,26 @@ export class StacksRpcClient {
     headers?: Record<string, string>,
     responseType: 'json' | 'buffer' = 'buffer'
   ): Promise<T> {
-    const url = `${this.config.baseUrl}${path}`;
+    const url = `${this.baseUrl}${path}`;
     const requestHeaders = {
-      ...(authenticated ? { 'authorization': this.config.authToken } : {}),
+      ...(authenticated ? { authorization: this.config.authToken } : {}),
       ...(headers || {}),
     };
     const { statusCode, body: responseBody } = await request(url, {
       method,
       headers: requestHeaders,
       body,
-      bodyTimeout: this.config.timeout ?? 30000,
-      headersTimeout: this.config.timeout ?? 30000,
+      bodyTimeout: this.config.timeout,
+      headersTimeout: this.config.timeout,
     });
 
     if (statusCode < 200 || statusCode >= 300) {
       const errorText = await responseBody.text();
-      throw new StacksRpcError(
-        `RPC request failed: ${statusCode}`,
-        statusCode,
-        errorText
-      );
+      throw new StacksRpcError(`RPC request failed: ${statusCode} - ${errorText}`, statusCode, errorText);
     }
 
     if (responseType === 'json') {
-      return await responseBody.json() as T;
+      return (await responseBody.json()) as T;
     } else {
       return Buffer.from(await responseBody.arrayBuffer()) as T;
     }
@@ -90,6 +91,23 @@ export class StacksRpcClient {
 
   async getInfo(): Promise<StacksNodeInfo> {
     return this.request<StacksNodeInfo>('GET', '/v2/info');
+  }
+
+  async waitForNodeReady(): Promise<StacksNodeInfo> {
+    this.logger.info(`Connecting to Stacks node at ${this.config.hostname}:${this.config.port}...`);
+    while (true) {
+      try {
+        const nodeInfo = await this.getInfo();
+        this.logger.info(
+          { server_version: nodeInfo.server_version, network_id: nodeInfo.network_id },
+          `Connected to Stacks node`
+        );
+        return nodeInfo;
+      } catch (error) {
+        this.logger.warn(error, `Stacks node not ready, trying again in 1s...`);
+        await timeout(1000);
+      }
+    }
   }
 
   async getPoxInfo(): Promise<StacksPoxInfo> {
@@ -154,7 +172,7 @@ export class StacksRpcClient {
 
   async broadcastTransaction(txHex: string): Promise<StacksBroadcastResponse> {
     const txBytes = hexToBytes(txHex);
-    const url = `${this.config.baseUrl}/v2/transactions`;
+    const url = `${this.baseUrl}/v2/transactions`;
     const headers: Record<string, string> = {
       'content-type': 'application/octet-stream',
     };
@@ -163,8 +181,8 @@ export class StacksRpcClient {
       method: 'POST',
       headers,
       body: txBytes,
-      bodyTimeout: this.config.timeout ?? 30000,
-      headersTimeout: this.config.timeout ?? 30000,
+      bodyTimeout: this.config.timeout,
+      headersTimeout: this.config.timeout,
     });
 
     if (statusCode < 200 || statusCode >= 300) {
@@ -217,32 +235,32 @@ export class StacksRpcClient {
 
   async getContractInterface(
     contractAddress: string,
-    contractName: string,
+    contractName: string
   ): Promise<StacksContractInterface> {
     return this.request<StacksContractInterface>(
       'GET',
-      `/v2/contracts/interface/${contractAddress}/${contractName}`,
+      `/v2/contracts/interface/${contractAddress}/${contractName}`
     );
   }
 
   async getContractSource(
     contractAddress: string,
-    contractName: string,
+    contractName: string
   ): Promise<StacksContractSource> {
     return this.request<StacksContractSource>(
       'GET',
-      `/v2/contracts/source/${contractAddress}/${contractName}`,
+      `/v2/contracts/source/${contractAddress}/${contractName}`
     );
   }
 
   async getContractConstantVal(
     contractAddress: string,
     contractName: string,
-    constantName: string,
+    constantName: string
   ): Promise<StacksContractConstantVal> {
     return this.request<StacksContractConstantVal>(
       'GET',
-      `/v2/constant_val/${contractAddress}/${contractName}/${constantName}`,
+      `/v2/constant_val/${contractAddress}/${contractName}/${constantName}`
     );
   }
 
@@ -252,7 +270,7 @@ export class StacksRpcClient {
     functionName: string,
     args: string[],
     sender: string,
-    sponsor?: string,
+    sponsor?: string
   ): Promise<StacksContractCallReadOnlyResult> {
     const body: Record<string, unknown> = { sender, arguments: args };
     if (sponsor) {
@@ -269,7 +287,7 @@ export class StacksRpcClient {
     contractAddress: string,
     contractName: string,
     mapName: string,
-    key: string,
+    key: string
   ): Promise<StacksContractMapEntry> {
     return this.request<StacksContractMapEntry>(
       'POST',
@@ -281,11 +299,11 @@ export class StacksRpcClient {
   async getContractDataVar(
     principal: string,
     contractName: string,
-    varName: string,
+    varName: string
   ): Promise<StacksContractDataVar> {
     return this.request<StacksContractDataVar>(
       'GET',
-      `/v2/data_var/${principal}/${contractName}/${varName}`,
+      `/v2/data_var/${principal}/${contractName}/${varName}`
     );
   }
 }
