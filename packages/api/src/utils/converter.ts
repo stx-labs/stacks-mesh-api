@@ -1,4 +1,4 @@
-import { hexToBuffer } from '@hirosystems/api-toolkit';
+import { hexToBuffer } from '@stacks/api-toolkit';
 import {
   DecodedNakamotoBlockResult,
   DecodedTxResult,
@@ -16,38 +16,26 @@ import {
 } from '@hirosystems/stacks-encoding-native-js';
 import { Block, Transaction } from '@stacks/mesh-serializer';
 import { Operation } from '@stacks/mesh-serializer';
-
-export type StacksSerializationOptions = {
-  decodeClarityValues: boolean;
-  includeContractAbi: boolean;
-  includeContractSourceCode: boolean;
-  includeBlockSignatures: boolean;
-  includeBlockMetadata: boolean;
-  includePostConditions: boolean;
-  includeRawTransactions: boolean;
-};
+import { StacksBlockReplay } from '../services/types.js';
 
 /**
  * Converts a decoded Stacks Nakamoto block to Mesh API Block format.
  */
-export function serializeDecodedNakamotoBlock(
-  decodedBlock: DecodedNakamotoBlockResult,
-  options?: StacksSerializationOptions
+export function serializeReplayedNakamotoBlock(
+  replay: StacksBlockReplay,
 ): Block {
-  const blockHeight = Number(decodedBlock.header.chain_length);
+  const blockHeight = replay.block_height;
   const block: Block = {
     block_identifier: {
       index: blockHeight,
-      hash: `0x${decodedBlock.block_id}`,
+      hash: `0x${replay.block_hash}`,
     },
     parent_block_identifier: {
       index: blockHeight > 0 ? blockHeight - 1 : 0,
-      hash: `0x${decodedBlock.header.parent_block_id}`,
+      hash: `0x${replay.parent_block_id}`,
     },
-    timestamp: Number(decodedBlock.header.timestamp) * 1000, // Convert to milliseconds
-    transactions: decodedBlock.txs.map((tx, index) =>
-      serializeDecodedTransaction(tx, index, options)
-    ),
+    timestamp: Number(replay.timestamp) * 1000, // Convert to milliseconds
+    transactions: [],
   };
   // if (options?.includeBlockMetadata || options?.includeBlockSignatures) {
   //   block.metadata = {
@@ -86,7 +74,6 @@ export function serializeDecodedNakamotoBlock(
 export function serializeDecodedTransaction(
   tx: DecodedTxResult,
   index: number,
-  options?: StacksSerializationOptions
 ): Transaction {
   const sender_address = tx.auth.origin_condition.signer.address;
   const sponsor_address =
@@ -98,7 +85,7 @@ export function serializeDecodedTransaction(
     transaction_identifier: {
       hash: `0x${tx.tx_id}`,
     },
-    operations: serializeStacksTransactionOperations(tx, options),
+    operations: serializeStacksTransactionOperations(tx),
     metadata: {
       status: 'success', // TODO: Implement status
       type: serializeTxType(tx.payload.type_id),
@@ -762,7 +749,6 @@ function makeStxCurrency() {
 
 function serializeStacksTransactionOperations(
   tx: DecodedTxResult,
-  options?: StacksSerializationOptions
 ): Operation[] {
   const ops: Operation[] = [];
 

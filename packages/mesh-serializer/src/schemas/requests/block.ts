@@ -4,13 +4,13 @@ import { Static, Type } from '@sinclair/typebox';
 
 export const BlockRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  block_identifier: BlockIdentifierSchema,
+  block_identifier: Type.Partial(BlockIdentifierSchema),
 });
 export type BlockRequest = Static<typeof BlockRequestSchema>;
 
 export const BlockTransactionRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  block_identifier: BlockIdentifierSchema,
+  block_identifier: Type.Partial(BlockIdentifierSchema),
   transaction_identifier: TransactionIdentifierSchema,
 });
 export type BlockTransactionRequest = Static<typeof BlockTransactionRequestSchema>;

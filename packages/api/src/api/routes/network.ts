@@ -20,7 +20,7 @@ import {
   OPERATION_TYPES,
   MESH_SPECIFICATION_VERSION,
 } from '../../utils/constants.js';
-import { SERVER_VERSION } from '@hirosystems/api-toolkit';
+import { SERVER_VERSION } from '@stacks/api-toolkit';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;

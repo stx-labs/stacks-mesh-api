@@ -17,58 +17,37 @@ import {
   Transaction,
   TransactionIdentifier,
 } from '@stacks/mesh-serializer';
-import { serializeDecodedNakamotoBlock } from '../../utils/converter.js';
+import { serializeReplayedNakamotoBlock } from '../../utils/converter.js';
 import { serializeDecodedTransaction } from '../../utils/converter.js';
 
 export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
-  // POST /block
-  // fastify.post(
-  //   '/block',
-  //   {
-  //     schema: {
-  //       body: BlockRequestSchema,
-  //       response: {
-  //         200: BlockResponseSchema,
-  //         500: ErrorResponseSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier, block_identifier } = request.body;
-
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
-
-  //     if (!block_identifier.hash && block_identifier.index === undefined) {
-  //       return reply.status(500).send(MeshErrors.blockIdentifierRequired());
-  //     }
-
-  //     try {
-  //       const block = await fetchAndParseBlock(rpcClient, block_identifier);
-
-  //       const response: BlockResponse = {
-  //         block,
-  //       };
-
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       if (error instanceof BlockNotFoundError) {
-  //         return reply
-  //           .status(500)
-  //           .send(
-  //             MeshErrors.blockNotFound(block_identifier.hash ?? String(block_identifier.index))
-  //           );
-  //       }
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       fastify.log.error({ error }, 'Failed to fetch block');
-  //       return reply.status(500).send(MeshErrors.rpcError(message));
-  //     }
-  //   }
-  // );
+  fastify.post(
+    '/block',
+    {
+      schema: {
+        body: BlockRequestSchema,
+        response: {
+          200: BlockResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { block_identifier } = request.body;
+      const block = await fetchAndParseNakamotoBlock(rpcClient, block_identifier);
+      if (!block) {
+        return reply
+          .status(500)
+          .send(MeshErrors.blockNotFound(block_identifier.hash ?? String(block_identifier.index)));
+      }
+      const response: BlockResponse = {
+        block,
+      };
+      return reply.send(response);
+    }
+  );
 
   // // POST /block/transaction
   // fastify.post(
@@ -133,60 +112,26 @@ class TransactionNotFoundError extends Error {
   }
 }
 
-async function fetchAndParseBlock(
+async function fetchAndParseNakamotoBlock(
   rpcClient: StacksRpcClient,
-  blockIdentifier: BlockIdentifier
-): Promise<Block> {
+  blockIdentifier: Partial<BlockIdentifier>
+): Promise<Block | null> {
   try {
     let blockBytes: Buffer;
-
     if (blockIdentifier.index !== undefined) {
-      // Fetch by height
       blockBytes = await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index);
     } else if (blockIdentifier.hash) {
-      // Fetch by hash - remove 0x prefix if present for RPC call
-      const hash = blockIdentifier.hash.startsWith('0x')
-        ? blockIdentifier.hash.slice(2)
-        : blockIdentifier.hash;
-      blockBytes = await rpcClient.getNakamotoBlockByHash(hash);
+      blockBytes = await rpcClient.getNakamotoBlockByHash(blockIdentifier.hash);
     } else {
-      throw new Error('Block identifier must include hash or index');
+      return null;
     }
-
-    // Decode the block binary
     const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
 
-    // Fetch confirmed transaction data for each transaction in the block
-    const confirmedTxDataMap = new Map<
-      string,
-      Awaited<ReturnType<typeof rpcClient.getConfirmedTransaction>>
-    >();
-    await Promise.all(
-      decodedBlock.txs.map(async tx => {
-        try {
-          // Remove 0x prefix if present for RPC call
-          const txId = tx.tx_id.startsWith('0x') ? tx.tx_id.slice(2) : tx.tx_id;
-          const confirmedTxData = await rpcClient.getConfirmedTransaction(txId);
-          confirmedTxDataMap.set(tx.tx_id, confirmedTxData);
-        } catch (error) {
-          // Log error but don't fail the whole block fetch
-          console.error(`Failed to fetch confirmed transaction data for ${tx.tx_id}:`, error);
-        }
-      })
-    );
-
-    // The block height is in the header's chain_length field
-    const blockHeight = Number(decodedBlock.header.chain_length);
-
-    // Parent block hash is in the header
-    const parentBlockHash = decodedBlock.header.parent_block_id;
-
-    // Convert to Mesh format using the serializer package
-    // Note: confirmedTxDataMap is available here if needed for future enhancements
-    return serializeDecodedNakamotoBlock(decodedBlock);
+    const replay = await rpcClient.replayNakamotoBlock(decodedBlock.header.index_block_hash);
+    return serializeReplayedNakamotoBlock(replay);
   } catch (error) {
     if (error instanceof StacksRpcError && error.statusCode === 404) {
-      throw new BlockNotFoundError(blockIdentifier.hash ?? String(blockIdentifier.index));
+      return null;
     }
     throw error;
   }
@@ -194,7 +139,7 @@ async function fetchAndParseBlock(
 
 async function fetchBlockTransaction(
   rpcClient: StacksRpcClient,
-  blockIdentifier: BlockIdentifier,
+  blockIdentifier: Partial<BlockIdentifier>,
   txIdentifier: TransactionIdentifier
 ): Promise<Transaction> {
   try {
