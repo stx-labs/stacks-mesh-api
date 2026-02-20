@@ -382,6 +382,10 @@ export type StacksBlockReplayTransactionSpendingCondition =
       };
     };
 
+export interface StacksBlockReplayTransactionPayloadTokenTransfer {
+  TokenTransfer: [{ Standard: [number, number[]] }, number, number[]];
+}
+
 export interface StacksBlockReplayTransactionPayloadTenureChange {
   TenureChange: {
     tenure_consensus_hash: string;
@@ -394,7 +398,9 @@ export interface StacksBlockReplayTransactionPayloadTenureChange {
   };
 }
 
-export type StacksBlockReplayTransactionPayload = StacksBlockReplayTransactionPayloadTenureChange;
+export type StacksBlockReplayTransactionPayload =
+  | StacksBlockReplayTransactionPayloadTokenTransfer
+  | StacksBlockReplayTransactionPayloadTenureChange;
 
 export interface StacksBlockReplayTransactionData {
   version: 'Mainnet' | 'Testnet';
@@ -412,6 +418,21 @@ export type StacksBlockReplayTransactionResult = {
   Response: { committed: boolean; data: unknown }; // TODO: finish
 };
 
+export interface StacksBlockReplayTransactionStxTransferEvent {
+  committed: boolean;
+  event_index: number;
+  stx_transfer_event: {
+    amount: string;
+    memo: string;
+    recipient: string;
+    sender: string;
+  };
+  txid: string;
+  type: 'stx_transfer_event';
+}
+
+export type StacksBlockReplayTransactionEvent = StacksBlockReplayTransactionStxTransferEvent;
+
 export interface StacksBlockReplayTransaction {
   txid: string;
   tx_index: number;
@@ -421,7 +442,7 @@ export interface StacksBlockReplayTransaction {
   result_hex: string;
   stx_burned: number;
   execution_cost: StacksCost;
-  events: unknown[];
+  events: StacksBlockReplayTransactionEvent[];
   post_condition_aborted: boolean;
   vm_error: string | null;
   cpu_instructions: number | null;

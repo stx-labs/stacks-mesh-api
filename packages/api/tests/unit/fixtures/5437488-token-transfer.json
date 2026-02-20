@@ -1,0 +1,84 @@
+{
+  "block_id": "a6fcd9009db60ddc55cb65e7cd0631434007efc2784f27701947fe7cb818e7ef",
+  "block_hash": "1b232eb5bb0c7399a057d1c2cf2d33675171fcc1a3a66c1c7d7eece89aeb4c57",
+  "block_height": 5437488,
+  "parent_block_id": "2140493941b80f90230b1db30fe4a90da1683f9a6aaa71eb3a976f167b12ebfe",
+  "consensus_hash": "51e178ffdea53e02bbef13cdd2cec889728f8686",
+  "fees": 180,
+  "tx_merkle_root": "6d0f852e80d221d175662ddd83f804bcc843159db86ad8fecdf8b8d1807e50c0",
+  "state_index_root": "1190d5c2715ca14cc479518c4a137d21a466eda90e0b912dcdc3a0c1d0f4c758",
+  "timestamp": 1766364202,
+  "miner_signature": "011b55d1249accb70679b3fb5b8829e32af22b4610f8927c863532b08e1351d2eb7c98126d69d13c38296e15089afc5c296ac6b94368e41c2d1ef4b06138f8b78c",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "79a23f671d685696379dbe0b0a48988b3fc41fe7240c30ee1c48e5ebb24c6451",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8",
+              "nonce": 2028011,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "0142538f3a0ebb2d1f951ab012c551fbf57d0d11cb394f180dd0379cbfac90375e46a5cedb1a7ded75211149e167e49b4dc2595c741ea13fac58dc7562d5e26e09"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  242, 187, 166, 223, 117, 23, 85, 171, 154, 193, 223, 139, 56, 125, 152, 28, 254,
+                  38, 92, 223
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce800000000001ef1eb00000000000000b4000142538f3a0ebb2d1f951ab012c551fbf57d0d11cb394f180dd0379cbfac90375e46a5cedb1a7ded75211149e167e49b4dc2595c741ea13fac58dc7562d5e26e09030200000000000516f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2",
+            "sender": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR"
+          },
+          "txid": "0x79a23f671d685696379dbe0b0a48988b3fc41fe7240c30ee1c48e5ebb24c6451",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}
