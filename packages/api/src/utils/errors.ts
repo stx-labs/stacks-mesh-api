@@ -145,8 +145,8 @@ export const MeshErrors = {
       message
     ),
 
-  invalidRequest: (reason: string): ErrorResponse =>
-    createMeshError(ErrorCodes.INVALID_REQUEST, 'Invalid request', false, reason),
+  invalidRequest: (reason: string, details?: Record<string, unknown>): ErrorResponse =>
+    createMeshError(ErrorCodes.INVALID_REQUEST, 'Invalid request', false, reason, details),
 
   rpcError: (reason: string, details?: Record<string, unknown>): ErrorResponse =>
     createMeshError(ErrorCodes.RPC_ERROR, 'RPC error', true, reason, details),

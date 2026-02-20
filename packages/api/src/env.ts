@@ -8,7 +8,7 @@ const schema = Type.Object({
   API_PORT: Type.Number({ default: 3000, minimum: 0, maximum: 65535 }),
 
   /** Hostname of the Stacks Core RPC server */
-  STACKS_CORE_RPC_HOST: Type.String(),
+  STACKS_CORE_RPC_HOST: Type.String({ format: 'hostname' }),
   /** Port for the Stacks Core RPC server */
   STACKS_CORE_RPC_PORT: Type.Integer({ default: 20443, minimum: 0, maximum: 65535 }),
   /** Auth token for the Stacks Core RPC server */
