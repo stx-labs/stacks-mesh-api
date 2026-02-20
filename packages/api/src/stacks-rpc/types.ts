@@ -398,9 +398,22 @@ export interface StacksBlockReplayTransactionPayloadTenureChange {
   };
 }
 
+export interface StacksBlockReplayTransactionPayloadContractCall {
+  ContractCall: {
+    address: {
+      version: number;
+      bytes: string;
+    };
+    contract_name: string;
+    function_name: string;
+    function_args: unknown[]; // TODO: implement
+  };
+}
+
 export type StacksBlockReplayTransactionPayload =
   | StacksBlockReplayTransactionPayloadTokenTransfer
-  | StacksBlockReplayTransactionPayloadTenureChange;
+  | StacksBlockReplayTransactionPayloadTenureChange
+  | StacksBlockReplayTransactionPayloadContractCall;
 
 export interface StacksBlockReplayTransactionData {
   version: 'Mainnet' | 'Testnet';
