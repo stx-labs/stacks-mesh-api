@@ -6,7 +6,7 @@ import {
   AccountBalanceResponseSchema,
   AccountCoinsRequestSchema,
   ErrorResponseSchema,
-} from '@stacks/mesh-serializer';
+} from '../../../../schemas/dist/index.js';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
 

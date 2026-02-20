@@ -1,4 +1,4 @@
-import { OperationStatus } from '@stacks/mesh-serializer';
+import { OperationStatus } from '../../../schemas/dist/index.js';
 
 export const MESH_SPECIFICATION_VERSION = '1.5.1';
 

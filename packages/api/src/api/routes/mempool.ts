@@ -1,6 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { RouteConfig } from '../index.js';
-import { ErrorResponseSchema, MempoolTransactionRequestSchema, MempoolTransactionResponseSchema } from '@stacks/mesh-serializer';
+import { ErrorResponseSchema, MempoolTransactionRequestSchema, MempoolTransactionResponseSchema } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 
 export const MempoolRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (

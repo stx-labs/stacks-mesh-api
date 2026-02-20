@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @stacks/mesh-serializer && npm run build -w @stacks/mesh-api",
+    "build": "npm run build -w @stacks/mesh-schemas && npm run build -w @stacks/mesh-api",
     "clean": "npm run clean --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "npm run lint --workspaces --if-present",

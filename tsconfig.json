@@ -15,7 +15,7 @@
   },
   "files": [],
   "references": [
-    { "path": "packages/mesh-serializer" },
+    { "path": "packages/schemas" },
     { "path": "packages/api" }
   ]
 }

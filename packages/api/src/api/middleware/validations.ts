@@ -1,4 +1,4 @@
-import { ErrorResponse, NetworkIdentifier } from '@stacks/mesh-serializer';
+import { ErrorResponse, NetworkIdentifier } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { RouteConfig } from '../index.js';

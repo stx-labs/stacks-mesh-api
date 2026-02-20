@@ -1,7 +1,7 @@
 {
-  "name": "@stacks/mesh-serializer",
+  "name": "@stacks/mesh-schemas",
   "version": "1.0.0",
-  "description": "Mesh API serializer for Stacks blockchain transactions and blocks",
+  "description": "Mesh API schemas for Stacks blockchain transactions and blocks",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,12 +24,12 @@
     "mesh",
     "rosetta",
     "blockchain",
-    "serializer"
+    "schemas"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/stx-labs/stacks-mesh-api",
-    "directory": "packages/mesh-serializer"
+    "directory": "packages/mesh-schemas"
   },
   "license": "MIT",
   "dependencies": {

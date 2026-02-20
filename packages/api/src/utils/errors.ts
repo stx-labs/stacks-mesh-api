@@ -1,4 +1,4 @@
-import { ErrorResponse } from '@stacks/mesh-serializer';
+import { ErrorResponse } from '../../../schemas/dist/index.js';
 
 // Mesh API standard error codes
 export const ErrorCodes = {

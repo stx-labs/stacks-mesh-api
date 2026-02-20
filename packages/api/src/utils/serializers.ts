@@ -1,5 +1,5 @@
 import { hexToBuffer } from '@stacks/api-toolkit';
-import { Block, Transaction, Operation, Status, Currency } from '@stacks/mesh-serializer';
+import { Block, Transaction, Operation, Status, Currency } from '../../../schemas/dist/index.js';
 import codec from '@hirosystems/stacks-encoding-native-js';
 import {
   StacksBlockReplay,

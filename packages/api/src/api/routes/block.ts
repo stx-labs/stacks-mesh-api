@@ -9,7 +9,7 @@ import {
   BlockTransactionRequestSchema,
   BlockTransactionResponseSchema,
   ErrorResponseSchema,
-} from '@stacks/mesh-serializer';
+} from '../../../../schemas/dist/index.js';
 import {
   removeHexPrefix,
   serializeReplayedNakamotoBlock,

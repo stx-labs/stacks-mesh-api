@@ -4,7 +4,7 @@ import {
   CallRequestSchema,
   CallResponseSchema,
   ErrorResponseSchema,
-} from '@stacks/mesh-serializer';
+} from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 
 export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {

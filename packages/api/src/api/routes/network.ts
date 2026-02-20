@@ -12,7 +12,7 @@ import {
   NetworkStatusResponse,
   NetworkStatusResponseSchema,
   Peer,
-} from '@stacks/mesh-serializer';
+} from '../../../../schemas/dist/index.js';
 import { getAllErrors } from '../../utils/errors.js';
 import {
   CALL_METHODS,
