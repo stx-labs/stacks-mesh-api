@@ -1,0 +1,628 @@
+{
+  "block_id": "279bb555658da753b06e49f3c7bb94f8a5b350143055544a0b6f1eca4e78e31e",
+  "block_hash": "683769474bb423b6203f89258d3c858ce2bb9f05ff0c9d0680d969013f30bb56",
+  "block_height": 5299886,
+  "parent_block_id": "e1410b8188303242471a57e8bca75c5f61ba8537dfe3d1b92b9cca655e59c16b",
+  "consensus_hash": "e4d6ec86bc58f91f69f88b8bda3d9fa9256fe8c9",
+  "fees": 27269,
+  "tx_merkle_root": "dded15aa7fc387a44613922211be9495d742ba3615425c5098e248d66c8c7e6d",
+  "state_index_root": "877cd35c6aba9d1ad0012ac4ac454df568970256d80c3cd4adee0d40ffe43df1",
+  "timestamp": 1765702690,
+  "miner_signature": "0151130f416bae35ab0c6be65ad5840355f33f1f9540ea2542f5bb39b3c55eb79130d5bc162273b2bf01028d20ca9c90376c8a7d303a435ba85d5f55f3903052b4",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "dfa56c82d9e696cd5575b989bfc96da78583ba7a6b831c1ba4a961241431591f",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8",
+              "nonce": 1969761,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "010470d4174cf51cd05438474384cccb062b4b883ee6579ba53d4f0950b7f73e9a035509b7cdb71c2c83e05512ff401a828daf8de13c43e290213eb76cbfacba5b"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  242, 187, 166, 223, 117, 23, 85, 171, 154, 193, 223, 139, 56, 125, 152, 28, 254,
+                  38, 92, 223
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce800000000001e0e6100000000000000b400010470d4174cf51cd05438474384cccb062b4b883ee6579ba53d4f0950b7f73e9a035509b7cdb71c2c83e05512ff401a828daf8de13c43e290213eb76cbfacba5b030200000000000516f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2",
+            "sender": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR"
+          },
+          "txid": "0xdfa56c82d9e696cd5575b989bfc96da78583ba7a6b831c1ba4a961241431591f",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "3ed151ec2e04f60335fa335fa7ccdd01e593ea04",
+              "nonce": 18,
+              "tx_fee": 15089,
+              "key_encoding": "Compressed",
+              "signature": "01bb4eacd4c69685e8111c7421161ec2281cb7b63c970c751018f1abc38ce5854568eefe76dda159e195256bc4d594b587bc3a329e9f4dc9326a81169022df3717"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [
+          {
+            "Fungible": [
+              {
+                "Standard": { "version": 22, "bytes": "3ed151ec2e04f60335fa335fa7ccdd01e593ea04" }
+              },
+              {
+                "contract_address": {
+                  "version": 22,
+                  "bytes": "099fb88926d82f30b2f40eaf3ee423cb725bdb3b"
+                },
+                "contract_name": "ststx-token",
+                "asset_name": "ststx"
+              },
+              "SentEq",
+              1313509024
+            ]
+          },
+          {
+            "STX": [
+              {
+                "Contract": [
+                  { "version": 22, "bytes": "099fb88926d82f30b2f40eaf3ee423cb725bdb3b" },
+                  "reserve-v1"
+                ]
+              },
+              "SentGe",
+              1484958112
+            ]
+          },
+          {
+            "STX": [
+              {
+                "Contract": [
+                  { "version": 22, "bytes": "099fb88926d82f30b2f40eaf3ee423cb725bdb3b" },
+                  "stacking-dao-core-v6"
+                ]
+              },
+              "SentGe",
+              6567545
+            ]
+          }
+        ],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "099fb88926d82f30b2f40eaf3ee423cb725bdb3b" },
+            "contract_name": "stacking-dao-core-v6",
+            "function_name": "withdraw-idle",
+            "function_args": [
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        9, 159, 184, 137, 38, 216, 47, 48, 178, 244, 14, 175, 62, 228, 35, 203, 114,
+                        91, 219, 59
+                      ]
+                    ],
+                    "name": "reserve-v1"
+                  }
+                }
+              },
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        9, 159, 184, 137, 38, 216, 47, 48, 178, 244, 14, 175, 62, 228, 35, 203, 114,
+                        91, 219, 59
+                      ]
+                    ],
+                    "name": "direct-helpers-v4"
+                  }
+                }
+              },
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        9, 159, 184, 137, 38, 216, 47, 48, 178, 244, 14, 175, 62, 228, 35, 203, 114,
+                        91, 219, 59
+                      ]
+                    ],
+                    "name": "commission-v2"
+                  }
+                }
+              },
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        9, 159, 184, 137, 38, 216, 47, 48, 178, 244, 14, 175, 62, 228, 35, 203, 114,
+                        91, 219, 59
+                      ]
+                    ],
+                    "name": "staking-v0"
+                  }
+                }
+              },
+              { "UInt": 1313509024 }
+            ]
+          }
+        }
+      },
+      "hex": "000000000104003ed151ec2e04f60335fa335fa7ccdd01e593ea0400000000000000120000000000003af10001bb4eacd4c69685e8111c7421161ec2281cb7b63c970c751018f1abc38ce5854568eefe76dda159e195256bc4d594b587bc3a329e9f4dc9326a81169022df37170302000000030102163ed151ec2e04f60335fa335fa7ccdd01e593ea0416099fb88926d82f30b2f40eaf3ee423cb725bdb3b0b73747374782d746f6b656e05737473747801000000004e4a8ea0000316099fb88926d82f30b2f40eaf3ee423cb725bdb3b0a726573657276652d763103000000005882a9a0000316099fb88926d82f30b2f40eaf3ee423cb725bdb3b14737461636b696e672d64616f2d636f72652d76360300000000006436790216099fb88926d82f30b2f40eaf3ee423cb725bdb3b14737461636b696e672d64616f2d636f72652d76360d77697468647261772d69646c65000000050616099fb88926d82f30b2f40eaf3ee423cb725bdb3b0a726573657276652d76310616099fb88926d82f30b2f40eaf3ee423cb725bdb3b116469726563742d68656c706572732d76340616099fb88926d82f30b2f40eaf3ee423cb725bdb3b0d636f6d6d697373696f6e2d76320616099fb88926d82f30b2f40eaf3ee423cb725bdb3b0a7374616b696e672d7630010000000000000000000000004e4a8ea0",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Tuple": {
+              "type_signature": {
+                "type_map": { "stx-fee-amount": "UIntType", "stx-user-amount": "UIntType" }
+              },
+              "data_map": {
+                "stx-fee-amount": { "UInt": 14999576 },
+                "stx-user-amount": { "UInt": 1484958113 }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070c000000020e7374782d6665652d616d6f756e740100000000000000000000000000e4e0180f7374782d757365722d616d6f756e74010000000000000000000000005882a9a1",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 112,
+        "write_count": 10,
+        "read_length": 277535,
+        "read_count": 148,
+        "runtime": 591943
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.direct-helpers-v4",
+            "raw_value": "0x0c0000000206616374696f6e0d0000001873756274726163742d6469726563742d737461636b696e6704646174610c0000000406616d6f756e7401000000000000000000000000596789b90c626c6f636b2d68656967687401000000000000000000000000000369e41269732d6469726563742d737461636b696e6704047573657205163ed151ec2e04f60335fa335fa7ccdd01e593ea04",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [
+                            115, 117, 98, 116, 114, 97, 99, 116, 45, 100, 105, 114, 101, 99, 116,
+                            45, 115, 116, 97, 99, 107, 105, 110, 103
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 1499957689 },
+                        "block-height": { "UInt": 223716 },
+                        "is-direct-stacking": { "Bool": false },
+                        "user": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                62, 209, 81, 236, 46, 4, 246, 3, 53, 250, 51, 95, 167, 204, 221, 1,
+                                229, 147, 234, 4
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "block-height": "UIntType",
+                          "is-direct-stacking": "BoolType",
+                          "user": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 24 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "block-height": "UIntType",
+                          "is-direct-stacking": "BoolType",
+                          "user": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 1,
+          "stx_transfer_event": {
+            "amount": "1484958113",
+            "memo": "",
+            "recipient": "SPZD2MFC5R2FC0SNZ8SNZ9YCVM0YB4ZA0GRE1364",
+            "sender": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.reserve-v1"
+          },
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 2,
+          "ft_burn_event": {
+            "amount": "1313509024",
+            "asset_identifier": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststx-token::ststx",
+            "sender": "SPZD2MFC5R2FC0SNZ8SNZ9YCVM0YB4ZA0GRE1364"
+          },
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "ft_burn_event"
+        },
+        {
+          "committed": true,
+          "event_index": 3,
+          "stx_transfer_event": {
+            "amount": "14999576",
+            "memo": "",
+            "recipient": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stacking-dao-core-v6",
+            "sender": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.reserve-v1"
+          },
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 4,
+          "stx_transfer_event": {
+            "amount": "14999576",
+            "memo": "",
+            "recipient": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.commission-v2",
+            "sender": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stacking-dao-core-v6"
+          },
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stacking-dao-core-v6",
+            "raw_value": "0x0c0000000206616374696f6e0d0000000d77697468647261772d69646c6504646174610c000000040c626c6f636b2d68656967687401000000000000000000000000000369e407737461636b657205163ed151ec2e04f60335fa335fa7ccdd01e593ea040c73747374782d616d6f756e74010000000000000000000000004e4a8ea00a7374782d616d6f756e7401000000000000000000000000596789b9",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [119, 105, 116, 104, 100, 114, 97, 119, 45, 105, 100, 108, 101]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "block-height": { "UInt": 223716 },
+                        "stacker": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                62, 209, 81, 236, 46, 4, 246, 3, 53, 250, 51, 95, 167, 204, 221, 1,
+                                229, 147, 234, 4
+                              ]
+                            ]
+                          }
+                        },
+                        "ststx-amount": { "UInt": 1313509024 },
+                        "stx-amount": { "UInt": 1499957689 }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "block-height": "UIntType",
+                          "stacker": "PrincipalType",
+                          "ststx-amount": "UIntType",
+                          "stx-amount": "UIntType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 13 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "block-height": "UIntType",
+                          "stacker": "PrincipalType",
+                          "ststx-amount": "UIntType",
+                          "stx-amount": "UIntType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 5,
+          "txid": "0x7bcad11fd65c9157604c7d5152c10445f6c7c1d13def07614e51b3eea7f3acdf",
+          "type": "contract_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "6aaa3b95b7471d50efe19992f02cca43ecdbdfc5ff3278623ccbf9f0a3d3e9d3",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "37a2b7fa53e49f35ae0d4748e25872c5e9dbb280",
+              "nonce": 25,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "01f6d2f615981cc7df0079d2eedb33bae0bc1c446647af82d6d1e5fd3b2573e8e8178a3ec8acf2c551211ed009efcf554dc97b57409dbf8f9a90f4b8907c5f10da"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "1f2c6281aeb89d8d5718895a7239aabf737a8169" },
+            "contract_name": "message-board",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "0000000001040037a2b7fa53e49f35ae0d4748e25872c5e9dbb28000000000000000190000000000000bb80001f6d2f615981cc7df0079d2eedb33bae0bc1c446647af82d6d1e5fd3b2573e8e8178a3ec8acf2c551211ed009efcf554dc97b57409dbf8f9a90f4b8907c5f10da03020000000002161f2c6281aeb89d8d5718895a7239aabf737a81690d6d6573736167652d626f61726409696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "UInt": 226 } } },
+      "result_hex": "0x0701000000000000000000000000000000e2",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 656,
+        "read_count": 5,
+        "runtime": 2738
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "7b838848b3199f735edae9887e5b872c2026f8896edc7efd2650e7ecca107d7c",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "37a2b7fa53e49f35ae0d4748e25872c5e9dbb280",
+              "nonce": 26,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "0130e14b784e5be006b43b0a8d789c33059be6364c4e442503a8870645cf1a1fd228ec6ce8b820e8722fdf80246ea2d465ecdc731fcfc13e5811005d15a83538d4"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "1f2c6281aeb89d8d5718895a7239aabf737a8169" },
+            "contract_name": "message-board",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "0000000001040037a2b7fa53e49f35ae0d4748e25872c5e9dbb280000000000000001a0000000000000bb8000130e14b784e5be006b43b0a8d789c33059be6364c4e442503a8870645cf1a1fd228ec6ce8b820e8722fdf80246ea2d465ecdc731fcfc13e5811005d15a83538d403020000000002161f2c6281aeb89d8d5718895a7239aabf737a81690d6d6573736167652d626f61726409696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "UInt": 227 } } },
+      "result_hex": "0x0701000000000000000000000000000000e3",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 656,
+        "read_count": 5,
+        "runtime": 2738
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "e0f10f4d0d82b48378bda65442ce42d5f1854fc7c2cf2a09f0c0a877d51d9a30",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "1f2c6281aeb89d8d5718895a7239aabf737a8169",
+              "nonce": 338,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "01f42f035c834273ec9e97ffaa51947a923b12ff93b713b20bcfccbedacb440fcc557d7aa13267c9af850ebc0a744d315ba25851d00cf03eecffddab64cc9f3def"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "604fb7ae6a3b417644b92123bc96811d2b8673ee" },
+            "contract_name": "message-board",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "000000000104001f2c6281aeb89d8d5718895a7239aabf737a816900000000000001520000000000000bb80001f42f035c834273ec9e97ffaa51947a923b12ff93b713b20bcfccbedacb440fcc557d7aa13267c9af850ebc0a744d315ba25851d00cf03eecffddab64cc9f3def0302000000000216604fb7ae6a3b417644b92123bc96811d2b8673ee0d6d6573736167652d626f61726409696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "UInt": 245 } } },
+      "result_hex": "0x0701000000000000000000000000000000f5",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 656,
+        "read_count": 5,
+        "runtime": 2738
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "b4ea1810f0a9b5d31d1ed8fbf631953f8bd1729a6fce2982cb6b838c6108d78c",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "1f2c6281aeb89d8d5718895a7239aabf737a8169",
+              "nonce": 339,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "018c0f8f72febfbb023b2784b6a20d1345c0bef02eb170f0d9669c2d63a66369961c572822b20812ee2b2b352df1c7c1ea064fc9c3292965a48a0b8f1732377bcd"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "234d3d94ce56098c4efc2a90756133d8b279c533" },
+            "contract_name": "message-board",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "000000000104001f2c6281aeb89d8d5718895a7239aabf737a816900000000000001530000000000000bb800018c0f8f72febfbb023b2784b6a20d1345c0bef02eb170f0d9669c2d63a66369961c572822b20812ee2b2b352df1c7c1ea064fc9c3292965a48a0b8f1732377bcd0302000000000216234d3d94ce56098c4efc2a90756133d8b279c5330d6d6573736167652d626f61726409696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "UInt": 100 } } },
+      "result_hex": "0x070100000000000000000000000000000064",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 656,
+        "read_count": 5,
+        "runtime": 2738
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

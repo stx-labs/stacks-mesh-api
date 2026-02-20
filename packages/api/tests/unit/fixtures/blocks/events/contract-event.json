@@ -1,0 +1,1480 @@
+{
+  "block_id": "c075ce3d0f3ff0f0bb4bc3afe8d66d94ed9ee4982ed274ce3f45d2bdfdd062d7",
+  "block_hash": "f682ab30a8a78a88e86922d61728b7ad03e91f540f98d785608fc5edffbdb0a5",
+  "block_height": 5299891,
+  "parent_block_id": "0e2c433b90926d1436760ca0daf1aa1cd19084ba04df5e911e62a01ecc67a598",
+  "consensus_hash": "e4d6ec86bc58f91f69f88b8bda3d9fa9256fe8c9",
+  "fees": 6179,
+  "tx_merkle_root": "bba759803fb30bb6e43d0bd3cff2a81cc2c96d9bb2d32725e5ad6dea59ef672c",
+  "state_index_root": "ddb57d0102247561a2c07e2481d776a15377cbceabdaa1601e3ae4e0b81a919d",
+  "timestamp": 1765702713,
+  "miner_signature": "005de7d46940e08b8d4f632b29c7418341e8cbebe18d5844311be858eec6870ef1642d8d931596904f5bbeac77ba38827021fecb4efc0f9b798e397b387dd39b59",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "463437baf5f0493f600436c3380f1acb453a90d5ebeafe71dbe672b70fe16b6d",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "1f2c6281aeb89d8d5718895a7239aabf737a8169",
+              "nonce": 342,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "010730d7e73754e7aef19dc81d0e2356d8f5725a69605a4bdaac931ebf1ff322c931af871bc347d5317a5d14ffa9ed562a73aa4919ca701b73f9b1ecfea980aef3"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "604fb7ae6a3b417644b92123bc96811d2b8673ee" },
+            "contract_name": "message-board",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "000000000104001f2c6281aeb89d8d5718895a7239aabf737a816900000000000001560000000000000bb800010730d7e73754e7aef19dc81d0e2356d8f5725a69605a4bdaac931ebf1ff322c931af871bc347d5317a5d14ffa9ed562a73aa4919ca701b73f9b1ecfea980aef30302000000000216604fb7ae6a3b417644b92123bc96811d2b8673ee0d6d6573736167652d626f61726409696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "UInt": 246 } } },
+      "result_hex": "0x0701000000000000000000000000000000f6",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 656,
+        "read_count": 5,
+        "runtime": 2738
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f4cac43d17b396167e71965a8ad9a97415e6d65e",
+              "nonce": 1617,
+              "tx_fee": 2999,
+              "key_encoding": "Compressed",
+              "signature": "008d56ae25cecde02b2e7a18987c89ef83baca7b8d19cb29d43e63dc87d7a99bae0b4e2d10f2e154794c13187cff0ca6844d51cbdabd9852f22bfea6f8e1eb2641"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [
+          {
+            "STX": [
+              {
+                "Standard": { "version": 22, "bytes": "f4cac43d17b396167e71965a8ad9a97415e6d65e" }
+              },
+              "SentEq",
+              10000
+            ]
+          },
+          {
+            "Fungible": [
+              {
+                "Contract": [
+                  { "version": 20, "bytes": "4e91b0982dbe4ae49bb9394b1f339fb7144beee6" },
+                  "xyk-pool-sbtc-stx-v-1-1"
+                ]
+              },
+              {
+                "contract_address": {
+                  "version": 20,
+                  "bytes": "f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc"
+                },
+                "contract_name": "sbtc-token",
+                "asset_name": "sbtc-token"
+              },
+              "SentGe",
+              2
+            ]
+          }
+        ],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 20, "bytes": "4e91b0982dbe4ae49bb9394b1f339fb7144beee6" },
+            "contract_name": "xyk-swap-helper-v-1-3",
+            "function_name": "swap-helper-a",
+            "function_args": [
+              { "UInt": 10000 },
+              { "UInt": 2 },
+              { "Optional": { "data": null } },
+              {
+                "Tuple": {
+                  "type_signature": { "type_map": { "a": "PrincipalType", "b": "PrincipalType" } },
+                  "data_map": {
+                    "a": {
+                      "Principal": {
+                        "Contract": {
+                          "issuer": [
+                            20,
+                            [
+                              78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51, 159,
+                              183, 20, 75, 238, 230
+                            ]
+                          ],
+                          "name": "token-stx-v-1-2"
+                        }
+                      }
+                    },
+                    "b": {
+                      "Principal": {
+                        "Contract": {
+                          "issuer": [
+                            20,
+                            [
+                              246, 222, 204, 124, 255, 242, 164, 19, 189, 124, 212, 245, 60, 37,
+                              173, 127, 209, 137, 154, 204
+                            ]
+                          ],
+                          "name": "sbtc-token"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Tuple": {
+                  "type_signature": { "type_map": { "a": "PrincipalType" } },
+                  "data_map": {
+                    "a": {
+                      "Principal": {
+                        "Contract": {
+                          "issuer": [
+                            20,
+                            [
+                              78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51, 159,
+                              183, 20, 75, 238, 230
+                            ]
+                          ],
+                          "name": "xyk-pool-sbtc-stx-v-1-1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400f4cac43d17b396167e71965a8ad9a97415e6d65e00000000000006510000000000000bb700008d56ae25cecde02b2e7a18987c89ef83baca7b8d19cb29d43e63dc87d7a99bae0b4e2d10f2e154794c13187cff0ca6844d51cbdabd9852f22bfea6f8e1eb2641030200000002000216f4cac43d17b396167e71965a8ad9a97415e6d65e0100000000000027100103144e91b0982dbe4ae49bb9394b1f339fb7144beee61778796b2d706f6f6c2d736274632d7374782d762d312d3114f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc0a736274632d746f6b656e0a736274632d746f6b656e03000000000000000202144e91b0982dbe4ae49bb9394b1f339fb7144beee61578796b2d737761702d68656c7065722d762d312d330d737761702d68656c7065722d610000000501000000000000000000000000000027100100000000000000000000000000000002090c00000002016106144e91b0982dbe4ae49bb9394b1f339fb7144beee60f746f6b656e2d7374782d762d312d3201620614f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc0a736274632d746f6b656e0c00000001016106144e91b0982dbe4ae49bb9394b1f339fb7144beee61778796b2d706f6f6c2d736274632d7374782d762d312d31",
+      "result": { "Response": { "committed": true, "data": { "UInt": 3 } } },
+      "result_hex": "0x070100000000000000000000000000000003",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 40,
+        "write_count": 7,
+        "read_length": 128089,
+        "read_count": 87,
+        "runtime": 608608
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "10",
+            "memo": "",
+            "recipient": "SP3MCM8K9KEJMFM6MN191JVN5CA51MDS7AM3SGYQ6",
+            "sender": "SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9"
+          },
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2",
+            "raw_value": "0x0c0000000306616374696f6e0d000000087472616e736665720663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000406616d6f756e74010000000000000000000000000000000a046d656d6f0909726563697069656e740516e8ca22699ba547d0d4a852196ea5628a1a3727550673656e6465720516f4cac43d17b396167e71965a8ad9a97415e6d65e",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": { "ASCII": { "data": [116, 114, 97, 110, 115, 102, 101, 114] } }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 10 },
+                        "memo": { "Optional": { "data": null } },
+                        "recipient": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                232, 202, 34, 105, 155, 165, 71, 208, 212, 168, 82, 25, 110, 165,
+                                98, 138, 26, 55, 39, 85
+                              ]
+                            ]
+                          }
+                        },
+                        "sender": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217,
+                                169, 116, 21, 230, 214, 94
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 8 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 1,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.aggregator-core-v-1-1",
+            "raw_value": "0x0c0000000306616374696f6e0d000000187472616e736665722d61676772656761746f722d666565730663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000f06616d6f756e74010000000000000000000000000000271014616d6f756e742d666565732d636f6e7472616374010000000000000000000000000000000a14616d6f756e742d666565732d70726f7669646572010000000000000000000000000000000011616d6f756e742d666565732d746f74616c010000000000000000000000000000000a08636f6e747261637406144e91b0982dbe4ae49bb9394b1f339fb7144beee61578796b2d737761702d68656c7065722d762d312d330c636f6e74726163742d62707301000000000000000000000000000027100c636f6e74726163742d666565010000000000000000000000000000000a14636f6e74726163742d6665652d616464726573730516e8ca22699ba547d0d4a852196ea5628a1a3727550f636f6e74726163742d737461747573031469732d63616c6c65722d6665652d6578656d7074040870726f7669646572090c70726f76696465722d62707301000000000000000000000000000027100c70726f76696465722d66656501000000000000000000000000000000000f70726f76696465722d7374617475730305746f6b656e06144e91b0982dbe4ae49bb9394b1f339fb7144beee60f746f6b656e2d7374782d762d312d32",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [
+                            116, 114, 97, 110, 115, 102, 101, 114, 45, 97, 103, 103, 114, 101, 103,
+                            97, 116, 111, 114, 45, 102, 101, 101, 115
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 10000 },
+                        "amount-fees-contract": { "UInt": 10 },
+                        "amount-fees-provider": { "UInt": 0 },
+                        "amount-fees-total": { "UInt": 10 },
+                        "contract": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                  159, 183, 20, 75, 238, 230
+                                ]
+                              ],
+                              "name": "xyk-swap-helper-v-1-3"
+                            }
+                          }
+                        },
+                        "contract-bps": { "UInt": 10000 },
+                        "contract-fee": { "UInt": 10 },
+                        "contract-fee-address": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                232, 202, 34, 105, 155, 165, 71, 208, 212, 168, 82, 25, 110, 165,
+                                98, 138, 26, 55, 39, 85
+                              ]
+                            ]
+                          }
+                        },
+                        "contract-status": { "Bool": true },
+                        "is-caller-fee-exempt": { "Bool": false },
+                        "provider": { "Optional": { "data": null } },
+                        "provider-bps": { "UInt": 10000 },
+                        "provider-fee": { "UInt": 0 },
+                        "provider-status": { "Bool": true },
+                        "token": {
+                          "CallableContract": {
+                            "contract_identifier": {
+                              "issuer": [
+                                20,
+                                [
+                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                  159, 183, 20, 75, 238, 230
+                                ]
+                              ],
+                              "name": "token-stx-v-1-2"
+                            },
+                            "trait_identifier": {
+                              "contract_identifier": {
+                                "issuer": [
+                                  20,
+                                  [
+                                    78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                    159, 183, 20, 75, 238, 230
+                                  ]
+                                ],
+                                "name": "sip-010-trait-ft-standard-v-1-1"
+                              },
+                              "name": "sip-010-trait"
+                            }
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "amount-fees-contract": "UIntType",
+                          "amount-fees-provider": "UIntType",
+                          "amount-fees-total": "UIntType",
+                          "contract": "PrincipalType",
+                          "contract-bps": "UIntType",
+                          "contract-fee": "UIntType",
+                          "contract-fee-address": "PrincipalType",
+                          "contract-status": "BoolType",
+                          "is-caller-fee-exempt": "BoolType",
+                          "provider": { "OptionalType": "NoType" },
+                          "provider-bps": "UIntType",
+                          "provider-fee": "UIntType",
+                          "provider-status": "BoolType",
+                          "token": {
+                            "CallableType": {
+                              "Trait": {
+                                "contract_identifier": {
+                                  "issuer": [
+                                    20,
+                                    [
+                                      78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                      159, 183, 20, 75, 238, 230
+                                    ]
+                                  ],
+                                  "name": "sip-010-trait-ft-standard-v-1-1"
+                                },
+                                "name": "sip-010-trait"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 24 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "amount-fees-contract": "UIntType",
+                          "amount-fees-provider": "UIntType",
+                          "amount-fees-total": "UIntType",
+                          "contract": "PrincipalType",
+                          "contract-bps": "UIntType",
+                          "contract-fee": "UIntType",
+                          "contract-fee-address": "PrincipalType",
+                          "contract-status": "BoolType",
+                          "is-caller-fee-exempt": "BoolType",
+                          "provider": { "OptionalType": "NoType" },
+                          "provider-bps": "UIntType",
+                          "provider-fee": "UIntType",
+                          "provider-status": "BoolType",
+                          "token": {
+                            "CallableType": {
+                              "Trait": {
+                                "contract_identifier": {
+                                  "issuer": [
+                                    20,
+                                    [
+                                      78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                      159, 183, 20, 75, 238, 230
+                                    ]
+                                  ],
+                                  "name": "sip-010-trait-ft-standard-v-1-1"
+                                },
+                                "name": "sip-010-trait"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 2,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 3,
+          "stx_transfer_event": {
+            "amount": "9981",
+            "memo": "",
+            "recipient": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-pool-sbtc-stx-v-1-1",
+            "sender": "SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9"
+          },
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2",
+            "raw_value": "0x0c0000000306616374696f6e0d000000087472616e736665720663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000406616d6f756e7401000000000000000000000000000026fd046d656d6f0909726563697069656e7406144e91b0982dbe4ae49bb9394b1f339fb7144beee61778796b2d706f6f6c2d736274632d7374782d762d312d310673656e6465720516f4cac43d17b396167e71965a8ad9a97415e6d65e",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": { "ASCII": { "data": [116, 114, 97, 110, 115, 102, 101, 114] } }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 9981 },
+                        "memo": { "Optional": { "data": null } },
+                        "recipient": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                  159, 183, 20, 75, 238, 230
+                                ]
+                              ],
+                              "name": "xyk-pool-sbtc-stx-v-1-1"
+                            }
+                          }
+                        },
+                        "sender": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217,
+                                169, 116, 21, 230, 214, 94
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 8 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 4,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 5,
+          "ft_transfer_event": {
+            "amount": "3",
+            "asset_identifier": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token",
+            "recipient": "SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9",
+            "sender": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-pool-sbtc-stx-v-1-1"
+          },
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "ft_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-pool-sbtc-stx-v-1-1",
+            "raw_value": "0x0c0000000206616374696f6e0d0000000d706f6f6c2d7472616e7366657204646174610c0000000306616d6f756e74010000000000000000000000000000000309726563697069656e740516f4cac43d17b396167e71965a8ad9a97415e6d65e05746f6b656e0614f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc0a736274632d746f6b656e",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [112, 111, 111, 108, 45, 116, 114, 97, 110, 115, 102, 101, 114]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 3 },
+                        "recipient": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217,
+                                169, 116, 21, 230, 214, 94
+                              ]
+                            ]
+                          }
+                        },
+                        "token": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  246, 222, 204, 124, 255, 242, 164, 19, 189, 124, 212, 245, 60, 37,
+                                  173, 127, 209, 137, 154, 204
+                                ]
+                              ],
+                              "name": "sbtc-token"
+                            }
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "recipient": "PrincipalType",
+                          "token": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 13 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "recipient": "PrincipalType",
+                          "token": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 6,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 7,
+          "stx_transfer_event": {
+            "amount": "9",
+            "memo": "",
+            "recipient": "SP31C60QVZKZ9CMMZX73TQ3F3ZZNS89YX2DCCFT8P",
+            "sender": "SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9"
+          },
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2",
+            "raw_value": "0x0c0000000306616374696f6e0d000000087472616e736665720663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000406616d6f756e740100000000000000000000000000000009046d656d6f0909726563697069656e740516c2c302fbfcfe96529fe9c7ab8de3ffeb9427dd130673656e6465720516f4cac43d17b396167e71965a8ad9a97415e6d65e",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": { "ASCII": { "data": [116, 114, 97, 110, 115, 102, 101, 114] } }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 9 },
+                        "memo": { "Optional": { "data": null } },
+                        "recipient": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                194, 195, 2, 251, 252, 254, 150, 82, 159, 233, 199, 171, 141, 227,
+                                255, 235, 148, 39, 221, 19
+                              ]
+                            ]
+                          }
+                        },
+                        "sender": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217,
+                                169, 116, 21, 230, 214, 94
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 8 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "memo": { "OptionalType": "NoType" },
+                          "recipient": "PrincipalType",
+                          "sender": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 8,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-pool-sbtc-stx-v-1-1",
+            "raw_value": "0x0c0000000206616374696f6e0d000000147570646174652d706f6f6c2d62616c616e63657304646174610c0000000209782d62616c616e63650100000000000000000000000038c4414309792d62616c616e6365010000000000000000000002b5d3e162bd",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [
+                            117, 112, 100, 97, 116, 101, 45, 112, 111, 111, 108, 45, 98, 97, 108,
+                            97, 110, 99, 101, 115
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "x-balance": { "UInt": 952385859 },
+                        "y-balance": { "UInt": 2979967099581 }
+                      },
+                      "type_signature": {
+                        "type_map": { "x-balance": "UIntType", "y-balance": "UIntType" }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 20 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": { "x-balance": "UIntType", "y-balance": "UIntType" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 9,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2",
+            "raw_value": "0x0c0000000306616374696f6e0d0000000c737761702d792d666f722d780663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000a0264780100000000000000000000000000000003066d696e2d647801000000000000000000000000000000010d706f6f6c2d636f6e747261637406144e91b0982dbe4ae49bb9394b1f339fb7144beee61778796b2d706f6f6c2d736274632d7374782d762d312d3107706f6f6c2d6964010000000000000000000000000000001509706f6f6c2d6e616d650d0000000b734254432d5354582d4c5007782d746f6b656e0614f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc0a736274632d746f6b656e08792d616d6f756e74010000000000000000000000000000270616792d616d6f756e742d666565732d70726f746f636f6c010000000000000000000000000000000916792d616d6f756e742d666565732d70726f7669646572010000000000000000000000000000002707792d746f6b656e06144e91b0982dbe4ae49bb9394b1f339fb7144beee60f746f6b656e2d7374782d762d312d32",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [115, 119, 97, 112, 45, 121, 45, 102, 111, 114, 45, 120]
+                        }
+                      }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "dx": { "UInt": 3 },
+                        "min-dx": { "UInt": 1 },
+                        "pool-contract": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                  159, 183, 20, 75, 238, 230
+                                ]
+                              ],
+                              "name": "xyk-pool-sbtc-stx-v-1-1"
+                            }
+                          }
+                        },
+                        "pool-id": { "UInt": 21 },
+                        "pool-name": {
+                          "Sequence": {
+                            "String": {
+                              "ASCII": { "data": [115, 66, 84, 67, 45, 83, 84, 88, 45, 76, 80] }
+                            }
+                          }
+                        },
+                        "x-token": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  246, 222, 204, 124, 255, 242, 164, 19, 189, 124, 212, 245, 60, 37,
+                                  173, 127, 209, 137, 154, 204
+                                ]
+                              ],
+                              "name": "sbtc-token"
+                            }
+                          }
+                        },
+                        "y-amount": { "UInt": 9990 },
+                        "y-amount-fees-protocol": { "UInt": 9 },
+                        "y-amount-fees-provider": { "UInt": 39 },
+                        "y-token": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                20,
+                                [
+                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75, 31, 51,
+                                  159, 183, 20, 75, 238, 230
+                                ]
+                              ],
+                              "name": "token-stx-v-1-2"
+                            }
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "dx": "UIntType",
+                          "min-dx": "UIntType",
+                          "pool-contract": "PrincipalType",
+                          "pool-id": "UIntType",
+                          "pool-name": { "SequenceType": { "StringType": { "ASCII": 11 } } },
+                          "x-token": "PrincipalType",
+                          "y-amount": "UIntType",
+                          "y-amount-fees-protocol": "UIntType",
+                          "y-amount-fees-provider": "UIntType",
+                          "y-token": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "dx": "UIntType",
+                          "min-dx": "UIntType",
+                          "pool-contract": "PrincipalType",
+                          "pool-id": "UIntType",
+                          "pool-name": { "SequenceType": { "StringType": { "ASCII": 11 } } },
+                          "x-token": "PrincipalType",
+                          "y-amount": "UIntType",
+                          "y-amount-fees-protocol": "UIntType",
+                          "y-amount-fees-provider": "UIntType",
+                          "y-token": "PrincipalType"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 10,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-swap-helper-v-1-3",
+            "raw_value": "0x0c0000000306616374696f6e0d0000000d737761702d68656c7065722d610663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000606616d6f756e7401000000000000000000000000000027101c616d6f756e742d61667465722d61676772656761746f722d6665657301000000000000000000000000000027060c6d696e2d726563656976656401000000000000000000000000000000020870726f76696465720908726563656976656401000000000000000000000000000000030878796b2d646174610c000000030978796b2d706f6f6c730c00000001016106144e91b0982dbe4ae49bb9394b1f339fb7144beee61778796b2d706f6f6c2d736274632d7374782d762d312d310978796b2d73776170730c00000001016101000000000000000000000000000000030a78796b2d746f6b656e730c00000002016106144e91b0982dbe4ae49bb9394b1f339fb7144beee60f746f6b656e2d7374782d762d312d3201620614f6decc7cfff2a413bd7cd4f53c25ad7fd1899acc0a736274632d746f6b656e",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [115, 119, 97, 112, 45, 104, 101, 108, 112, 101, 114, 45, 97]
+                        }
+                      }
+                    }
+                  },
+                  "caller": {
+                    "Principal": {
+                      "Standard": [
+                        22,
+                        [
+                          244, 202, 196, 61, 23, 179, 150, 22, 126, 113, 150, 90, 138, 217, 169,
+                          116, 21, 230, 214, 94
+                        ]
+                      ]
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "amount": { "UInt": 10000 },
+                        "amount-after-aggregator-fees": { "UInt": 9990 },
+                        "min-received": { "UInt": 2 },
+                        "provider": { "Optional": { "data": null } },
+                        "received": { "UInt": 3 },
+                        "xyk-data": {
+                          "Tuple": {
+                            "data_map": {
+                              "xyk-pools": {
+                                "Tuple": {
+                                  "data_map": {
+                                    "a": {
+                                      "CallableContract": {
+                                        "contract_identifier": {
+                                          "issuer": [
+                                            20,
+                                            [
+                                              78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75,
+                                              31, 51, 159, 183, 20, 75, 238, 230
+                                            ]
+                                          ],
+                                          "name": "xyk-pool-sbtc-stx-v-1-1"
+                                        },
+                                        "trait_identifier": {
+                                          "contract_identifier": {
+                                            "issuer": [
+                                              20,
+                                              [
+                                                78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                75, 31, 51, 159, 183, 20, 75, 238, 230
+                                              ]
+                                            ],
+                                            "name": "xyk-pool-trait-v-1-2"
+                                          },
+                                          "name": "xyk-pool-trait"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "type_signature": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "xyk-pool-trait-v-1-2"
+                                            },
+                                            "name": "xyk-pool-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "xyk-swaps": {
+                                "Tuple": {
+                                  "data_map": { "a": { "UInt": 3 } },
+                                  "type_signature": { "type_map": { "a": "UIntType" } }
+                                }
+                              },
+                              "xyk-tokens": {
+                                "Tuple": {
+                                  "data_map": {
+                                    "a": {
+                                      "CallableContract": {
+                                        "contract_identifier": {
+                                          "issuer": [
+                                            20,
+                                            [
+                                              78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57, 75,
+                                              31, 51, 159, 183, 20, 75, 238, 230
+                                            ]
+                                          ],
+                                          "name": "token-stx-v-1-2"
+                                        },
+                                        "trait_identifier": {
+                                          "contract_identifier": {
+                                            "issuer": [
+                                              20,
+                                              [
+                                                78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                75, 31, 51, 159, 183, 20, 75, 238, 230
+                                              ]
+                                            ],
+                                            "name": "sip-010-trait-ft-standard-v-1-1"
+                                          },
+                                          "name": "sip-010-trait"
+                                        }
+                                      }
+                                    },
+                                    "b": {
+                                      "CallableContract": {
+                                        "contract_identifier": {
+                                          "issuer": [
+                                            20,
+                                            [
+                                              246, 222, 204, 124, 255, 242, 164, 19, 189, 124, 212,
+                                              245, 60, 37, 173, 127, 209, 137, 154, 204
+                                            ]
+                                          ],
+                                          "name": "sbtc-token"
+                                        },
+                                        "trait_identifier": {
+                                          "contract_identifier": {
+                                            "issuer": [
+                                              20,
+                                              [
+                                                78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                75, 31, 51, 159, 183, 20, 75, 238, 230
+                                              ]
+                                            ],
+                                            "name": "sip-010-trait-ft-standard-v-1-1"
+                                          },
+                                          "name": "sip-010-trait"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "type_signature": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      },
+                                      "b": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "type_signature": {
+                              "type_map": {
+                                "xyk-pools": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "xyk-pool-trait-v-1-2"
+                                            },
+                                            "name": "xyk-pool-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "xyk-swaps": { "TupleType": { "type_map": { "a": "UIntType" } } },
+                                "xyk-tokens": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      },
+                                      "b": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "amount-after-aggregator-fees": "UIntType",
+                          "min-received": "UIntType",
+                          "provider": { "OptionalType": "NoType" },
+                          "received": "UIntType",
+                          "xyk-data": {
+                            "TupleType": {
+                              "type_map": {
+                                "xyk-pools": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "xyk-pool-trait-v-1-2"
+                                            },
+                                            "name": "xyk-pool-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "xyk-swaps": { "TupleType": { "type_map": { "a": "UIntType" } } },
+                                "xyk-tokens": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      },
+                                      "b": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 13 } } },
+                    "caller": "PrincipalType",
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "amount": "UIntType",
+                          "amount-after-aggregator-fees": "UIntType",
+                          "min-received": "UIntType",
+                          "provider": { "OptionalType": "NoType" },
+                          "received": "UIntType",
+                          "xyk-data": {
+                            "TupleType": {
+                              "type_map": {
+                                "xyk-pools": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "xyk-pool-trait-v-1-2"
+                                            },
+                                            "name": "xyk-pool-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "xyk-swaps": { "TupleType": { "type_map": { "a": "UIntType" } } },
+                                "xyk-tokens": {
+                                  "TupleType": {
+                                    "type_map": {
+                                      "a": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      },
+                                      "b": {
+                                        "CallableType": {
+                                          "Trait": {
+                                            "contract_identifier": {
+                                              "issuer": [
+                                                20,
+                                                [
+                                                  78, 145, 176, 152, 45, 190, 74, 228, 155, 185, 57,
+                                                  75, 31, 51, 159, 183, 20, 75, 238, 230
+                                                ]
+                                              ],
+                                              "name": "sip-010-trait-ft-standard-v-1-1"
+                                            },
+                                            "name": "sip-010-trait"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 11,
+          "txid": "0x99f49cf8a51ae724c3901a0d25c56297e9e89bfef45e69efa31193fafa4de44f",
+          "type": "contract_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "2d909fac0ae8fb671afd5ed85cc0665ccdab099fb39d2f111258b4c64a43ac6b",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f2bba6df751755ab9ac1df8b387d981cfe265cdf",
+              "nonce": 1969763,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "01371fa97053cc7bcc886424942fa5418a0b39b43aa3de81b00acb86510ecd2a4d40f9bbe01da3e342d69b2e0497ef093812d174b9d5cb90cde90318eee9cf1049"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  251, 217, 161, 112, 47, 78, 204, 68, 252, 1, 241, 137, 76, 114, 252, 187, 35, 165,
+                  60, 232
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf00000000001e0e6300000000000000b40001371fa97053cc7bcc886424942fa5418a0b39b43aa3de81b00acb86510ecd2a4d40f9bbe01da3e342d69b2e0497ef093812d174b9d5cb90cde90318eee9cf1049030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR",
+            "sender": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"
+          },
+          "txid": "0x2d909fac0ae8fb671afd5ed85cc0665ccdab099fb39d2f111258b4c64a43ac6b",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

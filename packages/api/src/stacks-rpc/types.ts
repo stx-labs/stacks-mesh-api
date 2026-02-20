@@ -444,7 +444,126 @@ export interface StacksBlockReplayTransactionStxTransferEvent {
   type: 'stx_transfer_event';
 }
 
-export type StacksBlockReplayTransactionEvent = StacksBlockReplayTransactionStxTransferEvent;
+export interface StacksBlockReplayTransactionStxBurnEvent {
+  committed: boolean;
+  event_index: number;
+  stx_burn_event: {
+    amount: string;
+    sender: string;
+  };
+  txid: string;
+  type: 'stx_burn_event';
+}
+
+export interface StacksBlockReplayTransactionFtMintEvent {
+  committed: boolean;
+  event_index: number;
+  ft_mint_event: {
+    amount: string;
+    asset_identifier: string;
+    recipient: string;
+  };
+  txid: string;
+  type: 'ft_mint_event';
+}
+
+export interface StacksBlockReplayTransactionFtTransferEvent {
+  committed: boolean;
+  event_index: number;
+  ft_transfer_event: {
+    amount: string;
+    asset_identifier: string;
+    recipient: string;
+    sender: string;
+  };
+  txid: string;
+  type: 'ft_transfer_event';
+}
+
+export interface StacksBlockReplayTransactionFtBurnEvent {
+  committed: boolean;
+  event_index: number;
+  ft_burn_event: {
+    amount: string;
+    asset_identifier: string;
+    sender: string;
+  };
+  txid: string;
+  type: 'ft_burn_event';
+}
+
+export interface StacksBlockReplayTransactionContractEvent {
+  committed: boolean;
+  contract_event: {
+    contract_identifier: string;
+    raw_value: string;
+    topic: string;
+    value: Record<string, unknown>;
+  };
+  event_index: number;
+  txid: string;
+  type: 'contract_event';
+};
+
+export interface StacksBlockReplayTransactionNftMintEvent {
+  committed: boolean;
+  event_index: number;
+  nft_mint_event: {
+    asset_identifier: string;
+    raw_value: string;
+    recipient: string;
+    value: Record<string, unknown>;
+  };
+  txid: string;
+  type: 'nft_mint_event';
+}
+
+export interface StacksBlockReplayTransactionNftTransferEvent {
+  committed: boolean;
+  event_index: number;
+  nft_transfer_event: {
+    asset_identifier: string;
+    raw_value: string;
+    recipient: string;
+    sender: string;
+    value: Record<string, unknown>;
+  };
+  txid: string;
+  type: 'nft_transfer_event';
+}
+
+export interface StacksBlockReplayTransactionNftBurnEvent {
+  committed: boolean;
+  event_index: number;
+  nft_burn_event: {
+    asset_identifier: string;
+    raw_value: string;
+    sender: string;
+    value: Record<string, unknown>;
+  };
+  txid: string;
+  type: 'nft_burn_event';
+}
+
+export type StacksBlockReplayTransactionStxEvent =
+  | StacksBlockReplayTransactionStxTransferEvent
+  | StacksBlockReplayTransactionStxBurnEvent;
+
+export type StacksBlockReplayTransactionFtEvent =
+  | StacksBlockReplayTransactionFtMintEvent
+  | StacksBlockReplayTransactionFtTransferEvent
+  | StacksBlockReplayTransactionFtBurnEvent;
+
+export type StacksBlockReplayTransactionNftEvent =
+  | StacksBlockReplayTransactionNftMintEvent
+  | StacksBlockReplayTransactionNftTransferEvent
+  | StacksBlockReplayTransactionNftBurnEvent;
+
+export type StacksBlockReplayTransactionEvent =
+  | StacksBlockReplayTransactionStxEvent
+  | StacksBlockReplayTransactionFtEvent
+  | StacksBlockReplayTransactionNftEvent
+  | StacksBlockReplayTransactionContractEvent;
 
 export interface StacksBlockReplayTransaction {
   txid: string;

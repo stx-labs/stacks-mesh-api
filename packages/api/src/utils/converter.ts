@@ -1,10 +1,20 @@
 import { hexToBuffer } from '@stacks/api-toolkit';
-import { Block, Transaction, Operation, Status } from '@stacks/mesh-serializer';
+import { Block, Transaction, Operation, Status, Currency } from '@stacks/mesh-serializer';
 import codec from '@hirosystems/stacks-encoding-native-js';
 import {
   StacksBlockReplay,
   StacksBlockReplayTransaction,
+  StacksBlockReplayTransactionContractEvent,
+  StacksBlockReplayTransactionFtBurnEvent,
+  StacksBlockReplayTransactionFtEvent,
+  StacksBlockReplayTransactionFtMintEvent,
+  StacksBlockReplayTransactionFtTransferEvent,
+  StacksBlockReplayTransactionNftBurnEvent,
+  StacksBlockReplayTransactionNftEvent,
+  StacksBlockReplayTransactionNftMintEvent,
+  StacksBlockReplayTransactionNftTransferEvent,
   StacksBlockReplayTransactionPayload,
+  StacksBlockReplayTransactionStxBurnEvent,
   StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
 
@@ -17,6 +27,12 @@ type StacksTransaction = {
   sponsorAddress: string | null;
   nonce: number;
   status: Status;
+};
+
+type TokenMetadata = {
+  name: string;
+  symbol: string;
+  decimals: number;
 };
 
 export function removeHexPrefix(hex: string): string {
@@ -37,6 +53,7 @@ export function addHexPrefix(hex: string): string {
  * Converts a decoded Stacks Nakamoto block to Mesh API Block format.
  */
 export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block {
+  const tokenMetadata = new Map<string, TokenMetadata>(); // TODO: implement
   const blockHeight = replay.block_height;
   const block: Block = {
     block_identifier: {
@@ -49,7 +66,7 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
     },
     timestamp: Number(replay.timestamp) * 1000,
     transactions: replay.transactions.map((tx, i) =>
-      serializeReplayedNakamotoTransaction(tx, replay.fees, i)
+      serializeReplayedNakamotoTransaction(tx, replay.fees, i, tokenMetadata)
     ),
   };
   // if (options?.includeBlockMetadata || options?.includeBlockSignatures) {
@@ -86,7 +103,8 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
 function serializeReplayedNakamotoTransaction(
   replayedTx: StacksBlockReplayTransaction,
   fee: number,
-  index: number
+  index: number,
+  tokenMetadata: Map<string, TokenMetadata>
 ): Transaction {
   const decodedTx = codec.decodeTransaction(replayedTx.hex);
   const tx: StacksTransaction = {
@@ -106,7 +124,7 @@ function serializeReplayedNakamotoTransaction(
     transaction_identifier: {
       hash: addHexPrefix(replayedTx.txid),
     },
-    operations: serializeStacksTransactionOperations(tx),
+    operations: serializeStacksTransactionOperations(tx, tokenMetadata),
     metadata: {
       status: tx.status,
       type: serializeTxType(replayedTx.data.payload),
@@ -287,7 +305,7 @@ function parseTransactionMemo(memoHex: string | undefined): string | null {
   return null;
 }
 
-function makeStxCurrency() {
+function makeStxCurrency(): Currency {
   return {
     symbol: 'STX',
     decimals: 6,
@@ -489,24 +507,24 @@ function makeTenureChangeOperation(tx: StacksTransaction, index: number = 0): Op
   };
 }
 
-// function makeStxBurnOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbStxEvent,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'token_burn',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.sender),
-//     },
-//     amount: {
-//       value: (0n - BigInt(event.amount)).toString(),
-//       currency: makeStxCurrency(),
-//     },
-//   };
-// }
+function makeStxBurnOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionStxBurnEvent,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'token_burn',
+    status: tx.status,
+    account: {
+      address: event.stx_burn_event.sender,
+    },
+    amount: {
+      value: (0n - BigInt(event.stx_burn_event.amount)).toString(),
+      currency: makeStxCurrency(),
+    },
+  };
+}
 
 // function makeStxLockOperation(
 //   tx: StacksDbTransaction,
@@ -551,209 +569,222 @@ function makeTenureChangeOperation(tx: StacksTransaction, index: number = 0): Op
 //   };
 // }
 
-// function makeFtCurrency(
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   event: StacksDbFtEvent
-// ): StacksCurrency {
-//   const metadata = tokenMetadata.get(event.asset_identifier);
-//   return {
-//     symbol: metadata?.symbol ?? '',
-//     decimals: metadata?.decimals ?? 0,
-//     metadata: {
-//       token_type: 'ft',
-//       asset_identifier: event.asset_identifier,
-//     },
-//   };
-// }
+function makeFtCurrency(
+  tokenMetadata: Map<string, TokenMetadata>,
+  event: StacksBlockReplayTransactionFtEvent
+): Currency {
+  const asset_identifier =
+    'ft_mint_event' in event
+      ? event.ft_mint_event.asset_identifier
+      : 'ft_transfer_event' in event
+        ? event.ft_transfer_event.asset_identifier
+        : 'ft_burn_event' in event
+          ? event.ft_burn_event.asset_identifier
+          : '';
+  const metadata = tokenMetadata.get(asset_identifier);
+  return {
+    symbol: metadata?.symbol ?? '',
+    decimals: metadata?.decimals ?? 0,
+    metadata: {
+      token_type: 'ft',
+      asset_identifier,
+    },
+  };
+}
 
-// function makeFtTransferOperations(
-//   tx: StacksDbTransaction,
-//   event: StacksDbFtEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation[] {
-//   const currency = makeFtCurrency(tokenMetadata, event);
-//   const send: StacksOperation = {
-//     operation_identifier: { index },
-//     type: 'token_transfer',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.sender),
-//     },
-//     amount: {
-//       value: (0n - BigInt(event.amount)).toString(),
-//       currency,
-//     },
-//   };
-//   const receive: StacksOperation = {
-//     operation_identifier: { index: index + 1 },
-//     type: 'token_transfer',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.recipient),
-//     },
-//     amount: {
-//       value: event.amount,
-//       currency,
-//     },
-//   };
-//   return [send, receive];
-// }
+function makeFtTransferOperations(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionFtTransferEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation[] {
+  const currency = makeFtCurrency(tokenMetadata, event);
+  const send: Operation = {
+    operation_identifier: { index },
+    type: 'token_transfer',
+    status: tx.status,
+    account: {
+      address: event.ft_transfer_event.sender,
+    },
+    amount: {
+      value: (0n - BigInt(event.ft_transfer_event.amount)).toString(),
+      currency,
+    },
+  };
+  const receive: Operation = {
+    operation_identifier: { index: index + 1 },
+    type: 'token_transfer',
+    status: tx.status,
+    account: {
+      address: event.ft_transfer_event.recipient,
+    },
+    amount: {
+      value: event.ft_transfer_event.amount,
+      currency,
+    },
+  };
+  return [send, receive];
+}
 
-// function makeFtMintOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbFtEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'token_mint',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.recipient),
-//     },
-//     amount: {
-//       value: event.amount.toString(),
-//       currency: makeFtCurrency(tokenMetadata, event),
-//     },
-//   };
-// }
+function makeFtMintOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionFtMintEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'token_mint',
+    status: tx.status,
+    account: {
+      address: event.ft_mint_event.recipient,
+    },
+    amount: {
+      value: event.ft_mint_event.amount,
+      currency: makeFtCurrency(tokenMetadata, event),
+    },
+  };
+}
 
-// function makeFtBurnOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbFtEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'token_burn',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.sender),
-//     },
-//     amount: {
-//       value: event.amount.toString(),
-//       currency: makeFtCurrency(tokenMetadata, event),
-//     },
-//   };
-// }
+function makeFtBurnOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionFtBurnEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'token_burn',
+    status: tx.status,
+    account: {
+      address: event.ft_burn_event.sender,
+    },
+    amount: {
+      value: (0n - BigInt(event.ft_burn_event.amount)).toString(),
+      currency: makeFtCurrency(tokenMetadata, event),
+    },
+  };
+}
 
-// function makeNftCurrency(
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   event: StacksDbNftEvent
-// ): StacksCurrency {
-//   const metadata = tokenMetadata.get(`${event.asset_identifier}/${event.value}`);
-//   return {
-//     symbol: metadata?.symbol ?? '',
-//     decimals: metadata?.decimals ?? 0,
-//     metadata: {
-//       token_type: 'nft',
-//       asset_identifier: event.asset_identifier,
-//       value: event.value,
-//     },
-//   };
-// }
+function makeNftCurrency(
+  tokenMetadata: Map<string, TokenMetadata>,
+  event: StacksBlockReplayTransactionNftEvent
+): Currency {
+  const asset_identifier = 'nft_mint_event' in event ? event.nft_mint_event.asset_identifier : '';
+  const value = 'nft_mint_event' in event ? event.nft_mint_event.raw_value : '';
+  const metadata = tokenMetadata.get(`${asset_identifier}/${value}`);
+  return {
+    symbol: metadata?.symbol ?? '',
+    decimals: metadata?.decimals ?? 0,
+    metadata: {
+      token_type: 'nft',
+      asset_identifier,
+      value,
+    },
+  };
+}
 
-// function makeNftTransferOperations(
-//   tx: StacksDbTransaction,
-//   event: StacksDbNftEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation[] {
-//   const currency = makeNftCurrency(tokenMetadata, event);
-//   const send: StacksOperation = {
-//     operation_identifier: { index },
-//     type: 'token_transfer',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.sender),
-//     },
-//     amount: {
-//       value: '-1',
-//       currency,
-//     },
-//   };
-//   const receive: StacksOperation = {
-//     operation_identifier: { index: index + 1 },
-//     type: 'token_transfer',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.recipient),
-//     },
-//     amount: {
-//       value: '1',
-//       currency,
-//     },
-//   };
-//   return [send, receive];
-// }
+function makeNftTransferOperations(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionNftTransferEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation[] {
+  const currency = makeNftCurrency(tokenMetadata, event);
+  const send: Operation = {
+    operation_identifier: { index },
+    type: 'token_transfer',
+    status: tx.status,
+    account: {
+      address: event.nft_transfer_event.sender,
+    },
+    amount: {
+      value: '-1',
+      currency,
+    },
+  };
+  const receive: Operation = {
+    operation_identifier: { index: index + 1 },
+    type: 'token_transfer',
+    status: tx.status,
+    account: {
+      address: event.nft_transfer_event.recipient,
+    },
+    amount: {
+      value: '1',
+      currency,
+    },
+  };
+  return [send, receive];
+}
 
-// function makeNftMintOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbNftEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'token_mint',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.recipient),
-//     },
-//     amount: {
-//       value: '1',
-//       currency: makeNftCurrency(tokenMetadata, event),
-//     },
-//   };
-// }
+function makeNftMintOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionNftMintEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'token_mint',
+    status: tx.status,
+    account: {
+      address: event.nft_mint_event.recipient,
+    },
+    amount: {
+      value: '1',
+      currency: makeNftCurrency(tokenMetadata, event),
+    },
+  };
+}
 
-// function makeNftBurnOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbNftEvent,
-//   tokenMetadata: Map<string, TokenMetadata>,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'token_burn',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: unwrap(event.sender),
-//     },
-//     amount: {
-//       value: '-1',
-//       currency: makeNftCurrency(tokenMetadata, event),
-//     },
-//   };
-// }
+function makeNftBurnOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionNftBurnEvent,
+  tokenMetadata: Map<string, TokenMetadata>,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'token_burn',
+    status: tx.status,
+    account: {
+      address: event.nft_burn_event.sender,
+    },
+    amount: {
+      value: '-1',
+      currency: makeNftCurrency(tokenMetadata, event),
+    },
+  };
+}
 
-// function makeContractLogOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbSmartContractEvent,
-//   index: number,
-//   options: StacksSerializationOptions
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'contract_log',
-//     status: serializeTxStatus(tx.status),
-//     metadata: {
-//       value: options.decodeClarityValues
-//         ? {
-//             hex: event.value,
-//             repr: decodeClarityValueToRepr(event.value),
-//           }
-//         : event.value,
-//       contract_identifier: event.contract_identifier,
-//       topic: event.topic,
-//     },
-//   };
-// }
+function makeContractEventOperation(
+  tx: StacksTransaction,
+  event: StacksBlockReplayTransactionContractEvent,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'contract_log',
+    status: tx.status,
+    metadata: {
+      value: addHexPrefix(event.contract_event.raw_value),
+      // value: options.decodeClarityValues
+      //   ? {
+      //       hex: event.value,
+      //       repr: decodeClarityValueToRepr(event.value),
+      //     }
+      //   : event.value,
+      contract_identifier: event.contract_event.contract_identifier,
+      topic: event.contract_event.topic,
+    },
+  };
+}
 
-function serializeStacksTransactionOperations(tx: StacksTransaction): Operation[] {
+function serializeStacksTransactionOperations(
+  tx: StacksTransaction,
+  tokenMetadata: Map<string, TokenMetadata>
+): Operation[] {
   const ops: Operation[] = [];
   if (tx.fee > 0) ops.push(makeFeeOperation(tx));
 
@@ -784,8 +815,36 @@ function serializeStacksTransactionOperations(tx: StacksTransaction): Operation[
   }
 
   for (const event of tx.replayedTx.events) {
-    if (event.type === 'stx_transfer_event') {
-      ops.push(...makeStxTransferOperations(tx, event, ops.length));
+    switch (event.type) {
+      case 'stx_transfer_event':
+        ops.push(...makeStxTransferOperations(tx, event, ops.length));
+        break;
+      case 'stx_burn_event':
+        ops.push(makeStxBurnOperation(tx, event, ops.length));
+        break;
+      // TODO: stx mint not reported in events from core, see block
+      // 0xe1410b8188303242471a57e8bca75c5f61ba8537dfe3d1b92b9cca655e59c16b
+      case 'ft_mint_event':
+        ops.push(makeFtMintOperation(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'ft_transfer_event':
+        ops.push(...makeFtTransferOperations(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'ft_burn_event':
+        ops.push(makeFtBurnOperation(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'nft_transfer_event':
+        ops.push(...makeNftTransferOperations(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'nft_mint_event':
+        ops.push(makeNftMintOperation(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'nft_burn_event':
+        ops.push(makeNftBurnOperation(tx, event, tokenMetadata, ops.length));
+        break;
+      case 'contract_event':
+        ops.push(makeContractEventOperation(tx, event, ops.length));
+        break;
     }
   }
   // Add operations from transaction events.
@@ -795,60 +854,10 @@ function serializeStacksTransactionOperations(tx: StacksTransaction): Operation[
   //     switch (event.event_type) {
   //       case StacksDbEventTypeId.StxAsset:
   //         switch (event.asset_event_type_id) {
-  //           case StacksDbAssetEventTypeId.Transfer:
-  //             if (tx.type_id == StacksDbTxTypeId.TokenTransfer) {
-  //               // We've already added these operations above
-  //               break;
-  //             }
-  //             // TODO: Handle `send_many` and `send_many_memo`
-  //             ops.push(
-  //               ...makeStxTransferOperations(
-  //                 tx,
-  //                 ops.length,
-  //                 unwrap(event.sender),
-  //                 unwrap(event.recipient),
-  //                 unwrap(event.amount),
-  //                 event.memo,
-  //                 options
-  //               )
-  //             );
-  //             break;
   //           case StacksDbAssetEventTypeId.Mint:
   //             ops.push(makeStxMintOperation(tx, event, ops.length));
   //             break;
-  //           case StacksDbAssetEventTypeId.Burn:
-  //             ops.push(makeStxBurnOperation(tx, event, ops.length));
-  //             break;
   //         }
-  //         break;
-  //       case StacksDbEventTypeId.FungibleTokenAsset:
-  //         switch (event.asset_event_type_id) {
-  //           case StacksDbAssetEventTypeId.Transfer:
-  //             ops.push(...makeFtTransferOperations(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //           case StacksDbAssetEventTypeId.Mint:
-  //             ops.push(makeFtMintOperation(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //           case StacksDbAssetEventTypeId.Burn:
-  //             ops.push(makeFtBurnOperation(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //         }
-  //         break;
-  //       case StacksDbEventTypeId.NonFungibleTokenAsset:
-  //         switch (event.asset_event_type_id) {
-  //           case StacksDbAssetEventTypeId.Transfer:
-  //             ops.push(...makeNftTransferOperations(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //           case StacksDbAssetEventTypeId.Mint:
-  //             ops.push(makeNftMintOperation(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //           case StacksDbAssetEventTypeId.Burn:
-  //             ops.push(makeNftBurnOperation(tx, event, tokenMetadata, ops.length));
-  //             break;
-  //         }
-  //         break;
-  //       case StacksDbEventTypeId.SmartContractLog:
-  //         ops.push(makeContractLogOperation(tx, event, ops.length, options));
   //         break;
   //       case StacksDbEventTypeId.StxLock:
   //         ops.push(makeStxLockOperation(tx, event, ops.length));

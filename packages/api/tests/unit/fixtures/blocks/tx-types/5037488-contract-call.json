@@ -1,0 +1,1038 @@
+{
+  "block_id": "c161ee4afd712a857d6f6cd8981ac7d051516a8d9863ad5937580298708c7d00",
+  "block_hash": "0d9ec7c14b5b969890c5592785d3d54c73658d5c66e9aa5bdb0313224a74cd07",
+  "block_height": 5037488,
+  "parent_block_id": "d7ddcce885d428f2405be41f03b392d4ff22a6ccd3d9cb8a7d9bd41745c91260",
+  "consensus_hash": "ccb34c9405fbfa6eaeb345e6ef45fc2062bef47f",
+  "fees": 6478,
+  "tx_merkle_root": "01d97f973ef9676b4b3f62a0cc33fb6982ee10b9de58d6e650686b821769d71c",
+  "state_index_root": "2660081b5bda1039aaad5bedc6f0669c8e1aaacc737631646919c2bd43e03832",
+  "timestamp": 1764430950,
+  "miner_signature": "018eba358eca5a91a61ee4d92fb92304856cffe98736c62a7646531db264ef84b305a1820fb9c32d8ffcf42216f70587ed1cfbfc566b9ce9e582c1e45c1d79d56c",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "a5ef15cc447320e8d0ce3fb28725ffc02a8d9d0dcbd80dcd06050d7c2e10f36a",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f2bba6df751755ab9ac1df8b387d981cfe265cdf",
+              "nonce": 1854378,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "016647e99d32e12ee42bed654f61667a516b7bcee2cca65579934c6e0a96acdf4113208a7f724c963c0c5533a8dd279888b38b11e938de604f325d23ba7111751c"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  251, 217, 161, 112, 47, 78, 204, 68, 252, 1, 241, 137, 76, 114, 252, 187, 35, 165,
+                  60, 232
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf00000000001c4baa00000000000000b400016647e99d32e12ee42bed654f61667a516b7bcee2cca65579934c6e0a96acdf4113208a7f724c963c0c5533a8dd279888b38b11e938de604f325d23ba7111751c030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR",
+            "sender": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"
+          },
+          "txid": "0xa5ef15cc447320e8d0ce3fb28725ffc02a8d9d0dcbd80dcd06050d7c2e10f36a",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "9e7988a7744eb6e33305f22f8e39322c29840bef07b705502087f9b6459e4190",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "82e98279bc0f17457066f1285a0fa6d196284b41",
+              "nonce": 270138,
+              "tx_fee": 417,
+              "key_encoding": "Compressed",
+              "signature": "018c904ce27422871ea617ff562182de13da28c69659cba8f5ade6fc86cbe05c3f0cc86ccc65dcf55cf2045450177057668d87ea923b81ac3a321f079b6b2bf6de"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "82e98279bc0f17457066f1285a0fa6d196284b41" },
+            "contract_name": "blocksurvey-proof-of-submission",
+            "function_name": "proof-of-submission",
+            "function_args": [
+              {
+                "Sequence": {
+                  "String": {
+                    "UTF8": {
+                      "data": [
+                        [51],
+                        [52],
+                        [53],
+                        [55],
+                        [101],
+                        [100],
+                        [48],
+                        [97],
+                        [52],
+                        [49],
+                        [55],
+                        [57],
+                        [48],
+                        [98],
+                        [99],
+                        [99],
+                        [102],
+                        [57],
+                        [49],
+                        [55],
+                        [57],
+                        [99],
+                        [51],
+                        [54],
+                        [50],
+                        [56],
+                        [99],
+                        [98],
+                        [55],
+                        [53],
+                        [101],
+                        [54],
+                        [57],
+                        [52],
+                        [51],
+                        [99],
+                        [48],
+                        [52],
+                        [55],
+                        [53],
+                        [48],
+                        [100],
+                        [50],
+                        [49],
+                        [99],
+                        [100],
+                        [101],
+                        [51],
+                        [54],
+                        [100],
+                        [49],
+                        [102],
+                        [56],
+                        [99],
+                        [51],
+                        [56],
+                        [48],
+                        [100],
+                        [101],
+                        [101],
+                        [102],
+                        [98],
+                        [48],
+                        [56]
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "String": {
+                    "UTF8": {
+                      "data": [
+                        [55],
+                        [97],
+                        [49],
+                        [54],
+                        [55],
+                        [51],
+                        [52],
+                        [56],
+                        [98],
+                        [48],
+                        [56],
+                        [55],
+                        [102],
+                        [98],
+                        [57],
+                        [54],
+                        [53],
+                        [57],
+                        [100],
+                        [56],
+                        [49],
+                        [52],
+                        [48],
+                        [48],
+                        [54],
+                        [49],
+                        [56],
+                        [57],
+                        [97],
+                        [57],
+                        [49],
+                        [53],
+                        [53],
+                        [52],
+                        [101],
+                        [51],
+                        [52],
+                        [50],
+                        [52],
+                        [54],
+                        [49],
+                        [52],
+                        [54],
+                        [97],
+                        [53],
+                        [48],
+                        [53],
+                        [100],
+                        [50],
+                        [55],
+                        [50],
+                        [102],
+                        [98],
+                        [49],
+                        [102],
+                        [98],
+                        [56],
+                        [54],
+                        [50],
+                        [50],
+                        [50],
+                        [52],
+                        [97],
+                        [50]
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "String": {
+                    "UTF8": {
+                      "data": [
+                        [52],
+                        [100],
+                        [98],
+                        [53],
+                        [54],
+                        [49],
+                        [48],
+                        [100],
+                        [101],
+                        [55],
+                        [49],
+                        [48],
+                        [56],
+                        [48],
+                        [57],
+                        [100],
+                        [98],
+                        [55],
+                        [54],
+                        [53],
+                        [101],
+                        [48],
+                        [99],
+                        [54],
+                        [51],
+                        [53],
+                        [53],
+                        [101],
+                        [51],
+                        [48],
+                        [100],
+                        [99],
+                        [53],
+                        [48],
+                        [53],
+                        [99],
+                        [100],
+                        [54],
+                        [53],
+                        [49],
+                        [57],
+                        [101],
+                        [52],
+                        [50],
+                        [100],
+                        [101],
+                        [52],
+                        [56],
+                        [56],
+                        [97],
+                        [53],
+                        [57],
+                        [51],
+                        [48],
+                        [49],
+                        [100],
+                        [51],
+                        [54],
+                        [57],
+                        [56],
+                        [57],
+                        [102],
+                        [49],
+                        [98]
+                      ]
+                    }
+                  }
+                }
+              },
+              { "UInt": 417 }
+            ]
+          }
+        }
+      },
+      "hex": "0000000001040082e98279bc0f17457066f1285a0fa6d196284b410000000000041f3a00000000000001a100018c904ce27422871ea617ff562182de13da28c69659cba8f5ade6fc86cbe05c3f0cc86ccc65dcf55cf2045450177057668d87ea923b81ac3a321f079b6b2bf6de030200000000021682e98279bc0f17457066f1285a0fa6d196284b411f626c6f636b7375727665792d70726f6f662d6f662d7375626d697373696f6e1370726f6f662d6f662d7375626d697373696f6e000000040e00000040333435376564306134313739306263636639313739633336323863623735653639343363303437353064323163646533366431663863333830646565666230380e00000040376131363733343862303837666239363539643831343030363138396139313535346533343234363134366135303564323732666231666238363232323461320e000000403464623536313064653731303830396462373635653063363335356533306463353035636436353139653432646534383861353933303164333639383966316201000000000000000000000000000001a1",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 300,
+        "write_count": 5,
+        "read_length": 7395,
+        "read_count": 15,
+        "runtime": 47833
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "ft_mint_event": {
+            "amount": "417",
+            "asset_identifier": "SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey",
+            "recipient": "SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token"
+          },
+          "txid": "0x9e7988a7744eb6e33305f22f8e39322c29840bef07b705502087f9b6459e4190",
+          "type": "ft_mint_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "b387fc85fd7844009c0d013f6cb7c3050bf12372ed6b45b6885ac46f65783685",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "00656338730154aa7f52f1610f3dc985ae48d3e5",
+              "nonce": 58468,
+              "tx_fee": 5281,
+              "key_encoding": "Compressed",
+              "signature": "01ad84dc0d854e581f0db782c0d2c2c1da59577b5da3d83391232b853ac508941965020e5cccb76d1a80a39920d915cd90288118520581cff25f028c55e88f33a0"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Allow",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "00656338730154aa7f52f1610f3dc985ae48d3e5" },
+            "contract_name": "cn",
+            "function_name": "r1",
+            "function_args": [{ "Sequence": { "Buffer": { "data": [2, 75, 0, 0, 106, 240, 50] } } }]
+          }
+        }
+      },
+      "hex": "0000000001040000656338730154aa7f52f1610f3dc985ae48d3e5000000000000e46400000000000014a10001ad84dc0d854e581f0db782c0d2c2c1da59577b5da3d83391232b853ac508941965020e5cccb76d1a80a39920d915cd90288118520581cff25f028c55e88f33a0030100000000021600656338730154aa7f52f1610f3dc985ae48d3e502636e027231000000010200000007024b00006af032",
+      "result": { "Response": { "committed": false, "data": { "UInt": 53 } } },
+      "result_hex": "0x080100000000000000000000000000000035",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 1862,
+        "write_count": 18,
+        "read_length": 550365,
+        "read_count": 234,
+        "runtime": 1637123
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "fa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7",
+              "nonce": 33834,
+              "tx_fee": 600,
+              "key_encoding": "Compressed",
+              "signature": "01ad3ec19dfcd89318eedf1513246accd74389d8c988a9c7ff733aa5328e10d1bd7304852961930aafb272114c720c938687d5543246a031280b193579848f6f71"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Allow",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7" },
+            "contract_name": "hemp",
+            "function_name": "ri",
+            "function_args": [
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      70, 209, 236, 8, 18, 8, 18, 24, 1, 14, 0, 100, 1, 0, 12, 100, 240, 0, 0, 0
+                    ]
+                  }
+                }
+              },
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        162, 99, 146, 216, 215, 246, 111, 112, 166, 152, 31, 76, 30, 13, 135, 220,
+                        79, 176, 177, 167
+                      ]
+                    ],
+                    "name": "site"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7000000000000842a00000000000002580001ad3ec19dfcd89318eedf1513246accd74389d8c988a9c7ff733aa5328e10d1bd7304852961930aafb272114c720c938687d5543246a031280b193579848f6f710301000000000216a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a70468656d7002726900000002020000001446d1ec0812081218010e006401000c64f00000000616a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a70473697465",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Sequence": {
+              "List": {
+                "data": [{ "Response": { "committed": true, "data": { "UInt": 20162 } } }],
+                "type_signature": {
+                  "max_len": 1,
+                  "entry_type": { "ResponseType": ["UIntType", "NoType"] }
+                }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070b00000001070100000000000000000000000000004ec2",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 1460,
+        "write_count": 22,
+        "read_length": 612146,
+        "read_count": 303,
+        "runtime": 2082599
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "928252",
+            "memo": "",
+            "recipient": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site",
+            "sender": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap-v5k",
+            "raw_value": "0x0c0000000306616374696f6e0d0000000c737761702d782d666f722d7904646174610c000000080962616c616e63652d7801000000000000000000000000030627140962616c616e63652d79010000000000000000000034c0f15f1bd50d6665652d62616c616e63652d780100000000000000000000000000af97800d6665652d62616c616e63652d790100000000000000000000015217b4ed030e6665652d746f2d616464726573730516ef9e76f79157366febf05711aed0df494fdb139c0f6c69717569646974792d746f6b656e06167e9152cdbbb9fef066df4e1b88b19bcb313acc901b6c69717569646974792d746f6b656e2d76356b6978663535373874046e616d650d000000095354582d56494245530c7368617265732d746f74616c0100000000000000000000000b90765831066f626a6563740d0000000470616972",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [115, 119, 97, 112, 45, 120, 45, 102, 111, 114, 45, 121]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "balance-x": { "UInt": 50734868 },
+                        "balance-y": { "UInt": 58003287907285 },
+                        "fee-balance-x": { "UInt": 11507584 },
+                        "fee-balance-y": { "UInt": 1452096679171 },
+                        "fee-to-address": {
+                          "Principal": {
+                            "Standard": [
+                              22,
+                              [
+                                239, 158, 118, 247, 145, 87, 54, 111, 235, 240, 87, 17, 174, 208,
+                                223, 73, 79, 219, 19, 156
+                              ]
+                            ]
+                          }
+                        },
+                        "liquidity-token": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                22,
+                                [
+                                  126, 145, 82, 205, 187, 185, 254, 240, 102, 223, 78, 27, 136, 177,
+                                  155, 203, 49, 58, 204, 144
+                                ]
+                              ],
+                              "name": "liquidity-token-v5kixf5578t"
+                            }
+                          }
+                        },
+                        "name": {
+                          "Sequence": {
+                            "String": { "ASCII": { "data": [83, 84, 88, 45, 86, 73, 66, 69, 83] } }
+                          }
+                        },
+                        "shares-total": { "UInt": 49668315185 }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "fee-balance-x": "UIntType",
+                          "fee-balance-y": "UIntType",
+                          "fee-to-address": "PrincipalType",
+                          "liquidity-token": "PrincipalType",
+                          "name": { "SequenceType": { "StringType": { "ASCII": 9 } } },
+                          "shares-total": "UIntType"
+                        }
+                      }
+                    }
+                  },
+                  "object": {
+                    "Sequence": { "String": { "ASCII": { "data": [112, 97, 105, 114] } } }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "fee-balance-x": "UIntType",
+                          "fee-balance-y": "UIntType",
+                          "fee-to-address": "PrincipalType",
+                          "liquidity-token": "PrincipalType",
+                          "name": { "SequenceType": { "StringType": { "ASCII": 9 } } },
+                          "shares-total": "UIntType"
+                        }
+                      }
+                    },
+                    "object": { "SequenceType": { "StringType": { "ASCII": 4 } } }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 1,
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 2,
+          "stx_transfer_event": {
+            "amount": "928252",
+            "memo": "",
+            "recipient": "SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.liquidity-token-v5kixf5578t",
+            "sender": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 3,
+          "ft_transfer_event": {
+            "amount": "1077761294227",
+            "asset_identifier": "SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token",
+            "recipient": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site",
+            "sender": "SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.liquidity-token-v5kixf5578t"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "ft_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 4,
+          "ft_transfer_event": {
+            "amount": "1077761294227",
+            "asset_identifier": "SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token",
+            "recipient": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-vault-v2-01",
+            "sender": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "ft_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 5,
+          "ft_transfer_event": {
+            "amount": "21062536889",
+            "asset_identifier": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex",
+            "recipient": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site",
+            "sender": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-vault-v2-01"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "ft_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-pool-v2-01",
+            "raw_value": "0x0c0000000a06616374696f6e0d0000000c737761702d792d666f722d7804646174610c000000110962616c616e63652d78010000000000000000000005649748c7cb0962616c616e63652d790100000000000000000001138d5ad6e50809656e642d626c6f636b01ffffffffffffffffffffffffffffffff0a6665652d726174652d78010000000000000000000000000007a1200a6665652d726174652d79010000000000000000000000000007a1200a6665652d7265626174650100000000000000000000000002faf0800c6d61782d696e2d726174696f01000000000000000000000000039387000d6d61782d6f75742d726174696f01000000000000000000000000039387000e6f7261636c652d617665726167650100000000000000000000000005e69ec00e6f7261636c652d656e61626c656403106f7261636c652d726573696c69656e74010000000000000000000000017037252207706f6f6c2d6964010000000000000000000000000000002a0a706f6f6c2d6f776e65720616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0c6578656375746f722d64616f0b73746172742d626c6f636b01000000000000000000000000000000000b7468726573686f6c642d7801000000000000000000000000000000000b7468726573686f6c642d7901000000000000000000000000000000000c746f74616c2d737570706c79010000000000000000ec2bf7cbba9b1ae002647801000000000000000000000004e76cceb9026479010000000000000000000000faef943f9303666565010000000000000000000000014132a9480a6665652d72656261746501000000000000000000000000a09954a4066f626a6563740d00000004706f6f6c0673656e6465720616a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7047369746507746f6b656e2d780616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0a746f6b656e2d616c657807746f6b656e2d790616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0c746f6b656e2d777669626573",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [115, 119, 97, 112, 45, 121, 45, 102, 111, 114, 45, 120]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "balance-x": { "UInt": 5929592997835 },
+                        "balance-y": { "UInt": 302972812059912 },
+                        "end-block": { "UInt": 340282366920938463463374607431768211455 },
+                        "fee-rate-x": { "UInt": 500000 },
+                        "fee-rate-y": { "UInt": 500000 },
+                        "fee-rebate": { "UInt": 50000000 },
+                        "max-in-ratio": { "UInt": 60000000 },
+                        "max-out-ratio": { "UInt": 60000000 },
+                        "oracle-average": { "UInt": 99000000 },
+                        "oracle-enabled": { "Bool": true },
+                        "oracle-resilient": { "UInt": 6177629474 },
+                        "pool-id": { "UInt": 42 },
+                        "pool-owner": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                22,
+                                [
+                                  64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109,
+                                  27, 30, 178, 247, 131, 78
+                                ]
+                              ],
+                              "name": "executor-dao"
+                            }
+                          }
+                        },
+                        "start-block": { "UInt": 0 },
+                        "threshold-x": { "UInt": 0 },
+                        "threshold-y": { "UInt": 0 },
+                        "total-supply": { "UInt": 17017968071330700000 }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "end-block": "UIntType",
+                          "fee-rate-x": "UIntType",
+                          "fee-rate-y": "UIntType",
+                          "fee-rebate": "UIntType",
+                          "max-in-ratio": "UIntType",
+                          "max-out-ratio": "UIntType",
+                          "oracle-average": "UIntType",
+                          "oracle-enabled": "BoolType",
+                          "oracle-resilient": "UIntType",
+                          "pool-id": "UIntType",
+                          "pool-owner": "PrincipalType",
+                          "start-block": "UIntType",
+                          "threshold-x": "UIntType",
+                          "threshold-y": "UIntType",
+                          "total-supply": "UIntType"
+                        }
+                      }
+                    }
+                  },
+                  "dx": { "UInt": 21062536889 },
+                  "dy": { "UInt": 1077761294227 },
+                  "fee": { "UInt": 5388806472 },
+                  "fee-rebate": { "UInt": 2694403236 },
+                  "object": {
+                    "Sequence": { "String": { "ASCII": { "data": [112, 111, 111, 108] } } }
+                  },
+                  "sender": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            162, 99, 146, 216, 215, 246, 111, 112, 166, 152, 31, 76, 30, 13, 135,
+                            220, 79, 176, 177, 167
+                          ]
+                        ],
+                        "name": "site"
+                      }
+                    }
+                  },
+                  "token-x": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109, 27, 30,
+                            178, 247, 131, 78
+                          ]
+                        ],
+                        "name": "token-alex"
+                      }
+                    }
+                  },
+                  "token-y": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109, 27, 30,
+                            178, 247, 131, 78
+                          ]
+                        ],
+                        "name": "token-wvibes"
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "end-block": "UIntType",
+                          "fee-rate-x": "UIntType",
+                          "fee-rate-y": "UIntType",
+                          "fee-rebate": "UIntType",
+                          "max-in-ratio": "UIntType",
+                          "max-out-ratio": "UIntType",
+                          "oracle-average": "UIntType",
+                          "oracle-enabled": "BoolType",
+                          "oracle-resilient": "UIntType",
+                          "pool-id": "UIntType",
+                          "pool-owner": "PrincipalType",
+                          "start-block": "UIntType",
+                          "threshold-x": "UIntType",
+                          "threshold-y": "UIntType",
+                          "total-supply": "UIntType"
+                        }
+                      }
+                    },
+                    "dx": "UIntType",
+                    "dy": "UIntType",
+                    "fee": "UIntType",
+                    "fee-rebate": "UIntType",
+                    "object": { "SequenceType": { "StringType": { "ASCII": 4 } } },
+                    "sender": "PrincipalType",
+                    "token-x": "PrincipalType",
+                    "token-y": "PrincipalType"
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 6,
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 7,
+          "ft_transfer_event": {
+            "amount": "21062536889",
+            "asset_identifier": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex",
+            "recipient": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-vault-v2-01",
+            "sender": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "ft_transfer_event"
+        },
+        {
+          "committed": true,
+          "event_index": 8,
+          "stx_transfer_event": {
+            "amount": "948414",
+            "memo": "",
+            "recipient": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site",
+            "sender": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-vault-v2-01"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "stx_transfer_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.amm-pool-v2-01",
+            "raw_value": "0x0c0000000a06616374696f6e0d0000000c737761702d792d666f722d7804646174610c000000110962616c616e63652d780100000000000000000000142612fcad090962616c616e63652d790100000000000000000011644e27d3b40809656e642d626c6f636b01ffffffffffffffffffffffffffffffff0a6665652d726174652d78010000000000000000000000000007a1200a6665652d726174652d79010000000000000000000000000007a1200a6665652d7265626174650100000000000000000000000002faf0800c6d61782d696e2d726174696f01000000000000000000000000039387000d6d61782d6f75742d726174696f01000000000000000000000000039387000e6f7261636c652d617665726167650100000000000000000000000005e69ec00e6f7261636c652d656e61626c656403106f7261636c652d726573696c69656e740100000000000000000000000584db73a707706f6f6c2d6964010000000000000000000000000000000d0a706f6f6c2d6f776e65720616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0c6578656375746f722d64616f0b73746172742d626c6f636b01000000000000000000000000000000000b7468726573686f6c642d7801000000000000000000000000000000000b7468726573686f6c642d7901000000000000000000000000000000000c746f74616c2d737570706c790100000000000000000006a92ad3a65e480264780100000000000000000000000005a72a8402647901000000000000000000000004e76cceb903666565010000000000000000000000000646f1ad0a6665652d72656261746501000000000000000000000000032378d6066f626a6563740d00000004706f6f6c0673656e6465720616a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7047369746507746f6b656e2d780616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0d746f6b656e2d777374782d763207746f6b656e2d790616402da2c079e5d31d58b9cfc7286d1b1eb2f7834e0a746f6b656e2d616c6578",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "action": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [115, 119, 97, 112, 45, 121, 45, 102, 111, 114, 45, 120]
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "Tuple": {
+                      "data_map": {
+                        "balance-x": { "UInt": 22153759862025 },
+                        "balance-y": { "UInt": 4895361442493448 },
+                        "end-block": { "UInt": 340282366920938463463374607431768211455 },
+                        "fee-rate-x": { "UInt": 500000 },
+                        "fee-rate-y": { "UInt": 500000 },
+                        "fee-rebate": { "UInt": 50000000 },
+                        "max-in-ratio": { "UInt": 60000000 },
+                        "max-out-ratio": { "UInt": 60000000 },
+                        "oracle-average": { "UInt": 99000000 },
+                        "oracle-enabled": { "Bool": true },
+                        "oracle-resilient": { "UInt": 23703810983 },
+                        "pool-id": { "UInt": 13 },
+                        "pool-owner": {
+                          "Principal": {
+                            "Contract": {
+                              "issuer": [
+                                22,
+                                [
+                                  64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109,
+                                  27, 30, 178, 247, 131, 78
+                                ]
+                              ],
+                              "name": "executor-dao"
+                            }
+                          }
+                        },
+                        "start-block": { "UInt": 0 },
+                        "threshold-x": { "UInt": 0 },
+                        "threshold-y": { "UInt": 0 },
+                        "total-supply": { "UInt": 1874851264880200 }
+                      },
+                      "type_signature": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "end-block": "UIntType",
+                          "fee-rate-x": "UIntType",
+                          "fee-rate-y": "UIntType",
+                          "fee-rebate": "UIntType",
+                          "max-in-ratio": "UIntType",
+                          "max-out-ratio": "UIntType",
+                          "oracle-average": "UIntType",
+                          "oracle-enabled": "BoolType",
+                          "oracle-resilient": "UIntType",
+                          "pool-id": "UIntType",
+                          "pool-owner": "PrincipalType",
+                          "start-block": "UIntType",
+                          "threshold-x": "UIntType",
+                          "threshold-y": "UIntType",
+                          "total-supply": "UIntType"
+                        }
+                      }
+                    }
+                  },
+                  "dx": { "UInt": 94841476 },
+                  "dy": { "UInt": 21062536889 },
+                  "fee": { "UInt": 105312685 },
+                  "fee-rebate": { "UInt": 52656342 },
+                  "object": {
+                    "Sequence": { "String": { "ASCII": { "data": [112, 111, 111, 108] } } }
+                  },
+                  "sender": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            162, 99, 146, 216, 215, 246, 111, 112, 166, 152, 31, 76, 30, 13, 135,
+                            220, 79, 176, 177, 167
+                          ]
+                        ],
+                        "name": "site"
+                      }
+                    }
+                  },
+                  "token-x": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109, 27, 30,
+                            178, 247, 131, 78
+                          ]
+                        ],
+                        "name": "token-wstx-v2"
+                      }
+                    }
+                  },
+                  "token-y": {
+                    "Principal": {
+                      "Contract": {
+                        "issuer": [
+                          22,
+                          [
+                            64, 45, 162, 192, 121, 229, 211, 29, 88, 185, 207, 199, 40, 109, 27, 30,
+                            178, 247, 131, 78
+                          ]
+                        ],
+                        "name": "token-alex"
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "action": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                    "data": {
+                      "TupleType": {
+                        "type_map": {
+                          "balance-x": "UIntType",
+                          "balance-y": "UIntType",
+                          "end-block": "UIntType",
+                          "fee-rate-x": "UIntType",
+                          "fee-rate-y": "UIntType",
+                          "fee-rebate": "UIntType",
+                          "max-in-ratio": "UIntType",
+                          "max-out-ratio": "UIntType",
+                          "oracle-average": "UIntType",
+                          "oracle-enabled": "BoolType",
+                          "oracle-resilient": "UIntType",
+                          "pool-id": "UIntType",
+                          "pool-owner": "PrincipalType",
+                          "start-block": "UIntType",
+                          "threshold-x": "UIntType",
+                          "threshold-y": "UIntType",
+                          "total-supply": "UIntType"
+                        }
+                      }
+                    },
+                    "dx": "UIntType",
+                    "dy": "UIntType",
+                    "fee": "UIntType",
+                    "fee-rebate": "UIntType",
+                    "object": { "SequenceType": { "StringType": { "ASCII": 4 } } },
+                    "sender": "PrincipalType",
+                    "token-x": "PrincipalType",
+                    "token-y": "PrincipalType"
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 9,
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 10,
+          "stx_transfer_event": {
+            "amount": "948414",
+            "memo": "",
+            "recipient": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV",
+            "sender": "SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.site"
+          },
+          "txid": "0xfa7fd20d08f9bbf07f1209a575bd4ec834fd07ddcd2446baaa9f26b1c40cc26f",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}
