@@ -10,7 +10,7 @@ import { FastifyError } from 'fastify';
 import { validateMeshRequest } from '../middleware/validation.js';
 
 export const MeshApiRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
-  fastify.setErrorHandler((error: FastifyError, _request, reply) => {
+  fastify.setErrorHandler((error: FastifyError, request, reply) => {
     if (error.validation) {
       return reply.status(500).send({
         code: 902,
@@ -22,7 +22,7 @@ export const MeshApiRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fast
         },
       });
     }
-
+    request.log.error(error);
     return reply.status(500).send({
       code: 900,
       message: 'Internal error',

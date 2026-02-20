@@ -1,0 +1,152 @@
+{
+  "block_id": "b71cf2e8026a81b77e31c31f5fc961c8c0d5502ff420dab70dd6cb95c41facc0",
+  "block_hash": "a4462f02886acf3c8b782aa5faccb470e0a8777fb9d85e3e9901ebf818556b52",
+  "block_height": 5299259,
+  "parent_block_id": "2cc7007fb65d6c040f75898d8d5a23cb50d7202611d8e121e987c52b9e1c307a",
+  "consensus_hash": "3ad574f3d21ec548c5834ecec7a99e1dddb42414",
+  "fees": 750180,
+  "tx_merkle_root": "6aeb8481a2b4a7051897fed77b22e47bbefee618777c584459d90ef2758fc764",
+  "state_index_root": "63d1c40643f2fe18214261b218240189069a45220a31a667fe7d031c54542178",
+  "timestamp": 1765699707,
+  "miner_signature": "000cbe910fd76d6ac38cecc10c80008108ccc35961eb30f3775d3882102bd77d5f2179dfd84a91c446efaaea0aa4b916b5eeb782a5877574e650a1b2379d830c6c",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "d0c4a5bc0b030df95eb75531b239c32bb476bde63ec09089ef15499c6f74f34a",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "dd9c0adcb20780fa83c92f2c72cd6a1069c89e7e",
+              "nonce": 0,
+              "tx_fee": 750000,
+              "key_encoding": "Compressed",
+              "signature": "01cad39bbf50bcf8287e9a863ce6f66fa1360205822b58bf885cc8395070abbc5c4d4861e5b7fa200e6cfab5fea0fc01838da72d009069d59b7d496a75b51d620a"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Allow",
+        "post_conditions": [],
+        "payload": {
+          "SmartContract": [
+            {
+              "name": "sip009-nft-trait",
+              "code_body": [
+                59, 59, 32, 83, 73, 80, 48, 48, 57, 32, 78, 70, 84, 32, 84, 114, 97, 105, 116, 32,
+                45, 32, 83, 116, 97, 110, 100, 97, 114, 100, 32, 78, 70, 84, 32, 105, 110, 116, 101,
+                114, 102, 97, 99, 101, 10, 40, 100, 101, 102, 105, 110, 101, 45, 116, 114, 97, 105,
+                116, 32, 110, 102, 116, 45, 116, 114, 97, 105, 116, 10, 32, 32, 40, 10, 32, 32, 32,
+                32, 40, 103, 101, 116, 45, 108, 97, 115, 116, 45, 116, 111, 107, 101, 110, 45, 105,
+                100, 32, 40, 41, 32, 40, 114, 101, 115, 112, 111, 110, 115, 101, 32, 117, 105, 110,
+                116, 32, 117, 105, 110, 116, 41, 41, 10, 32, 32, 32, 32, 40, 103, 101, 116, 45, 116,
+                111, 107, 101, 110, 45, 117, 114, 105, 32, 40, 117, 105, 110, 116, 41, 32, 40, 114,
+                101, 115, 112, 111, 110, 115, 101, 32, 40, 111, 112, 116, 105, 111, 110, 97, 108,
+                32, 40, 115, 116, 114, 105, 110, 103, 45, 97, 115, 99, 105, 105, 32, 50, 53, 54, 41,
+                41, 32, 117, 105, 110, 116, 41, 41, 10, 32, 32, 32, 32, 40, 103, 101, 116, 45, 111,
+                119, 110, 101, 114, 32, 40, 117, 105, 110, 116, 41, 32, 40, 114, 101, 115, 112, 111,
+                110, 115, 101, 32, 40, 111, 112, 116, 105, 111, 110, 97, 108, 32, 112, 114, 105,
+                110, 99, 105, 112, 97, 108, 41, 32, 117, 105, 110, 116, 41, 41, 10, 32, 32, 32, 32,
+                40, 116, 114, 97, 110, 115, 102, 101, 114, 32, 40, 117, 105, 110, 116, 32, 112, 114,
+                105, 110, 99, 105, 112, 97, 108, 32, 112, 114, 105, 110, 99, 105, 112, 97, 108, 41,
+                32, 40, 114, 101, 115, 112, 111, 110, 115, 101, 32, 98, 111, 111, 108, 32, 117, 105,
+                110, 116, 41, 41, 10, 32, 32, 41, 10, 41
+              ]
+            },
+            "Clarity3"
+          ]
+        }
+      },
+      "hex": "00000000010400dd9c0adcb20780fa83c92f2c72cd6a1069c89e7e000000000000000000000000000b71b00001cad39bbf50bcf8287e9a863ce6f66fa1360205822b58bf885cc8395070abbc5c4d4861e5b7fa200e6cfab5fea0fc01838da72d009069d59b7d496a75b51d620a0301000000000603107369703030392d6e66742d7472616974000001423b3b20534950303039204e4654205472616974202d205374616e64617264204e465420696e746572666163650a28646566696e652d7472616974206e66742d74726169740a2020280a20202020286765742d6c6173742d746f6b656e2d69642028292028726573706f6e73652075696e742075696e7429290a20202020286765742d746f6b656e2d757269202875696e74292028726573706f6e736520286f7074696f6e616c2028737472696e672d61736369692032353629292075696e7429290a20202020286765742d6f776e6572202875696e74292028726573706f6e736520286f7074696f6e616c207072696e636970616c292075696e7429290a20202020287472616e73666572202875696e74207072696e636970616c207072696e636970616c292028726573706f6e736520626f6f6c2075696e7429290a2020290a29",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 367,
+        "write_count": 2,
+        "read_length": 1,
+        "read_count": 1,
+        "runtime": 19892
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "7c0023892eaa383d924c31e398d222a12313f30c0190dfa54d9564ec347577e4",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f2bba6df751755ab9ac1df8b387d981cfe265cdf",
+              "nonce": 1969486,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "003e1b225b3ee0d4bf0a3155e187546fb5b8abb78ee6739223c0e97938f5bc33f834ebb9b9e16093fc3204535bce2acd83856b036dc6744f3a698f7d8207a74974"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  251, 217, 161, 112, 47, 78, 204, 68, 252, 1, 241, 137, 76, 114, 252, 187, 35, 165,
+                  60, 232
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf00000000001e0d4e00000000000000b400003e1b225b3ee0d4bf0a3155e187546fb5b8abb78ee6739223c0e97938f5bc33f834ebb9b9e16093fc3204535bce2acd83856b036dc6744f3a698f7d8207a74974030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR",
+            "sender": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"
+          },
+          "txid": "0x7c0023892eaa383d924c31e398d222a12313f30c0190dfa54d9564ec347577e4",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

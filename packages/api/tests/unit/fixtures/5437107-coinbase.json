@@ -1,0 +1,114 @@
+{
+  "block_id": "26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124",
+  "block_hash": "e38b02c753785bd4323d5e9d74a994b3098cdfd8e2b354f536d98b1e7c7c7338",
+  "block_height": 5437107,
+  "parent_block_id": "2725967f32626fd94f5c5cacfede736862d6cbfa9524f585551a6ded7bdc91ed",
+  "consensus_hash": "51e178ffdea53e02bbef13cdd2cec889728f8686",
+  "fees": 0,
+  "tx_merkle_root": "8036ea13eeb93cb6ba0d8b23c554d4306686ed7f7f9cf5e838ee938e402ed4f8",
+  "state_index_root": "ef52485193b45fadd18f17b40e1cbaa4b324b1f4431ff3f8f23692e67a2c97d7",
+  "timestamp": 1766362680,
+  "miner_signature": "01c0787ac8215b01f7dcf4ef14108451c7e3a8dfe22dcad37b41449f2d44bc1e033c257bbbf84a6018e10a2d770d083562c598fb3a065533f2e776150412875d63",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "8a4b8ecd4c4de3d56fe13ca6659b73fbeb422320c3b1d330adb4fb0593f19f3f",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "a0fd31044d7542fd81b6d6f8c074a3fd1c1714f6",
+              "nonce": 28482,
+              "tx_fee": 0,
+              "key_encoding": "Compressed",
+              "signature": "00f5390f8943d1acd10f68f7c38efe5dd45b4823559939cb4f67fed521902cbff2381ad560606fd8cf36e6645554710660caab883a1eb1e13b4a9e8ab373fa36cd"
+            }
+          }
+        },
+        "anchor_mode": "OnChainOnly",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TenureChange": {
+            "tenure_consensus_hash": "51e178ffdea53e02bbef13cdd2cec889728f8686",
+            "prev_tenure_consensus_hash": "1d136e7a89eb84466e8bbf7e8ea6d8fc583ec9f5",
+            "burn_view_consensus_hash": "51e178ffdea53e02bbef13cdd2cec889728f8686",
+            "previous_tenure_end": "2725967f32626fd94f5c5cacfede736862d6cbfa9524f585551a6ded7bdc91ed",
+            "previous_tenure_blocks": 356,
+            "cause": "BlockFound",
+            "pubkey_hash": "a0fd31044d7542fd81b6d6f8c074a3fd1c1714f6"
+          }
+        }
+      },
+      "hex": "00000000010400a0fd31044d7542fd81b6d6f8c074a3fd1c1714f60000000000006f4200000000000000000000f5390f8943d1acd10f68f7c38efe5dd45b4823559939cb4f67fed521902cbff2381ad560606fd8cf36e6645554710660caab883a1eb1e13b4a9e8ab373fa36cd0102000000000751e178ffdea53e02bbef13cdd2cec889728f86861d136e7a89eb84466e8bbf7e8ea6d8fc583ec9f551e178ffdea53e02bbef13cdd2cec889728f86862725967f32626fd94f5c5cacfede736862d6cbfa9524f585551a6ded7bdc91ed0000016400a0fd31044d7542fd81b6d6f8c074a3fd1c1714f6",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "1cbe317e41c509e39d91154d3de39e578a2cbb0d69e99455ddfdf4f134376450",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "a0fd31044d7542fd81b6d6f8c074a3fd1c1714f6",
+              "nonce": 28483,
+              "tx_fee": 0,
+              "key_encoding": "Compressed",
+              "signature": "007550ce6b3c6922662153e4c16d3c06cb031e715c47d37a5dcbba7ce4068d509a7c8a88412f0ffa9ba13b535a79edbb54b264cb4fc9a3ea4d789894b204703628"
+            }
+          }
+        },
+        "anchor_mode": "OnChainOnly",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "Coinbase": [
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            null,
+            "d1a3e2c5825482fd08f3e6a938bc1bf71f6931965121c817187d603a9e2b978f9d8ef26bfa68da632b856fd50a49137f82316fd50b8ef3961284f522a898f3797f0cd32561bca82e67c881d5259c200f"
+          ]
+        }
+      },
+      "hex": "00000000010400a0fd31044d7542fd81b6d6f8c074a3fd1c1714f60000000000006f43000000000000000000007550ce6b3c6922662153e4c16d3c06cb031e715c47d37a5dcbba7ce4068d509a7c8a88412f0ffa9ba13b535a79edbb54b264cb4fc9a3ea4d789894b20470362801020000000008000000000000000000000000000000000000000000000000000000000000000009d1a3e2c5825482fd08f3e6a938bc1bf71f6931965121c817187d603a9e2b978f9d8ef26bfa68da632b856fd50a49137f82316fd50b8ef3961284f522a898f3797f0cd32561bca82e67c881d5259c200f",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}
