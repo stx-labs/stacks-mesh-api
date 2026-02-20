@@ -17,6 +17,7 @@ import {
   StacksBlockReplayTransactionStxBurnEvent,
   StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
+import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
 
 type StacksTransaction = {
   replayedTx: StacksBlockReplayTransaction;
@@ -51,6 +52,8 @@ export function addHexPrefix(hex: string): string {
 
 /**
  * Converts a decoded Stacks Nakamoto block to Mesh API Block format.
+ * @param replay - The replayed Nakamoto block.
+ * @returns The serialized block.
  */
 export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block {
   const tokenMetadata = new Map<string, TokenMetadata>(); // TODO: implement
@@ -66,6 +69,7 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
     },
     timestamp: Number(replay.timestamp) * 1000,
     transactions: replay.transactions.map((tx, i) =>
+      // TODO: `tx_index` does not work from Stacks core (it's always 0).
       serializeReplayedNakamotoTransaction(tx, replay.fees, i, tokenMetadata)
     ),
   };
@@ -98,6 +102,29 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
   // }
 
   return block;
+}
+
+/**
+ * Retrieves a transaction from a replayed Nakamoto block and serializes it to Mesh API Transaction
+ * format.
+ * @param replay - The replayed Nakamoto block.
+ * @param txId - The ID of the transaction to serialize.
+ * @returns The serialized transaction.
+ */
+export function serializeTransactionFromReplayedNakamotoBlock(
+  replay: StacksBlockReplay,
+  txId: string
+): Transaction {
+  // TODO: `tx_index` does not work from Stacks core (it's always 0). We need to traverse the entire
+  // array to determine the index.
+  let index = 0;
+  for (const tx of replay.transactions) {
+    if (`0x${tx.txid}` === txId) {
+      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, new Map());
+    }
+    index++;
+  }
+  throw new StacksRpcTransactionNotFoundError(txId);
 }
 
 function serializeReplayedNakamotoTransaction(

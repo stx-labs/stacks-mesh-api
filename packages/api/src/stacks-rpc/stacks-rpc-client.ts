@@ -20,6 +20,7 @@ import type {
   StacksContractMapEntry,
 } from './types.js';
 import { logger, timeout } from '@stacks/api-toolkit';
+import { StacksRpcBlockNotFoundError, StacksRpcError } from './errors.js';
 
 /**
  * Configuration for the Stacks RPC client.
@@ -149,19 +150,36 @@ export class StacksRpcClient {
   // === Blocks ===
 
   async getNakamotoBlockByHash(blockHash: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/blocks/${blockHash}`, undefined, undefined);
+    try {
+      return this.requestRaw('GET', `/v3/blocks/${blockHash}`, undefined, undefined);
+    } catch (error) {
+      if (error instanceof StacksRpcError && error.statusCode === 404) {
+        throw new StacksRpcBlockNotFoundError(blockHash);
+      }
+      throw error;
+    }
   }
 
   async getNakamotoBlockByHeight(height: number): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
-  }
-
-  async getLegacyBlockByHash(blockId: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v2/blocks/${blockId}`, undefined, undefined);
+    try {
+      return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
+    } catch (error) {
+      if (error instanceof StacksRpcError && error.statusCode === 404) {
+        throw new StacksRpcBlockNotFoundError(height.toString());
+      }
+      throw error;
+    }
   }
 
   async replayNakamotoBlock(blockHash: string): Promise<StacksBlockReplay> {
-    return this.request<StacksBlockReplay>('GET', `/v3/blocks/replay/${blockHash}`, null, true);
+    try {
+      return this.request<StacksBlockReplay>('GET', `/v3/blocks/replay/${blockHash}`, null, true);
+    } catch (error) {
+      if (error instanceof StacksRpcError && error.statusCode === 404) {
+        throw new StacksRpcBlockNotFoundError(blockHash);
+      }
+      throw error;
+    }
   }
 
   // === Tenures ===
@@ -311,17 +329,6 @@ export class StacksRpcClient {
       'GET',
       `/v2/data_var/${principal}/${contractName}/${varName}`
     );
-  }
-}
-
-export class StacksRpcError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public responseBody?: string
-  ) {
-    super(message);
-    this.name = 'StacksRpcError';
   }
 }
 

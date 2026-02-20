@@ -28,7 +28,10 @@ export const validateMeshRequest = (config: RouteConfig) => {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as Record<string, unknown>;
     if ('network_identifier' in body) {
-      const networkError = validateNetwork(body.network_identifier as NetworkIdentifier, config.network);
+      const networkError = validateNetwork(
+        body.network_identifier as NetworkIdentifier,
+        config.network
+      );
       if (networkError) {
         return reply.status(500).send(networkError);
       }
