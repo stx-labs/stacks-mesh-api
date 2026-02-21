@@ -2,7 +2,7 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer, RouteConfig } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/services/stacks-rpc-client.js';
+import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
 
 describe('/network', () => {
@@ -13,7 +13,8 @@ describe('/network', () => {
 
   beforeEach(async () => {
     rpcClient = new StacksRpcClient({
-      baseUrl: 'http://test.stacks.node',
+      hostname: 'test.stacks.node',
+      port: 20444,
       authToken: 'test-token',
     });
     config = {
@@ -111,7 +112,7 @@ describe('/network', () => {
         outbound: [],
       };
 
-      const mockPool = mockAgent.get('http://test.stacks.node');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockPool
         .intercept({ path: '/v2/info', method: 'GET' })
         .reply(200, mockNodeInfo, {

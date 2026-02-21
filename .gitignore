@@ -7,3 +7,4 @@ dist/
 # Package build outputs
 packages/*/dist/
 *.tsbuildinfo
+.git-info

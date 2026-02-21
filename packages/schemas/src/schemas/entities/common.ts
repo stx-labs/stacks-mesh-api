@@ -26,7 +26,7 @@ export const OperationIdentifierSchema = Type.Object({
 export type OperationIdentifier = Static<typeof OperationIdentifierSchema>;
 
 export const AccountIndentifierSchema = Type.Object({
-  address: StacksAddressSchema,
+  address: StacksPrincipalSchema,
   sub_account: Type.Optional(StacksAddressSchema),
 });
 export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
