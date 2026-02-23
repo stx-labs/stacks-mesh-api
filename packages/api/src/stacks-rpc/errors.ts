@@ -12,6 +12,13 @@ export class StacksRpcTransactionNotFoundError extends Error {
   }
 }
 
+export class StacksRpcSmartContractError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'StacksRpcSmartContractClarityError';
+  }
+}
+
 export class StacksRpcError extends Error {
   constructor(
     message: string,

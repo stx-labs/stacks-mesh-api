@@ -35,24 +35,13 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
             parameters.sender,
             parameters.sponsor
           );
-          if (callResult.okay) {
-            return reply.send({
-              idempotent: false,
-              result: {
-                okay: true,
-                result: callResult.result,
-              },
-            });
-          } else {
-            // TODO: Should this be an error response?
-            return reply.send({
-              idempotent: false,
-              result: {
-                okay: false,
-                cause: callResult.cause,
-              },
-            });
-          }
+          return reply.send({
+            idempotent: false,
+            result: {
+              okay: true,
+              result: callResult.result,
+            },
+          });
         }
 
         case 'contract_get_interface': {

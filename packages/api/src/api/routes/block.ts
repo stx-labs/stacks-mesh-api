@@ -18,7 +18,7 @@ import {
 import { StacksBlockReplay } from '../../stacks-rpc/types.js';
 
 export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
-  const { rpcClient } = config;
+  const { rpcClient, tokenMetadataCache } = config;
 
   fastify.post(
     '/block',
@@ -35,7 +35,7 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastif
       const { block_identifier } = request.body;
       const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
       return reply.send({
-        block: serializeReplayedNakamotoBlock(block),
+        block: await serializeReplayedNakamotoBlock(block, tokenMetadataCache),
       });
     }
   );
@@ -55,9 +55,10 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastif
       const { block_identifier, transaction_identifier } = request.body;
       const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
       return reply.send({
-        transaction: serializeTransactionFromReplayedNakamotoBlock(
+        transaction: await serializeTransactionFromReplayedNakamotoBlock(
           block,
-          transaction_identifier.hash
+          transaction_identifier.hash,
+          tokenMetadataCache
         ),
       });
     }

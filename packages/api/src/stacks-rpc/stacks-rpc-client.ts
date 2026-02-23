@@ -5,12 +5,7 @@ import type {
   StacksAccountInfo,
   StacksNeighbors,
   StacksFeeEstimate,
-  StacksTransferFee,
-  StacksHealthStatus,
-  StacksTenureInfo,
   StacksBroadcastResponse,
-  StacksMempoolQueryResponse,
-  StacksConfirmedTransaction,
   StacksBlockReplay,
   StacksContractCallReadOnlyResult,
   StacksContractInterface,
@@ -18,9 +13,15 @@ import type {
   StacksContractConstantVal,
   StacksContractDataVar,
   StacksContractMapEntry,
+  StacksContractCallReadOnlySuccess,
 } from './types.js';
 import { logger, timeout } from '@stacks/api-toolkit';
-import { StacksRpcBlockNotFoundError, StacksRpcError } from './errors.js';
+import {
+  StacksRpcBlockNotFoundError,
+  StacksRpcError,
+  StacksRpcSmartContractError,
+} from './errors.js';
+import codec from '@hirosystems/stacks-encoding-native-js';
 
 /**
  * Configuration for the Stacks RPC client.
@@ -84,7 +85,11 @@ export class StacksRpcClient {
 
     if (statusCode < 200 || statusCode >= 300) {
       const errorText = await responseBody.text();
-      throw new StacksRpcError(`RPC request failed: ${statusCode} - ${errorText}`, statusCode, errorText);
+      throw new StacksRpcError(
+        `RPC request failed: ${statusCode} - ${errorText}`,
+        statusCode,
+        errorText
+      );
     }
 
     if (responseType === 'json') {
@@ -121,10 +126,6 @@ export class StacksRpcClient {
     return this.request<StacksPoxInfo>('GET', '/v2/pox');
   }
 
-  async getHealth(): Promise<StacksHealthStatus> {
-    return this.request<StacksHealthStatus>('GET', '/v3/health');
-  }
-
   async getNeighbors(): Promise<StacksNeighbors> {
     return this.request<StacksNeighbors>('GET', '/v2/neighbors');
   }
@@ -149,17 +150,6 @@ export class StacksRpcClient {
 
   // === Blocks ===
 
-  async getNakamotoBlockByHash(blockHash: string): Promise<Buffer> {
-    try {
-      return this.requestRaw('GET', `/v3/blocks/${blockHash}`, undefined, undefined);
-    } catch (error) {
-      if (error instanceof StacksRpcError && error.statusCode === 404) {
-        throw new StacksRpcBlockNotFoundError(blockHash);
-      }
-      throw error;
-    }
-  }
-
   async getNakamotoBlockByHeight(height: number): Promise<Buffer> {
     try {
       return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
@@ -180,16 +170,6 @@ export class StacksRpcClient {
       }
       throw error;
     }
-  }
-
-  // === Tenures ===
-
-  async getTenureInfo(): Promise<StacksTenureInfo> {
-    return this.request<StacksTenureInfo>('GET', '/v3/tenures/info');
-  }
-
-  async getTenureBlocks(blockId: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v3/tenures/${blockId}`, undefined, undefined);
   }
 
   // === Transactions ===
@@ -223,36 +203,12 @@ export class StacksRpcClient {
     return { txid: txid.replace(/"/g, '') };
   }
 
-  async getUnconfirmedTransaction(txid: string): Promise<Buffer> {
-    return this.requestRaw('GET', `/v2/transactions/unconfirmed/${txid}`);
-  }
-
-  async getConfirmedTransaction(txid: string): Promise<StacksConfirmedTransaction> {
-    return this.request<StacksConfirmedTransaction>('GET', `/v3/transaction/${txid}`);
-  }
-
-  async queryMempool(
-    txids: string[],
-    pageSize?: number,
-    page?: number
-  ): Promise<StacksMempoolQueryResponse> {
-    return this.request<StacksMempoolQueryResponse>('POST', '/v2/mempool/query', {
-      txids,
-      page_size: pageSize,
-      page,
-    });
-  }
-
   // === Fees ===
 
   async estimateFee(transactionPayload: string): Promise<StacksFeeEstimate> {
     return this.request<StacksFeeEstimate>('POST', '/v2/fees/transaction', {
       transaction_payload: transactionPayload,
     });
-  }
-
-  async getTransferFee(): Promise<StacksTransferFee> {
-    return this.request<StacksTransferFee>('GET', '/v2/fees/transfer');
   }
 
   // === Smart Contracts ===
@@ -295,16 +251,18 @@ export class StacksRpcClient {
     args: string[],
     sender: string,
     sponsor?: string
-  ): Promise<StacksContractCallReadOnlyResult> {
+  ): Promise<StacksContractCallReadOnlySuccess> {
     const body: Record<string, unknown> = { sender, arguments: args };
     if (sponsor) {
       body.sponsor = sponsor;
     }
-    return this.request<StacksContractCallReadOnlyResult>(
+    const result = await this.request<StacksContractCallReadOnlyResult>(
       'POST',
       `/v2/contracts/call-read/${contractAddress}/${contractName}/${functionName}`,
       body
     );
+    if (result.okay) return result;
+    throw new StacksRpcSmartContractError(result.cause);
   }
 
   async getMapEntry(
@@ -330,6 +288,45 @@ export class StacksRpcClient {
       `/v2/data_var/${principal}/${contractName}/${varName}`
     );
   }
+
+  async readStringFromContract(
+    contractAddress: string,
+    contractName: string,
+    functionName: string,
+    sender: string,
+    functionArgs: string[] = [],
+  ): Promise<string> {
+    const result = await this.callReadOnlyFunction(
+      contractAddress,
+      contractName,
+      functionName,
+      functionArgs,
+      sender
+    );
+    return checkAndParseString(result.result);
+  }
+
+  async readUIntFromContract(
+    contractAddress: string,
+    contractName: string,
+    functionName: string,
+    sender: string,
+    functionArgs: string[] = [],
+  ): Promise<bigint> {
+    const result = await this.callReadOnlyFunction(
+      contractAddress,
+      contractName,
+      functionName,
+      functionArgs,
+      sender
+    );
+    const uintVal = checkAndParseUintCV(result.result);
+    try {
+      return BigInt(uintVal.value.toString());
+    } catch (error) {
+      throw new StacksRpcSmartContractError(`Invalid uint value '${uintVal.value}'`);
+    }
+  }
 }
 
 function hexToBytes(hex: string): Uint8Array {
@@ -339,4 +336,40 @@ function hexToBytes(hex: string): Uint8Array {
     bytes[i] = parseInt(cleanHex.substr(i * 2, 2), 16);
   }
   return bytes;
+}
+
+function unwrapClarityType(clarityValue: codec.ClarityValue): codec.ClarityValue {
+  let unwrappedClarityValue: codec.ClarityValue = clarityValue;
+  while (
+    unwrappedClarityValue.type_id === codec.ClarityTypeID.ResponseOk ||
+    unwrappedClarityValue.type_id === codec.ClarityTypeID.OptionalSome
+  ) {
+    unwrappedClarityValue = unwrappedClarityValue.value;
+  }
+  return unwrappedClarityValue;
+}
+
+function checkAndParseUintCV(result: string): codec.ClarityValueUInt {
+  const responseCV = codec.decodeClarityValue(result);
+  const unwrappedClarityValue = unwrapClarityType(responseCV);
+  if (unwrappedClarityValue.type_id === codec.ClarityTypeID.UInt) {
+    return unwrappedClarityValue;
+  }
+  throw new StacksRpcSmartContractError(
+    `Unexpected Clarity type '${unwrappedClarityValue.type_id}' while unwrapping uint`
+  );
+}
+
+function checkAndParseString(result: string): string {
+  const responseCV = codec.decodeClarityValue(result);
+  const unwrappedClarityValue = unwrapClarityType(responseCV);
+  if (
+    unwrappedClarityValue.type_id === codec.ClarityTypeID.StringAscii ||
+    unwrappedClarityValue.type_id === codec.ClarityTypeID.StringUtf8
+  ) {
+    return unwrappedClarityValue.data;
+  }
+  throw new StacksRpcSmartContractError(
+    `Unexpected Clarity type '${unwrappedClarityValue.type_id}' while unwrapping string`
+  );
 }

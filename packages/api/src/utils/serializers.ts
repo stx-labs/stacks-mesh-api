@@ -18,8 +18,9 @@ import {
   StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
+import { TokenMetadataCache } from './token-metadata-cache.js';
 
-type StacksTransaction = {
+type DecodedStacksTransaction = {
   replayedTx: StacksBlockReplayTransaction;
   decodedTx: codec.DecodedTxResult;
   fee: number;
@@ -28,12 +29,6 @@ type StacksTransaction = {
   sponsorAddress: string | null;
   nonce: number;
   status: Status;
-};
-
-type TokenMetadata = {
-  name: string;
-  symbol: string;
-  decimals: number;
 };
 
 export function removeHexPrefix(hex: string): string {
@@ -55,8 +50,10 @@ export function addHexPrefix(hex: string): string {
  * @param replay - The replayed Nakamoto block.
  * @returns The serialized block.
  */
-export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block {
-  const tokenMetadata = new Map<string, TokenMetadata>(); // TODO: implement
+export async function serializeReplayedNakamotoBlock(
+  replay: StacksBlockReplay,
+  tokenMetadataCache: TokenMetadataCache
+): Promise<Block> {
   const blockHeight = replay.block_height;
   const block: Block = {
     block_identifier: {
@@ -68,11 +65,19 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
       hash: addHexPrefix(replay.parent_block_id),
     },
     timestamp: Number(replay.timestamp) * 1000,
-    transactions: replay.transactions.map((tx, i) =>
-      // TODO: `tx_index` does not work from Stacks core (it's always 0).
-      serializeReplayedNakamotoTransaction(tx, replay.fees, i, tokenMetadata)
-    ),
+    transactions: [],
   };
+  for (let i = 0; i < replay.transactions.length; i++) {
+    // TODO: `tx_index` does not work from Stacks core (it's always 0).
+    const tx = replay.transactions[i];
+    const serializedTx = await serializeReplayedNakamotoTransaction(
+      tx,
+      replay.fees,
+      i,
+      tokenMetadataCache
+    );
+    block.transactions.push(serializedTx);
+  }
   // if (options?.includeBlockMetadata || options?.includeBlockSignatures) {
   //   block.metadata = {
   //     burn_block_identifier: {
@@ -111,30 +116,31 @@ export function serializeReplayedNakamotoBlock(replay: StacksBlockReplay): Block
  * @param txId - The ID of the transaction to serialize.
  * @returns The serialized transaction.
  */
-export function serializeTransactionFromReplayedNakamotoBlock(
+export async function serializeTransactionFromReplayedNakamotoBlock(
   replay: StacksBlockReplay,
-  txId: string
-): Transaction {
+  txId: string,
+  tokenMetadataCache: TokenMetadataCache
+): Promise<Transaction> {
   // TODO: `tx_index` does not work from Stacks core (it's always 0). We need to traverse the entire
   // array to determine the index.
   let index = 0;
   for (const tx of replay.transactions) {
     if (`0x${tx.txid}` === txId) {
-      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, new Map());
+      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, tokenMetadataCache);
     }
     index++;
   }
   throw new StacksRpcTransactionNotFoundError(txId);
 }
 
-function serializeReplayedNakamotoTransaction(
+async function serializeReplayedNakamotoTransaction(
   replayedTx: StacksBlockReplayTransaction,
   fee: number,
   index: number,
-  tokenMetadata: Map<string, TokenMetadata>
-): Transaction {
+  tokenMetadataCache: TokenMetadataCache
+): Promise<Transaction> {
   const decodedTx = codec.decodeTransaction(replayedTx.hex);
-  const tx: StacksTransaction = {
+  const tx: DecodedStacksTransaction = {
     replayedTx,
     decodedTx,
     fee,
@@ -151,7 +157,7 @@ function serializeReplayedNakamotoTransaction(
     transaction_identifier: {
       hash: addHexPrefix(replayedTx.txid),
     },
-    operations: serializeStacksTransactionOperations(tx, tokenMetadata),
+    operations: await serializeStacksTransactionOperations(tx, tokenMetadataCache),
     metadata: {
       status: tx.status,
       type: serializeTxType(replayedTx.data.payload),
@@ -339,7 +345,7 @@ function makeStxCurrency(): Currency {
   };
 }
 
-function makeFeeOperation(tx: StacksTransaction, index: number = 0): Operation {
+function makeFeeOperation(tx: DecodedStacksTransaction, index: number = 0): Operation {
   return {
     operation_identifier: { index },
     type: 'fee',
@@ -358,7 +364,7 @@ function makeFeeOperation(tx: StacksTransaction, index: number = 0): Operation {
 }
 
 function makeStxTransferOperations(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionStxTransferEvent,
   index: number
 ): Operation[] {
@@ -404,7 +410,7 @@ function makeStxTransferOperations(
   return [send, receive];
 }
 
-function makeContractCallOperation(tx: StacksTransaction, index: number): Operation {
+function makeContractCallOperation(tx: DecodedStacksTransaction, index: number): Operation {
   const decodedPayload = tx.decodedTx.payload as codec.TxPayloadContractCall;
   const operation: Operation = {
     operation_identifier: { index },
@@ -458,7 +464,7 @@ function makeContractCallOperation(tx: StacksTransaction, index: number): Operat
   return operation;
 }
 
-function makeSmartContractOperation(tx: StacksTransaction, index: number): Operation {
+function makeSmartContractOperation(tx: DecodedStacksTransaction, index: number): Operation {
   const payload = tx.decodedTx.payload as
     | codec.TxPayloadSmartContract
     | codec.TxPayloadVersionedSmartContract;
@@ -480,7 +486,7 @@ function makeSmartContractOperation(tx: StacksTransaction, index: number): Opera
   };
 }
 
-function makeCoinbaseOperation(tx: StacksTransaction, index: number = 0): Operation {
+function makeCoinbaseOperation(tx: DecodedStacksTransaction, index: number = 0): Operation {
   const payload = tx.decodedTx.payload;
   return {
     operation_identifier: { index },
@@ -496,7 +502,7 @@ function makeCoinbaseOperation(tx: StacksTransaction, index: number = 0): Operat
   };
 }
 
-function makeTenureChangeOperation(tx: StacksTransaction, index: number = 0): Operation {
+function makeTenureChangeOperation(tx: DecodedStacksTransaction, index: number = 0): Operation {
   const getCause = (cause: codec.TenureChangeCause) => {
     switch (cause) {
       case codec.TenureChangeCause.BlockFound:
@@ -535,7 +541,7 @@ function makeTenureChangeOperation(tx: StacksTransaction, index: number = 0): Op
 }
 
 function makeStxBurnOperation(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionStxBurnEvent,
   index: number
 ): Operation {
@@ -596,36 +602,35 @@ function makeStxBurnOperation(
 //   };
 // }
 
-function makeFtCurrency(
-  tokenMetadata: Map<string, TokenMetadata>,
+async function makeFtCurrency(
+  tokenMetadataCache: TokenMetadataCache,
   event: StacksBlockReplayTransactionFtEvent
-): Currency {
+): Promise<Currency> {
   const asset_identifier =
     'ft_mint_event' in event
       ? event.ft_mint_event.asset_identifier
       : 'ft_transfer_event' in event
         ? event.ft_transfer_event.asset_identifier
-        : 'ft_burn_event' in event
-          ? event.ft_burn_event.asset_identifier
-          : '';
-  const metadata = tokenMetadata.get(asset_identifier);
+        : event.ft_burn_event.asset_identifier;
+  const metadata = await tokenMetadataCache.get(asset_identifier);
   return {
     symbol: metadata?.symbol ?? '',
     decimals: metadata?.decimals ?? 0,
     metadata: {
       token_type: 'ft',
       asset_identifier,
+      name: metadata?.name ?? undefined,
     },
   };
 }
 
-function makeFtTransferOperations(
-  tx: StacksTransaction,
+async function makeFtTransferOperations(
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtTransferEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
+  tokenMetadataCache: TokenMetadataCache,
   index: number
-): Operation[] {
-  const currency = makeFtCurrency(tokenMetadata, event);
+): Promise<Operation[]> {
+  const currency = await makeFtCurrency(tokenMetadataCache, event);
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
@@ -653,12 +658,12 @@ function makeFtTransferOperations(
   return [send, receive];
 }
 
-function makeFtMintOperation(
-  tx: StacksTransaction,
+async function makeFtMintOperation(
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtMintEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
+  tokenMetadataCache: TokenMetadataCache,
   index: number
-): Operation {
+): Promise<Operation> {
   return {
     operation_identifier: { index },
     type: 'token_mint',
@@ -668,17 +673,17 @@ function makeFtMintOperation(
     },
     amount: {
       value: event.ft_mint_event.amount,
-      currency: makeFtCurrency(tokenMetadata, event),
+      currency: await makeFtCurrency(tokenMetadataCache, event),
     },
   };
 }
 
-function makeFtBurnOperation(
-  tx: StacksTransaction,
+async function makeFtBurnOperation(
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtBurnEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
+  tokenMetadataCache: TokenMetadataCache,
   index: number
-): Operation {
+): Promise<Operation> {
   return {
     operation_identifier: { index },
     type: 'token_burn',
@@ -688,21 +693,27 @@ function makeFtBurnOperation(
     },
     amount: {
       value: (0n - BigInt(event.ft_burn_event.amount)).toString(),
-      currency: makeFtCurrency(tokenMetadata, event),
+      currency: await makeFtCurrency(tokenMetadataCache, event),
     },
   };
 }
 
-function makeNftCurrency(
-  tokenMetadata: Map<string, TokenMetadata>,
-  event: StacksBlockReplayTransactionNftEvent
-): Currency {
-  const asset_identifier = 'nft_mint_event' in event ? event.nft_mint_event.asset_identifier : '';
-  const value = 'nft_mint_event' in event ? event.nft_mint_event.raw_value : '';
-  const metadata = tokenMetadata.get(`${asset_identifier}/${value}`);
+function makeNftCurrency(event: StacksBlockReplayTransactionNftEvent): Currency {
+  const asset_identifier =
+    'nft_mint_event' in event
+      ? event.nft_mint_event.asset_identifier
+      : 'nft_transfer_event' in event
+        ? event.nft_transfer_event.asset_identifier
+        : event.nft_burn_event.asset_identifier;
+  const value =
+    'nft_mint_event' in event
+      ? event.nft_mint_event.raw_value
+      : 'nft_transfer_event' in event
+        ? event.nft_transfer_event.raw_value
+        : event.nft_burn_event.raw_value;
   return {
-    symbol: metadata?.symbol ?? '',
-    decimals: metadata?.decimals ?? 0,
+    symbol: asset_identifier.split('::')[1],
+    decimals: 0,
     metadata: {
       token_type: 'nft',
       asset_identifier,
@@ -712,12 +723,11 @@ function makeNftCurrency(
 }
 
 function makeNftTransferOperations(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionNftTransferEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
   index: number
 ): Operation[] {
-  const currency = makeNftCurrency(tokenMetadata, event);
+  const currency = makeNftCurrency(event);
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
@@ -746,9 +756,8 @@ function makeNftTransferOperations(
 }
 
 function makeNftMintOperation(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionNftMintEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
   index: number
 ): Operation {
   return {
@@ -760,15 +769,14 @@ function makeNftMintOperation(
     },
     amount: {
       value: '1',
-      currency: makeNftCurrency(tokenMetadata, event),
+      currency: makeNftCurrency(event),
     },
   };
 }
 
 function makeNftBurnOperation(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionNftBurnEvent,
-  tokenMetadata: Map<string, TokenMetadata>,
   index: number
 ): Operation {
   return {
@@ -780,13 +788,13 @@ function makeNftBurnOperation(
     },
     amount: {
       value: '-1',
-      currency: makeNftCurrency(tokenMetadata, event),
+      currency: makeNftCurrency(event),
     },
   };
 }
 
 function makeContractEventOperation(
-  tx: StacksTransaction,
+  tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionContractEvent,
   index: number
 ): Operation {
@@ -808,10 +816,10 @@ function makeContractEventOperation(
   };
 }
 
-function serializeStacksTransactionOperations(
-  tx: StacksTransaction,
-  tokenMetadata: Map<string, TokenMetadata>
-): Operation[] {
+async function serializeStacksTransactionOperations(
+  tx: DecodedStacksTransaction,
+  tokenMetadataCache: TokenMetadataCache
+): Promise<Operation[]> {
   const ops: Operation[] = [];
   if (tx.fee > 0) ops.push(makeFeeOperation(tx));
 
@@ -852,22 +860,22 @@ function serializeStacksTransactionOperations(
       // TODO: stx mint not reported in events from core, see block
       // 0xe1410b8188303242471a57e8bca75c5f61ba8537dfe3d1b92b9cca655e59c16b
       case 'ft_mint_event':
-        ops.push(makeFtMintOperation(tx, event, tokenMetadata, ops.length));
+        ops.push(await makeFtMintOperation(tx, event, tokenMetadataCache, ops.length));
         break;
       case 'ft_transfer_event':
-        ops.push(...makeFtTransferOperations(tx, event, tokenMetadata, ops.length));
+        ops.push(...(await makeFtTransferOperations(tx, event, tokenMetadataCache, ops.length)));
         break;
       case 'ft_burn_event':
-        ops.push(makeFtBurnOperation(tx, event, tokenMetadata, ops.length));
+        ops.push(await makeFtBurnOperation(tx, event, tokenMetadataCache, ops.length));
         break;
       case 'nft_transfer_event':
-        ops.push(...makeNftTransferOperations(tx, event, tokenMetadata, ops.length));
+        ops.push(...makeNftTransferOperations(tx, event, ops.length));
         break;
       case 'nft_mint_event':
-        ops.push(makeNftMintOperation(tx, event, tokenMetadata, ops.length));
+        ops.push(makeNftMintOperation(tx, event, ops.length));
         break;
       case 'nft_burn_event':
-        ops.push(makeNftBurnOperation(tx, event, tokenMetadata, ops.length));
+        ops.push(makeNftBurnOperation(tx, event, ops.length));
         break;
       case 'contract_event':
         ops.push(makeContractEventOperation(tx, event, ops.length));

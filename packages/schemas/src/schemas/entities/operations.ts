@@ -12,6 +12,7 @@ export const CurrencySchema = Type.Object({
   metadata: Type.Optional(
     Type.Object({
       asset_identifier: Nullable(Type.String()),
+      name: Type.Optional(Type.String()),
       value: Type.Optional(Type.String()),
       token_type: Type.Union([Type.Literal('ft'), Type.Literal('nft')]),
     })

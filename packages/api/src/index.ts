@@ -3,6 +3,7 @@ import { ENV } from './env.js';
 import { logger, registerShutdownConfig } from '@stacks/api-toolkit';
 import { buildApiServer } from './api/index.js';
 import { getStacksNetworkName } from './utils/constants.js';
+import { TokenMetadataCache } from './utils/token-metadata-cache.js';
 
 export async function initApp() {
   const rpcClient = new StacksRpcClient({
@@ -13,10 +14,17 @@ export async function initApp() {
   });
   const nodeInfo = await rpcClient.waitForNodeReady();
 
+  const tokenMetadataCache = new TokenMetadataCache({
+    rpcClient,
+    cacheSize: ENV.TOKEN_METADATA_CACHE_SIZE,
+    ttl: ENV.TOKEN_METADATA_CACHE_TTL_MS,
+  });
+
   const apiServer = await buildApiServer({
     rpcClient,
     network: getStacksNetworkName(nodeInfo.network_id),
     nodeVersion: nodeInfo.server_version,
+    tokenMetadataCache,
   });
   registerShutdownConfig({
     name: 'API Server',

@@ -8,13 +8,18 @@ const schema = Type.Object({
   API_PORT: Type.Number({ default: 3000, minimum: 0, maximum: 65535 }),
 
   /** Hostname of the Stacks Core RPC server */
-  STACKS_CORE_RPC_HOST: Type.String({ format: 'hostname' }),
+  STACKS_CORE_RPC_HOST: Type.String(),
   /** Port for the Stacks Core RPC server */
   STACKS_CORE_RPC_PORT: Type.Integer({ default: 20443, minimum: 0, maximum: 65535 }),
   /** Auth token for the Stacks Core RPC server */
   STACKS_CORE_RPC_AUTH_TOKEN: Type.String(),
   /** Timeout for the Stacks Core RPC server in milliseconds */
   STACKS_CORE_RPC_TIMEOUT_MS: Type.Integer({ default: 10000, minimum: 0 }),
+
+  /** Size of the token metadata cache */
+  TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),
+  /** TTL of the token metadata cache in milliseconds */
+  TOKEN_METADATA_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 24, minimum: 0 }),
 });
 type Env = Static<typeof schema>;
 

@@ -1,0 +1,77 @@
+import { LRUCache } from 'lru-cache';
+import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
+
+export type TokenMetadata = {
+  name: string;
+  symbol: string;
+  decimals: number;
+};
+
+export class TokenMetadataCache {
+  private readonly rpcClient: StacksRpcClient;
+  private readonly cache: LRUCache<string, TokenMetadata>;
+
+  constructor(args: {
+    rpcClient: StacksRpcClient;
+    cacheSize: number;
+    ttl: number;
+  }) {
+    const { rpcClient, cacheSize, ttl } = args;
+    this.rpcClient = rpcClient;
+    this.cache = new LRUCache<string, TokenMetadata>({
+      max: cacheSize,
+      ttl: ttl,
+      allowStale: true,
+    });
+  }
+
+  async get(assetIdentifier: string, value?: string): Promise<TokenMetadata | null> {
+    // NFTs contain the token number in the `value` field. Use that as part of the cache key
+    // because every NFT may have a different name.
+    const key = value ? `${assetIdentifier}/${value}` : assetIdentifier;
+    const cachedMetadata = this.cache.get(key);
+    if (!cachedMetadata) {
+      const metadata = await this.fetchMetadata(assetIdentifier, value);
+      if (metadata) {
+        this.cache.set(key, metadata);
+        return metadata;
+      }
+      return null;
+    }
+    return cachedMetadata ?? null;
+  }
+
+  private async fetchMetadata(
+    assetIdentifier: string,
+    value?: string
+  ): Promise<TokenMetadata | undefined> {
+    const parts = assetIdentifier.split('.');
+    const contractAddress = parts[0];
+    const contractName = parts[1].split('::')[0];
+    const [name, symbol, decimals] = await Promise.all([
+      this.rpcClient.readStringFromContract(
+        contractAddress,
+        contractName,
+        'get-name',
+        contractAddress
+      ),
+      this.rpcClient.readStringFromContract(
+        contractAddress,
+        contractName,
+        'get-symbol',
+        contractAddress
+      ),
+      this.rpcClient.readUIntFromContract(
+        contractAddress,
+        contractName,
+        'get-decimals',
+        contractAddress
+      ),
+    ]);
+    return {
+      name,
+      symbol,
+      decimals: Number(decimals),
+    };
+  }
+}
