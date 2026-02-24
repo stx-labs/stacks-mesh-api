@@ -25,7 +25,23 @@
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
-        "tests/**/*.test.ts"
+        "tests/api/**/*.test.ts"
+      ],
+      "cwd": "${workspaceFolder}/packages/api",
+      "outputCapture": "std",
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "test",
+      },
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "cli: test",
+      "runtimeArgs": ["--import", "tsx"],
+      "args": [
+        "--test",
+        "tests/cli/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",
       "outputCapture": "std",

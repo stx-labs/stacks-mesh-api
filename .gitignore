@@ -8,3 +8,6 @@ dist/
 packages/*/dist/
 *.tsbuildinfo
 .git-info
+
+# Mesh CLI binary cache
+packages/api/tests/cli/.bin/
