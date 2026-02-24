@@ -4,11 +4,13 @@ import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
 import { PINO_LOGGER_CONFIG } from '@stacks/api-toolkit';
 import { MeshApiRoutes } from './routes/index.js';
 import cors from '@fastify/cors';
-import { TokenMetadataCache } from '../utils/token-metadata-cache.js';
+import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
+import { ContractAbiCache } from '../cache/contract-abi-cache.js';
 
 export type RouteConfig = {
   rpcClient: StacksRpcClient;
   tokenMetadataCache: TokenMetadataCache;
+  contractAbiCache: ContractAbiCache;
   network: 'mainnet' | 'testnet';
   nodeVersion: string;
 };

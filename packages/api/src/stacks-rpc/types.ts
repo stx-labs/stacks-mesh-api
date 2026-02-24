@@ -1,5 +1,7 @@
 // Stacks RPC Types based on stacks-core OpenAPI specification
 
+import { ClarityAbi } from "@stacks/transactions";
+
 export interface StacksNodeInfo {
   peer_version: number;
   pox_consensus: string;
@@ -612,7 +614,7 @@ export type StacksContractCallReadOnlyResult =
   | StacksContractCallReadOnlySuccess
   | StacksContractCallReadOnlyError;
 
-export type StacksContractInterface = Record<string, unknown>;
+export type StacksContractInterface = ClarityAbi;
 
 export interface StacksContractSource {
   source: string;

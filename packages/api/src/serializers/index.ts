@@ -27,8 +27,21 @@ import {
   StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
-import { TokenMetadataCache } from './token-metadata-cache.js';
+import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
+import { ContractAbiCache } from '../cache/contract-abi-cache.js';
+import { ClarityAbiFunction, getTypeString } from '@stacks/transactions';
 
+/**
+ * Configuration for serializing Stacks Nakamoto blocks to Mesh API format.
+ */
+export type MeshSerializationConfig = {
+  tokenMetadataCache: TokenMetadataCache;
+  contractAbiCache: ContractAbiCache;
+};
+
+/**
+ * A decoded Stacks Nakamoto transaction.
+ */
 type DecodedStacksTransaction = {
   replayedTx: StacksBlockReplayTransaction;
   decodedTx: codec.DecodedTxResult;
@@ -61,7 +74,7 @@ export function addHexPrefix(hex: string): string {
  */
 export async function serializeReplayedNakamotoBlock(
   replay: StacksBlockReplay,
-  tokenMetadataCache: TokenMetadataCache
+  config: MeshSerializationConfig
 ): Promise<Block> {
   const blockHeight = replay.block_height;
   const block: Block = {
@@ -95,12 +108,7 @@ export async function serializeReplayedNakamotoBlock(
     block.metadata!.execution_cost!.runtime += tx.execution_cost.runtime;
     block.metadata!.execution_cost!.write_count += tx.execution_cost.write_count;
     block.metadata!.execution_cost!.write_length += tx.execution_cost.write_length;
-    const serializedTx = await serializeReplayedNakamotoTransaction(
-      tx,
-      replay.fees,
-      i,
-      tokenMetadataCache
-    );
+    const serializedTx = await serializeReplayedNakamotoTransaction(tx, replay.fees, i, config);
     block.transactions.push(serializedTx);
   }
 
@@ -117,14 +125,14 @@ export async function serializeReplayedNakamotoBlock(
 export async function serializeTransactionFromReplayedNakamotoBlock(
   replay: StacksBlockReplay,
   txId: string,
-  tokenMetadataCache: TokenMetadataCache
+  config: MeshSerializationConfig
 ): Promise<Transaction> {
   // TODO: `tx_index` does not work from Stacks core (it's always 0). We need to traverse the entire
   // array to determine the index.
   let index = 0;
   for (const tx of replay.transactions) {
     if (`0x${tx.txid}` === txId) {
-      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, tokenMetadataCache);
+      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, config);
     }
     index++;
   }
@@ -135,7 +143,7 @@ async function serializeReplayedNakamotoTransaction(
   replayedTx: StacksBlockReplayTransaction,
   fee: number,
   index: number,
-  tokenMetadataCache: TokenMetadataCache
+  config: MeshSerializationConfig
 ): Promise<Transaction> {
   const decodedTx = codec.decodeTransaction(replayedTx.hex);
   const tx: DecodedStacksTransaction = {
@@ -155,7 +163,7 @@ async function serializeReplayedNakamotoTransaction(
     transaction_identifier: {
       hash: addHexPrefix(replayedTx.txid),
     },
-    operations: await serializeStacksTransactionOperations(tx, tokenMetadataCache),
+    operations: await serializeStacksTransactionOperations(tx, config),
     metadata: {
       status: tx.status,
       type: serializeTxType(replayedTx.data.payload),
@@ -173,7 +181,7 @@ async function serializeReplayedNakamotoTransaction(
       position: {
         index,
       },
-      raw_tx: addHexPrefix(replayedTx.hex),
+      // raw_tx: addHexPrefix(replayedTx.hex),
       result: serializeTxResult(replayedTx),
       sender_address: tx.senderAddress,
       sponsor_address: tx.sponsorAddress,
@@ -367,8 +375,13 @@ function makeStxTransferOperations(
   return [send, receive];
 }
 
-function makeContractCallOperation(tx: DecodedStacksTransaction, index: number): Operation {
+async function makeContractCallOperation(
+  tx: DecodedStacksTransaction,
+  index: number,
+  config: MeshSerializationConfig
+): Promise<Operation> {
   const decodedPayload = tx.decodedTx.payload as codec.TxPayloadContractCall;
+  const contractIdentifier = `${decodedPayload.address}.${decodedPayload.contract_name}`;
   const operation: Operation = {
     operation_identifier: { index },
     type: 'contract_call',
@@ -377,46 +390,34 @@ function makeContractCallOperation(tx: DecodedStacksTransaction, index: number):
       address: tx.decodedTx.auth.origin_condition.signer.address,
     },
     metadata: {
-      args: decodedPayload.function_args.map(arg => ({
-        hex: arg.hex,
-        repr: arg.repr,
-        name: 'arg.name', // TODO: Implement name
-        type: 'arg.type_id', // TODO: Implement type
-      })),
-      contract_identifier: `${decodedPayload.address}.${decodedPayload.contract_name}`,
+      args: [],
+      contract_identifier: contractIdentifier,
       function_name: decodedPayload.function_name,
     },
   };
-
-  // if (options.decodeClarityValues) {
-  //   let functionAbi: ClarityAbiFunction | undefined;
-  //   if (tx.abi !== null) {
-  //     const contractAbi: ClarityAbi = typeof tx.abi === 'string' ? JSON.parse(tx.abi) : tx.abi;
-  //     if (contractAbi) {
-  //       functionAbi = contractAbi.functions.find(fn => fn.name === functionName);
-  //       if (!functionAbi) {
-  //         throw new Error(
-  //           `Could not find function name "${functionName}" in ABI for ${contractId}`
-  //         );
-  //       }
-  //     }
-  //   }
-  //   operation.metadata.args = tx.contract_call_function_args
-  //     ? decodeClarityValueList(tx.contract_call_function_args).map((c, fnArgIndex) => {
-  //         const functionArgAbi = functionAbi
-  //           ? functionAbi.args[fnArgIndex++]
-  //           : { name: '', type: undefined };
-  //         return {
-  //           hex: c.hex,
-  //           repr: c.repr,
-  //           name: functionArgAbi.name,
-  //           type: functionArgAbi.type
-  //             ? getTypeString(functionArgAbi.type)
-  //             : decodeClarityValueToTypeName(c.hex),
-  //         };
-  //       })
-  //     : [];
-  // }
+  // Serialize function arguments
+  const abi = await config.contractAbiCache.get(contractIdentifier);
+  if (abi !== null) {
+    const functionAbi = abi.functions.find(fn => fn.name === decodedPayload.function_name);
+    if (!functionAbi) {
+      throw new Error(
+        `Could not find function name "${decodedPayload.function_name}" in ABI for ${contractIdentifier}`
+      );
+    }
+    operation.metadata.args = decodedPayload.function_args.map((c, fnArgIndex) => {
+      const functionArgAbi = functionAbi
+        ? functionAbi.args[fnArgIndex++]
+        : { name: '', type: undefined };
+      return {
+        hex: c.hex,
+        repr: c.repr,
+        name: functionArgAbi.name,
+        type: functionArgAbi.type
+          ? getTypeString(functionArgAbi.type)
+          : codec.decodeClarityValueToTypeName(c.hex),
+      };
+    });
+  }
 
   return operation;
 }
@@ -560,8 +561,8 @@ function makeStxBurnOperation(
 // }
 
 async function makeFtCurrency(
-  tokenMetadataCache: TokenMetadataCache,
-  event: StacksBlockReplayTransactionFtEvent
+  event: StacksBlockReplayTransactionFtEvent,
+  config: MeshSerializationConfig
 ): Promise<Currency> {
   const asset_identifier =
     'ft_mint_event' in event
@@ -569,7 +570,7 @@ async function makeFtCurrency(
       : 'ft_transfer_event' in event
         ? event.ft_transfer_event.asset_identifier
         : event.ft_burn_event.asset_identifier;
-  const metadata = await tokenMetadataCache.get(asset_identifier);
+  const metadata = await config.tokenMetadataCache.get(asset_identifier);
   return {
     symbol: metadata?.symbol ?? '',
     decimals: metadata?.decimals ?? 0,
@@ -584,10 +585,10 @@ async function makeFtCurrency(
 async function makeFtTransferOperations(
   tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtTransferEvent,
-  tokenMetadataCache: TokenMetadataCache,
-  index: number
+  index: number,
+  config: MeshSerializationConfig
 ): Promise<Operation[]> {
-  const currency = await makeFtCurrency(tokenMetadataCache, event);
+  const currency = await makeFtCurrency(event, config);
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
@@ -618,8 +619,8 @@ async function makeFtTransferOperations(
 async function makeFtMintOperation(
   tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtMintEvent,
-  tokenMetadataCache: TokenMetadataCache,
-  index: number
+  index: number,
+  config: MeshSerializationConfig
 ): Promise<Operation> {
   return {
     operation_identifier: { index },
@@ -630,7 +631,7 @@ async function makeFtMintOperation(
     },
     amount: {
       value: event.ft_mint_event.amount,
-      currency: await makeFtCurrency(tokenMetadataCache, event),
+      currency: await makeFtCurrency(event, config),
     },
   };
 }
@@ -638,8 +639,8 @@ async function makeFtMintOperation(
 async function makeFtBurnOperation(
   tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionFtBurnEvent,
-  tokenMetadataCache: TokenMetadataCache,
-  index: number
+  index: number,
+  config: MeshSerializationConfig
 ): Promise<Operation> {
   return {
     operation_identifier: { index },
@@ -650,7 +651,7 @@ async function makeFtBurnOperation(
     },
     amount: {
       value: (0n - BigInt(event.ft_burn_event.amount)).toString(),
-      currency: await makeFtCurrency(tokenMetadataCache, event),
+      currency: await makeFtCurrency(event, config),
     },
   };
 }
@@ -775,7 +776,7 @@ function makeContractEventOperation(
 
 async function serializeStacksTransactionOperations(
   tx: DecodedStacksTransaction,
-  tokenMetadataCache: TokenMetadataCache
+  config: MeshSerializationConfig
 ): Promise<Operation[]> {
   const ops: Operation[] = [];
   if (tx.fee > 0) ops.push(makeFeeOperation(tx));
@@ -793,7 +794,7 @@ async function serializeStacksTransactionOperations(
       ops.push(makeSmartContractOperation(tx, ops.length));
       break;
     case codec.TxPayloadTypeID.ContractCall:
-      ops.push(makeContractCallOperation(tx, ops.length));
+      ops.push(await makeContractCallOperation(tx, ops.length, config));
       break;
     case codec.TxPayloadTypeID.PoisonMicroblock:
       // Not supported.
@@ -817,13 +818,13 @@ async function serializeStacksTransactionOperations(
       // TODO: stx mint not reported in events from core, see block
       // 0xe1410b8188303242471a57e8bca75c5f61ba8537dfe3d1b92b9cca655e59c16b
       case 'ft_mint_event':
-        ops.push(await makeFtMintOperation(tx, event, tokenMetadataCache, ops.length));
+        ops.push(await makeFtMintOperation(tx, event, ops.length, config));
         break;
       case 'ft_transfer_event':
-        ops.push(...(await makeFtTransferOperations(tx, event, tokenMetadataCache, ops.length)));
+        ops.push(...(await makeFtTransferOperations(tx, event, ops.length, config)));
         break;
       case 'ft_burn_event':
-        ops.push(await makeFtBurnOperation(tx, event, tokenMetadataCache, ops.length));
+        ops.push(await makeFtBurnOperation(tx, event, ops.length, config));
         break;
       case 'nft_transfer_event':
         ops.push(...makeNftTransferOperations(tx, event, ops.length));

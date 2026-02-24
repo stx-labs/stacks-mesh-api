@@ -3,7 +3,8 @@ import { ENV } from './env.js';
 import { logger, registerShutdownConfig } from '@stacks/api-toolkit';
 import { buildApiServer } from './api/index.js';
 import { getStacksNetworkName } from './utils/constants.js';
-import { TokenMetadataCache } from './utils/token-metadata-cache.js';
+import { TokenMetadataCache } from './cache/token-metadata-cache.js';
+import { ContractAbiCache } from './cache/contract-abi-cache.js';
 
 export async function initApp() {
   const rpcClient = new StacksRpcClient({
@@ -19,12 +20,18 @@ export async function initApp() {
     cacheSize: ENV.TOKEN_METADATA_CACHE_SIZE,
     ttl: ENV.TOKEN_METADATA_CACHE_TTL_MS,
   });
+  const contractAbiCache = new ContractAbiCache({
+    rpcClient,
+    cacheSize: ENV.CONTRACT_ABI_CACHE_SIZE,
+    ttl: ENV.CONTRACT_ABI_CACHE_TTL_MS,
+  });
 
   const apiServer = await buildApiServer({
     rpcClient,
     network: getStacksNetworkName(nodeInfo.network_id),
     nodeVersion: nodeInfo.server_version,
     tokenMetadataCache,
+    contractAbiCache,
   });
   registerShutdownConfig({
     name: 'API Server',

@@ -9,16 +9,17 @@ import {
   BlockTransactionRequestSchema,
   BlockTransactionResponseSchema,
   ErrorResponseSchema,
-} from '../../../../schemas/dist/index.js';
+} from '@stacks/mesh-schemas';
 import {
+  MeshSerializationConfig,
   removeHexPrefix,
   serializeReplayedNakamotoBlock,
   serializeTransactionFromReplayedNakamotoBlock,
-} from '../../utils/serializers.js';
+} from '../../serializers/index.js';
 import { StacksBlockReplay } from '../../stacks-rpc/types.js';
 
 export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
-  const { rpcClient, tokenMetadataCache } = config;
+  const { rpcClient, tokenMetadataCache, contractAbiCache } = config;
 
   fastify.post(
     '/block',
@@ -34,8 +35,12 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastif
     async (request, reply) => {
       const { block_identifier } = request.body;
       const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
+      const config: MeshSerializationConfig = {
+        tokenMetadataCache,
+        contractAbiCache,
+      };
       return reply.send({
-        block: await serializeReplayedNakamotoBlock(block, tokenMetadataCache),
+        block: await serializeReplayedNakamotoBlock(block, config),
       });
     }
   );
@@ -54,11 +59,15 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastif
     async (request, reply) => {
       const { block_identifier, transaction_identifier } = request.body;
       const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
+      const config: MeshSerializationConfig = {
+        tokenMetadataCache,
+        contractAbiCache,
+      };
       return reply.send({
         transaction: await serializeTransactionFromReplayedNakamotoBlock(
           block,
           transaction_identifier.hash,
-          tokenMetadataCache
+          config
         ),
       });
     }

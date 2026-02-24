@@ -51,7 +51,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify
           );
           return reply.send({
             idempotent: true,
-            result: interfaceResult,
+            result: interfaceResult as unknown as Record<string, unknown>,
           });
         }
 

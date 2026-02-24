@@ -16,10 +16,14 @@ const schema = Type.Object({
   /** Timeout for the Stacks Core RPC server in milliseconds */
   STACKS_CORE_RPC_TIMEOUT_MS: Type.Integer({ default: 10000, minimum: 0 }),
 
-  /** Size of the token metadata cache */
+  /** Size of the token metadata cache. Defaults to 1000. */
   TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),
-  /** TTL of the token metadata cache in milliseconds */
+  /** TTL of the token metadata cache in milliseconds. Defaults to 24 hours. */
   TOKEN_METADATA_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 24, minimum: 0 }),
+  /** Size of the contract ABI cache. Defaults to 100. */
+  CONTRACT_ABI_CACHE_SIZE: Type.Integer({ default: 100, minimum: 0 }),
+  /** TTL of the contract ABI cache in milliseconds. Defaults to 24 hours. */
+  CONTRACT_ABI_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 24, minimum: 0 }),
 });
 type Env = Static<typeof schema>;
 
