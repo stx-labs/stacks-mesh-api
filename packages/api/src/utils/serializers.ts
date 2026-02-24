@@ -75,7 +75,7 @@ export async function serializeReplayedNakamotoBlock(
         runtime: 0,
         write_count: 0,
         write_length: 0,
-      }
+      },
     },
   };
   for (let i = 0; i < replay.transactions.length; i++) {
@@ -175,14 +175,10 @@ async function serializeReplayedNakamotoTransaction(
 }
 
 function serializeTxResult(tx: StacksBlockReplayTransaction) {
-  // TODO: Decode clarity values
-  // if (options.decodeClarityValues) {
-  //   return {
-  //     hex: raw_result,
-  //     repr: decodeClarityValueToRepr(raw_result),
-  //   };
-  // }
-  return addHexPrefix(tx.result_hex);
+  return {
+    hex: addHexPrefix(tx.result_hex),
+    repr: codec.decodeClarityValueToRepr(tx.result_hex),
+  };
 }
 
 // function serializePostConditions(tx: StacksDbTransaction, options: StacksSerializationOptions) {
@@ -267,30 +263,11 @@ function serializeTxResult(tx: StacksBlockReplayTransaction) {
 // }
 
 function serializeTxStatus(replayedTx: StacksBlockReplayTransaction): Status {
-  return 'success'; // TODO: Implement status
-  // switch (txStatus) {
-  //   case StacksDbTxStatus.Pending:
-  //     return 'pending';
-  //   case StacksDbTxStatus.Success:
-  //     return 'success';
-  //   case StacksDbTxStatus.AbortByResponse:
-  //     return 'abort_by_response';
-  //   case StacksDbTxStatus.AbortByPostCondition:
-  //     return 'abort_by_post_condition';
-  //   case StacksDbTxStatus.DroppedReplaceByFee:
-  //     return 'dropped_replace_by_fee';
-  //   case StacksDbTxStatus.DroppedReplaceAcrossFork:
-  //     return 'dropped_replace_across_fork';
-  //   case StacksDbTxStatus.DroppedTooExpensive:
-  //     return 'dropped_too_expensive';
-  //   case StacksDbTxStatus.DroppedProblematic:
-  //     return 'dropped_problematic';
-  //   case StacksDbTxStatus.DroppedStaleGarbageCollect:
-  //   case StacksDbTxStatus.DroppedApiGarbageCollect:
-  //     return 'dropped_stale_garbage_collect';
-  //   default:
-  //     throw new Error(`Unexpected DbTxStatus: ${txStatus}`);
-  // }
+  if (!replayedTx.result.Response.committed) {
+    if (replayedTx.post_condition_aborted) return 'abort_by_post_condition';
+    return 'abort_by_response';
+  }
+  return 'success';
 }
 
 function serializeTxType(payload: StacksBlockReplayTransactionPayload) {
@@ -311,20 +288,18 @@ function serializeTxType(payload: StacksBlockReplayTransactionPayload) {
 }
 
 function parseTransactionMemo(memoHex: string | undefined): string | null {
-  if (memoHex) {
-    // Memos are a fixed-length 34 byte array. Any memo representing a string that is
-    // less than 34 bytes long will have right-side padded null-bytes.
-    let memoBuffer = hexToBuffer(memoHex);
-    while (memoBuffer.length > 0 && memoBuffer[memoBuffer.length - 1] === 0) {
-      memoBuffer = memoBuffer.slice(0, memoBuffer.length - 1);
-    }
-    if (memoBuffer.length === 0) {
-      return null;
-    }
-    const memoDecoded = memoBuffer.toString('utf8');
-    return memoDecoded;
+  if (!memoHex) return null;
+  // Memos are a fixed-length 34 byte array. Any memo representing a string that is
+  // less than 34 bytes long will have right-side padded null-bytes.
+  let memoBuffer = hexToBuffer(memoHex);
+  while (memoBuffer.length > 0 && memoBuffer[memoBuffer.length - 1] === 0) {
+    memoBuffer = memoBuffer.slice(0, memoBuffer.length - 1);
   }
-  return null;
+  if (memoBuffer.length === 0) {
+    return null;
+  }
+  const memoDecoded = memoBuffer.toString('utf8');
+  return memoDecoded;
 }
 
 function makeStxCurrency(): Currency {
@@ -357,6 +332,7 @@ function makeStxTransferOperations(
   event: StacksBlockReplayTransactionStxTransferEvent,
   index: number
 ): Operation[] {
+  const memo = parseTransactionMemo(event.stx_transfer_event.memo);
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
@@ -369,7 +345,7 @@ function makeStxTransferOperations(
       currency: makeStxCurrency(),
     },
     metadata: {
-      memo: event.stx_transfer_event.memo,
+      memo,
     },
   };
   const receive: Operation = {
@@ -384,18 +360,9 @@ function makeStxTransferOperations(
       currency: makeStxCurrency(),
     },
     metadata: {
-      memo: event.stx_transfer_event.memo,
+      memo,
     },
   };
-  // TODO: Implement memo decode
-  // if (memo) {
-  //   send.metadata = {
-  //     memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
-  //   };
-  //   receive.metadata = {
-  //     memo: options.decodeClarityValues ? parseTransactionMemo(memo) : memo,
-  //   };
-  // }
   return [send, receive];
 }
 

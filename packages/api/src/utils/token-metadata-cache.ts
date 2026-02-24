@@ -7,15 +7,15 @@ export type TokenMetadata = {
   decimals: number;
 };
 
+/**
+ * Cache for fungible token metadata. This is used to avoid making repeated calls to the Stacks node
+ * looking for FT symbols, names and decimals.
+ */
 export class TokenMetadataCache {
   private readonly rpcClient: StacksRpcClient;
   private readonly cache: LRUCache<string, TokenMetadata>;
 
-  constructor(args: {
-    rpcClient: StacksRpcClient;
-    cacheSize: number;
-    ttl: number;
-  }) {
+  constructor(args: { rpcClient: StacksRpcClient; cacheSize: number; ttl: number }) {
     const { rpcClient, cacheSize, ttl } = args;
     this.rpcClient = rpcClient;
     this.cache = new LRUCache<string, TokenMetadata>({
@@ -25,13 +25,11 @@ export class TokenMetadataCache {
     });
   }
 
-  async get(assetIdentifier: string, value?: string): Promise<TokenMetadata | null> {
-    // NFTs contain the token number in the `value` field. Use that as part of the cache key
-    // because every NFT may have a different name.
-    const key = value ? `${assetIdentifier}/${value}` : assetIdentifier;
+  async get(assetIdentifier: string): Promise<TokenMetadata | null> {
+    const key = assetIdentifier;
     const cachedMetadata = this.cache.get(key);
     if (!cachedMetadata) {
-      const metadata = await this.fetchMetadata(assetIdentifier, value);
+      const metadata = await this.fetchMetadata(key);
       if (metadata) {
         this.cache.set(key, metadata);
         return metadata;
@@ -41,10 +39,7 @@ export class TokenMetadataCache {
     return cachedMetadata ?? null;
   }
 
-  private async fetchMetadata(
-    assetIdentifier: string,
-    value?: string
-  ): Promise<TokenMetadata | undefined> {
+  private async fetchMetadata(assetIdentifier: string): Promise<TokenMetadata | undefined> {
     const parts = assetIdentifier.split('.');
     const contractAddress = parts[0];
     const contractName = parts[1].split('::')[0];
