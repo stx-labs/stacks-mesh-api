@@ -29,7 +29,7 @@ import {
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
 import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../cache/contract-abi-cache.js';
-import { ClarityAbiFunction, getTypeString } from '@stacks/transactions';
+import { getTypeString } from '@stacks/transactions';
 
 /**
  * Configuration for serializing Stacks Nakamoto blocks to Mesh API format.
@@ -395,7 +395,8 @@ async function makeContractCallOperation(
       function_name: decodedPayload.function_name,
     },
   };
-  // Serialize function arguments
+  // Serialize function arguments. Look at the contract's interface to determine the function
+  // argument's name and type.
   const abi = await config.contractAbiCache.get(contractIdentifier);
   if (abi !== null) {
     const functionAbi = abi.functions.find(fn => fn.name === decodedPayload.function_name);
@@ -418,7 +419,6 @@ async function makeContractCallOperation(
       };
     });
   }
-
   return operation;
 }
 

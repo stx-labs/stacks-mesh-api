@@ -1,5 +1,47 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { RouteConfig } from '../index.js';
+import {
+  getAddressFromPublicKey,
+  makeUnsignedSTXTokenTransfer,
+  deserializeTransaction,
+  serializeTransaction,
+  createMessageSignature,
+  isSingleSig,
+  sigHashPreSign,
+  serializePayload,
+  AuthType,
+} from '@stacks/transactions';
+import codec from '@hirosystems/stacks-encoding-native-js';
+import {
+  ConstructionDeriveRequestSchema,
+  ConstructionDeriveResponseSchema,
+  ConstructionPreprocessRequestSchema,
+  ConstructionPreprocessResponseSchema,
+  ConstructionMetadataRequestSchema,
+  ConstructionMetadataResponseSchema,
+  ConstructionPayloadsRequestSchema,
+  ConstructionPayloadsResponseSchema,
+  ConstructionCombineRequestSchema,
+  ConstructionCombineResponseSchema,
+  ConstructionParseRequestSchema,
+  ConstructionParseResponseSchema,
+  ConstructionHashRequestSchema,
+  ConstructionSubmitRequestSchema,
+  TransactionIdentifierResponseSchema,
+  ErrorResponseSchema,
+} from '@stacks/mesh-schemas';
+import type {
+  ConstructionDeriveResponse,
+  ConstructionPreprocessResponse,
+  ConstructionMetadataResponse,
+  ConstructionPayloadsResponse,
+  ConstructionCombineResponse,
+  ConstructionParseResponse,
+  TransactionIdentifierResponse,
+} from '@stacks/mesh-schemas';
+import { STX_CURRENCY } from '../../utils/constants.js';
+import { MeshErrors } from '../../utils/errors.js';
+import { addHexPrefix, removeHexPrefix } from '../../serializers/index.js';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
   fastify,
@@ -7,328 +49,545 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async 
 ) => {
   const { rpcClient, network } = config;
 
-  // // POST /construction/derive
-  // fastify.post(
-  //   '/construction/derive',
-  //   {
-  //     schema: {
-  //       body: ConstructionDeriveRequestSchema,
-  //       response: {
-  //         200: ConstructionDeriveResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier, public_key } = request.body;
+  // Derives a Stacks address from a public key.
+  fastify.post(
+    '/construction/derive',
+    {
+      schema: {
+        body: ConstructionDeriveRequestSchema,
+        response: {
+          200: ConstructionDeriveResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { public_key } = request.body;
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+      if (public_key.curve_type !== 'secp256k1') {
+        return reply.status(500).send(
+          MeshErrors.invalidPublicKey(
+            `Unsupported curve type: ${public_key.curve_type}. Stacks only supports secp256k1.`
+          )
+        );
+      }
 
-  //     if (public_key.curve_type !== 'secp256k1') {
-  //       return reply.status(500).send(
-  //         MeshErrors.invalidPublicKey(
-  //           `Unsupported curve type: ${public_key.curve_type}. Stacks only supports secp256k1.`
-  //         )
-  //       );
-  //     }
+      try {
+        const address = getAddressFromPublicKey(
+          removeHexPrefix(public_key.hex_bytes),
+          network
+        );
+        const response: ConstructionDeriveResponse = {
+          account_identifier: { address },
+        };
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.invalidPublicKey(message));
+      }
+    }
+  );
 
-  //     try {
-  //       const address = deriveStacksAddress(public_key.hex_bytes, network);
+  // Analyzes operations to determine what metadata is needed for transaction construction.
+  // Returns options to pass to /construction/metadata and lists required public keys.
+  fastify.post(
+    '/construction/preprocess',
+    {
+      schema: {
+        body: ConstructionPreprocessRequestSchema,
+        response: {
+          200: ConstructionPreprocessResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { operations, max_fee, suggested_fee_multiplier } = request.body;
 
-  //       const response: ConstructionDeriveResponse = {
-  //         account_identifier: {
-  //           address,
-  //         },
-  //       };
+      const senderAddresses = new Set<string>();
+      const recipientAddresses = new Set<string>();
 
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.invalidPublicKey(message));
-  //     }
-  //   }
-  // );
+      for (const op of operations) {
+        if ('account' in op && op.account?.address && 'amount' in op && op.amount?.value) {
+          const value = BigInt(op.amount.value);
+          if (value < 0n) {
+            senderAddresses.add(op.account.address);
+          } else if (value > 0n) {
+            recipientAddresses.add(op.account.address);
+          }
+        }
+      }
 
-  // // POST /construction/preprocess
-  // fastify.post(
-  //   '/construction/preprocess',
-  //   {
-  //     schema: {
-  //       body: ConstructionPreprocessRequestSchema,
-  //       response: {
-  //         200: ConstructionPreprocessResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier, operations } = request.body;
+      const response: ConstructionPreprocessResponse = {
+        options: {
+          sender_addresses: Array.from(senderAddresses),
+          recipient_addresses: Array.from(recipientAddresses),
+          operation_count: operations.length,
+          ...(max_fee?.[0]?.value ? { max_fee: max_fee[0].value } : {}),
+          ...(suggested_fee_multiplier ? { suggested_fee_multiplier } : {}),
+        },
+        required_public_keys: Array.from(senderAddresses).map(address => ({ address })),
+      };
+      return reply.send(response);
+    }
+  );
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+  // Fetches on-chain metadata needed for transaction construction: account nonces, fee estimates,
+  // and the recent block hash.
+  fastify.post(
+    '/construction/metadata',
+    {
+      schema: {
+        body: ConstructionMetadataRequestSchema,
+        response: {
+          200: ConstructionMetadataResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { options, public_keys } = request.body;
 
-  //     try {
-  //       const senderAddresses = new Set<string>();
-  //       const recipientAddresses = new Set<string>();
+      try {
+        const senderAddresses: string[] = (options?.sender_addresses as string[]) ?? [];
 
-  //       for (const op of operations) {
-  //         if (op.account?.address) {
-  //           const value = BigInt(op.amount?.value ?? '0');
-  //           if (value < 0n) {
-  //             senderAddresses.add(op.account.address);
-  //           } else if (value > 0n) {
-  //             recipientAddresses.add(op.account.address);
-  //           }
-  //         }
-  //       }
+        // Fetch account info (nonce, balance) for all sender addresses
+        const accountInfos = await Promise.all(
+          senderAddresses.map(async (address) => {
+            try {
+              const info = await rpcClient.getAccount(address);
+              return { address, nonce: info.nonce, balance: BigInt(info.balance).toString() };
+            } catch {
+              return { address, nonce: 0, balance: '0' };
+            }
+          })
+        );
 
-  //       const response: ConstructionPreprocessResponse = {
-  //         options: {
-  //           sender_addresses: Array.from(senderAddresses),
-  //           recipient_addresses: Array.from(recipientAddresses),
-  //           operation_count: operations.length,
-  //         },
-  //         required_public_keys: Array.from(senderAddresses).map((address) => ({
-  //           address,
-  //         })),
-  //       };
+        // Estimate fee using a representative STX transfer payload
+        let suggestedFee = 200; // Default fallback fee in uSTX
+        try {
+          const dummyPubKey = public_keys?.[0]?.hex_bytes ?? '0'.repeat(66);
+          const dummyRecipient = senderAddresses[0] ?? 'SP000000000000000000002Q6VF78';
+          const dummyTx = await makeUnsignedSTXTokenTransfer({
+            recipient: dummyRecipient,
+            amount: 1,
+            fee: 0,
+            nonce: 0,
+            publicKey: removeHexPrefix(dummyPubKey),
+            network,
+          });
+          const payloadHex = serializePayload(dummyTx.payload);
+          const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
+          suggestedFee =
+            feeEstimate.estimations[1]?.fee ??
+            feeEstimate.estimations[0]?.fee ??
+            suggestedFee;
+        } catch {
+          // Keep default fallback fee
+        }
 
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.internalError(message));
-  //     }
-  //   }
-  // );
+        // Cap fee if max_fee was specified in options
+        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
+        if (maxFee !== undefined && suggestedFee > maxFee) {
+          suggestedFee = maxFee;
+        }
 
-  // // POST /construction/metadata
-  // fastify.post(
-  //   '/construction/metadata',
-  //   {
-  //     schema: {
-  //       body: ConstructionMetadataRequestSchema,
-  //       response: {
-  //         200: ConstructionMetadataResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier, options } = request.body;
+        // Apply fee multiplier if specified
+        const feeMultiplier = options?.suggested_fee_multiplier
+          ? Number(options.suggested_fee_multiplier)
+          : undefined;
+        if (feeMultiplier !== undefined) {
+          suggestedFee = Math.round(suggestedFee * feeMultiplier);
+        }
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+        const nodeInfo = await rpcClient.getInfo();
 
-  //     try {
-  //       const senderAddresses = (options?.sender_addresses as string[]) ?? [];
+        const response: ConstructionMetadataResponse = {
+          metadata: {
+            account_info: accountInfos.reduce(
+              (acc, info) => {
+                acc[info.address] = { nonce: info.nonce, balance: info.balance };
+                return acc;
+              },
+              {} as Record<string, { nonce: number; balance: string }>
+            ),
+            recent_block_hash: nodeInfo.stacks_tip,
+          },
+          suggested_fee: [
+            {
+              value: String(suggestedFee),
+              currency: STX_CURRENCY,
+            },
+          ],
+        };
 
-  //       const accountInfos = await Promise.all(
-  //         senderAddresses.map(async (address) => {
-  //           try {
-  //             const info = await rpcClient.getAccount(address);
-  //             return { address, nonce: info.nonce, balance: info.balance };
-  //           } catch {
-  //             return { address, nonce: 0, balance: '0' };
-  //           }
-  //         })
-  //       );
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.rpcError(message));
+      }
+    }
+  );
 
-  //       const feeRate = await rpcClient.getTransferFee();
+  // POST /construction/payloads
+  // Builds an unsigned transaction from operations and metadata, returning the transaction hex
+  // and the signing payload (sighash) that must be signed by the sender's private key.
+  fastify.post(
+    '/construction/payloads',
+    {
+      schema: {
+        body: ConstructionPayloadsRequestSchema,
+        response: {
+          200: ConstructionPayloadsResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { operations, metadata, public_keys } = request.body;
 
-  //       const response: ConstructionMetadataResponse = {
-  //         metadata: {
-  //           account_info: accountInfos.reduce(
-  //             (acc, info) => {
-  //               acc[info.address] = { nonce: info.nonce, balance: info.balance };
-  //               return acc;
-  //             },
-  //             {} as Record<string, { nonce: number; balance: string }>
-  //           ),
-  //           fee_rate: feeRate.fee,
-  //           recent_block_hash: (await rpcClient.getInfo()).stacks_tip,
-  //         },
-  //         suggested_fee: [
-  //           {
-  //             value: String(feeRate.fee * 180),
-  //             currency: STX_CURRENCY,
-  //           },
-  //         ],
-  //       };
+      try {
+        // Parse operations to extract transfer details
+        let senderAddress: string | undefined;
+        let recipientAddress: string | undefined;
+        let transferAmount: bigint | undefined;
+        let feeAmount: bigint | undefined;
+        let memo: string | undefined;
 
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.rpcError(message));
-  //     }
-  //   }
-  // );
+        for (const op of operations) {
+          if (op.type === 'token_transfer' && 'amount' in op && 'account' in op) {
+            const value = BigInt(op.amount.value);
+            if (value < 0n) {
+              senderAddress = op.account.address;
+              transferAmount = -value;
+            } else if (value > 0n) {
+              recipientAddress = op.account.address;
+              if (!transferAmount) transferAmount = value;
+            }
+            if ('metadata' in op && op.metadata?.memo) {
+              memo = op.metadata.memo;
+            }
+          } else if (op.type === 'fee' && 'amount' in op) {
+            feeAmount = BigInt(op.amount.value);
+            if (feeAmount < 0n) feeAmount = -feeAmount;
+          }
+        }
 
-  // // POST /construction/payloads
-  // fastify.post(
-  //   '/construction/payloads',
-  //   {
-  //     schema: {
-  //       body: ConstructionPayloadsRequestSchema,
-  //       response: {
-  //         200: ConstructionPayloadsResponseSchema,
-  //         501: MeshErrorSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier } = request.body;
+        if (!senderAddress || !recipientAddress || !transferAmount) {
+          return reply.status(500).send(
+            MeshErrors.invalidTransaction(
+              'Operations must include token_transfer operations with a sender (negative amount) and recipient (positive amount)'
+            )
+          );
+        }
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+        // Find the sender's public key by deriving addresses from each provided key
+        const senderPubKey = public_keys?.find(pk => {
+          try {
+            const derivedAddress = getAddressFromPublicKey(
+              removeHexPrefix(pk.hex_bytes),
+              network
+            );
+            return derivedAddress === senderAddress;
+          } catch {
+            return false;
+          }
+        });
 
-  //     // TODO: Implement actual Stacks transaction construction
-  //     return reply.status(501).send(
-  //       MeshErrors.notImplemented('construction/payloads')
-  //     );
-  //   }
-  // );
+        if (!senderPubKey) {
+          return reply.status(500).send(
+            MeshErrors.invalidPublicKey(
+              'No public key provided that matches the sender address'
+            )
+          );
+        }
 
-  // // POST /construction/combine
-  // fastify.post(
-  //   '/construction/combine',
-  //   {
-  //     schema: {
-  //       body: ConstructionCombineRequestSchema,
-  //       response: {
-  //         200: ConstructionCombineResponseSchema,
-  //         501: MeshErrorSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier } = request.body;
+        // Read nonce from metadata
+        const accountInfo = metadata?.account_info as
+          | Record<string, { nonce: number; balance: string }>
+          | undefined;
+        const nonce = accountInfo?.[senderAddress]?.nonce ?? 0;
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+        // Determine fee: from operations, metadata suggested_fee, or default
+        const fee = feeAmount ?? 0n;
 
-  //     // TODO: Implement signature combination
-  //     return reply.status(501).send(
-  //       MeshErrors.notImplemented('construction/combine')
-  //     );
-  //   }
-  // );
+        // Build the unsigned transaction
+        const unsignedTx = await makeUnsignedSTXTokenTransfer({
+          recipient: recipientAddress,
+          amount: transferAmount,
+          fee,
+          nonce,
+          publicKey: removeHexPrefix(senderPubKey.hex_bytes),
+          network,
+          memo,
+        });
 
-  // // POST /construction/parse
-  // fastify.post(
-  //   '/construction/parse',
-  //   {
-  //     schema: {
-  //       body: ConstructionParseRequestSchema,
-  //       response: {
-  //         200: ConstructionParseResponseSchema,
-  //         501: MeshErrorSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier } = request.body;
+        const unsignedTxHex = serializeTransaction(unsignedTx);
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+        // Compute the signing payload (the sighash the signer must sign)
+        const initialSighash = unsignedTx.signBegin();
+        const sigHash = sigHashPreSign(
+          initialSighash,
+          AuthType.Standard,
+          fee,
+          BigInt(nonce)
+        );
 
-  //     // TODO: Implement transaction parsing
-  //     return reply.status(501).send(
-  //       MeshErrors.notImplemented('construction/parse')
-  //     );
-  //   }
-  // );
+        const response: ConstructionPayloadsResponse = {
+          unsigned_transaction: removeHexPrefix(unsignedTxHex),
+          payloads: [
+            {
+              account_identifier: { address: senderAddress },
+              address: senderAddress,
+              hex_bytes: removeHexPrefix(sigHash),
+              signature_type: 'ecdsa_recovery',
+            },
+          ],
+        };
 
-  // // POST /construction/hash
-  // fastify.post(
-  //   '/construction/hash',
-  //   {
-  //     schema: {
-  //       body: ConstructionHashRequestSchema,
-  //       response: {
-  //         200: TransactionIdentifierResponseSchema,
-  //         501: MeshErrorSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier } = request.body;
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.internalError(message));
+      }
+    }
+  );
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+  // POST /construction/combine
+  // Combines an unsigned transaction with signatures to produce a signed transaction.
+  // The client signs the payload from /payloads offline and provides the signature here.
+  fastify.post(
+    '/construction/combine',
+    {
+      schema: {
+        body: ConstructionCombineRequestSchema,
+        response: {
+          200: ConstructionCombineResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { unsigned_transaction, signatures } = request.body;
 
-  //     // TODO: Implement transaction hash computation
-  //     return reply.status(501).send(
-  //       MeshErrors.notImplemented('construction/hash')
-  //     );
-  //   }
-  // );
+      try {
+        const tx = deserializeTransaction(removeHexPrefix(unsigned_transaction));
 
-  // // POST /construction/submit
-  // fastify.post(
-  //   '/construction/submit',
-  //   {
-  //     schema: {
-  //       body: ConstructionSubmitRequestSchema,
-  //       response: {
-  //         200: TransactionIdentifierResponseSchema,
-  //         500: MeshErrorSchema,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { network_identifier, signed_transaction } = request.body;
+        if (signatures.length === 0) {
+          return reply
+            .status(500)
+            .send(MeshErrors.invalidSignature('At least one signature is required'));
+        }
 
-  //     const networkError = validateNetwork(network_identifier, network);
-  //     if (networkError) {
-  //       return reply.status(500).send(networkError);
-  //     }
+        const spendingCondition = tx.auth.spendingCondition;
 
-  //     try {
-  //       const result = await rpcClient.broadcastTransaction(signed_transaction);
+        if (isSingleSig(spendingCondition)) {
+          if (signatures.length !== 1) {
+            return reply.status(500).send(
+              MeshErrors.invalidSignature(
+                `Expected exactly 1 signature for single-sig transaction, got ${signatures.length}`
+              )
+            );
+          }
 
-  //       if (result.error) {
-  //         return reply.status(500).send(
-  //           MeshErrors.transactionBroadcastError(
-  //             `${result.reason}: ${JSON.stringify(result.reason_data)}`
-  //           )
-  //         );
-  //       }
+          const sig = signatures[0];
+          const signatureHex = removeHexPrefix(sig.hex_bytes);
 
-  //       const response: TransactionIdentifierResponse = {
-  //         transaction_identifier: {
-  //           hash: result.txid,
-  //         },
-  //       };
+          // Recoverable ECDSA signatures are 65 bytes (130 hex characters)
+          if (signatureHex.length !== 130) {
+            return reply.status(500).send(
+              MeshErrors.invalidSignature(
+                `Invalid signature length: expected 130 hex characters (65 bytes), got ${signatureHex.length}`
+              )
+            );
+          }
 
-  //       return reply.send(response);
-  //     } catch (error) {
-  //       const message = error instanceof Error ? error.message : 'Unknown error';
-  //       return reply.status(500).send(MeshErrors.transactionBroadcastError(message));
-  //     }
-  //   }
-  // );
+          spendingCondition.signature = createMessageSignature(signatureHex);
+        } else {
+          // TODO: Multi-sig transaction combining
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.notImplemented(
+                'Multi-sig transaction combining is not yet supported'
+              )
+            );
+        }
+
+        const signedTxHex = serializeTransaction(tx);
+
+        const response: ConstructionCombineResponse = {
+          signed_transaction: removeHexPrefix(signedTxHex),
+        };
+
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.invalidTransaction(message));
+      }
+    }
+  );
+
+  // POST /construction/parse
+  // Parses a transaction (signed or unsigned) and extracts its operations.
+  // Used to verify a transaction matches the intended operations before signing or broadcasting.
+  fastify.post(
+    '/construction/parse',
+    {
+      schema: {
+        body: ConstructionParseRequestSchema,
+        response: {
+          200: ConstructionParseResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { signed, transaction } = request.body;
+
+      try {
+        const txHex = removeHexPrefix(transaction);
+        const decodedTx = codec.decodeTransaction(txHex);
+        const operations: ConstructionParseResponse['operations'] = [];
+
+        const senderAddress = decodedTx.auth.origin_condition.signer.address;
+        const fee = BigInt(decodedTx.auth.origin_condition.tx_fee);
+        const isSponsored =
+          decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored;
+
+        // Fee operation
+        if (fee > 0n) {
+          operations.push({
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            status: 'success',
+            account: { address: senderAddress },
+            amount: {
+              value: (0n - fee).toString(),
+              currency: STX_CURRENCY,
+            },
+            metadata: { sponsored: isSponsored },
+          });
+        }
+
+        // Payload-specific operations
+        if (decodedTx.payload.type_id === codec.TxPayloadTypeID.TokenTransfer) {
+          const payload = decodedTx.payload;
+          const recipientAddress = payload.recipient.address;
+          const amount = BigInt(payload.amount);
+
+          operations.push({
+            operation_identifier: { index: operations.length },
+            type: 'token_transfer',
+            status: 'success',
+            account: { address: senderAddress },
+            amount: {
+              value: (0n - amount).toString(),
+              currency: STX_CURRENCY,
+            },
+          });
+
+          operations.push({
+            operation_identifier: { index: operations.length },
+            type: 'token_transfer',
+            status: 'success',
+            account: { address: recipientAddress },
+            amount: {
+              value: amount.toString(),
+              currency: STX_CURRENCY,
+            },
+          });
+        }
+        // TODO: Handle ContractCall, SmartContract, and other payload types
+
+        const response: ConstructionParseResponse = {
+          operations,
+          ...(signed
+            ? { account_identifier_signers: [{ address: senderAddress }] }
+            : {}),
+        };
+
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.invalidTransaction(message));
+      }
+    }
+  );
+
+  // POST /construction/hash
+  // Computes the transaction hash (txid) from a signed transaction.
+  fastify.post(
+    '/construction/hash',
+    {
+      schema: {
+        body: ConstructionHashRequestSchema,
+        response: {
+          200: TransactionIdentifierResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { signed_transaction } = request.body;
+
+      try {
+        const tx = deserializeTransaction(removeHexPrefix(signed_transaction));
+        const txid = tx.txid();
+
+        const response: TransactionIdentifierResponse = {
+          transaction_identifier: {
+            hash: addHexPrefix(txid),
+          },
+        };
+
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.invalidTransaction(message));
+      }
+    }
+  );
+
+  // POST /construction/submit
+  // Broadcasts a signed transaction to the Stacks network.
+  // This is one of two ONLINE endpoints (along with /metadata).
+  fastify.post(
+    '/construction/submit',
+    {
+      schema: {
+        body: ConstructionSubmitRequestSchema,
+        response: {
+          200: TransactionIdentifierResponseSchema,
+          500: ErrorResponseSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { signed_transaction } = request.body;
+
+      try {
+        const result = await rpcClient.broadcastTransaction(signed_transaction);
+
+        if (result.error) {
+          return reply.status(500).send(
+            MeshErrors.transactionBroadcastError(
+              `${result.reason}: ${JSON.stringify(result.reason_data)}`
+            )
+          );
+        }
+
+        const response: TransactionIdentifierResponse = {
+          transaction_identifier: {
+            hash: addHexPrefix(result.txid),
+          },
+        };
+
+        return reply.send(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return reply.status(500).send(MeshErrors.transactionBroadcastError(message));
+      }
+    }
+  );
 };
-
-function deriveStacksAddress(_publicKeyHex: string, _network: 'mainnet' | 'testnet'): string {
-  // TODO: Implement using c32check encoding or @stacks/transactions library
-  throw new Error('Address derivation not implemented - requires @stacks/transactions library');
-}
