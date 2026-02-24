@@ -1,5 +1,14 @@
 import { hexToBuffer } from '@stacks/api-toolkit';
-import { Block, Transaction, Operation, Status, Currency } from '../../../schemas/dist/index.js';
+import {
+  Block,
+  Transaction,
+  Operation,
+  Status,
+  Currency,
+  PostConditionPrincipal,
+  PostCondition,
+  PostConditionMode,
+} from '@stacks/mesh-schemas';
 import codec from '@hirosystems/stacks-encoding-native-js';
 import {
   StacksBlockReplay,
@@ -169,7 +178,7 @@ async function serializeReplayedNakamotoTransaction(
       sender_address: tx.senderAddress,
       sponsor_address: tx.sponsorAddress,
       vm_error: replayedTx.vm_error,
-      post_conditions: undefined, // TODO: Implement post conditions
+      post_conditions: serializePostConditions(tx),
     },
   };
 }
@@ -181,86 +190,81 @@ function serializeTxResult(tx: StacksBlockReplayTransaction) {
   };
 }
 
-// function serializePostConditions(tx: StacksDbTransaction, options: StacksSerializationOptions) {
-//   if (!options.includePostConditions) {
-//     return undefined;
-//   }
-//   const serializePostConditionPrincipal = (
-//     principal: PostConditionPrincipal
-//   ): StacksPostConditionPrincipal => {
-//     if (principal.type_id === PostConditionPrincipalTypeID.Standard) {
-//       return {
-//         type_id: 'principal_standard',
-//         address: principal.address,
-//       };
-//     }
-//     if (principal.type_id === PostConditionPrincipalTypeID.Contract) {
-//       return {
-//         type_id: 'principal_contract',
-//         contract_name: principal.contract_name,
-//         address: principal.address,
-//       };
-//     }
-//     return {
-//       type_id: 'principal_origin',
-//     };
-//   };
-//   const serializePostCondition = (pc: TxPostCondition): StacksPostCondition => {
-//     switch (pc.asset_info_id) {
-//       case PostConditionAssetInfoID.STX:
-//         return {
-//           type: 'stx',
-//           condition_code: pc.condition_name,
-//           amount: pc.amount,
-//           principal: serializePostConditionPrincipal(pc.principal),
-//         };
-//       case PostConditionAssetInfoID.FungibleAsset:
-//         return {
-//           type: 'fungible',
-//           condition_code: pc.condition_name,
-//           amount: pc.amount,
-//           principal: serializePostConditionPrincipal(pc.principal),
-//           asset: {
-//             contract_name: pc.asset.contract_name,
-//             asset_name: pc.asset.asset_name,
-//             contract_address: pc.asset.contract_address,
-//           },
-//         };
-//       case PostConditionAssetInfoID.NonfungibleAsset:
-//         return {
-//           type: 'non_fungible',
-//           condition_code: pc.condition_name,
-//           principal: serializePostConditionPrincipal(pc.principal),
-//           asset: {
-//             contract_name: pc.asset.contract_name,
-//             asset_name: pc.asset.asset_name,
-//             contract_address: pc.asset.contract_address,
-//           },
-//           asset_value: {
-//             hex: pc.asset_value.hex,
-//             repr: pc.asset_value.repr,
-//           },
-//         };
-//     }
-//   };
-//   const serializePostConditionMode = (byte: number): StacksPostConditionMode => {
-//     switch (byte) {
-//       case 1:
-//         return 'allow';
-//       case 2:
-//         return 'deny';
-//     }
-//     throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
-//   };
-//   const decodedPostConditions = decodePostConditions(tx.post_conditions);
-//   const normalizedPostConditions = decodedPostConditions.post_conditions.map(pc =>
-//     serializePostCondition(pc)
-//   );
-//   return {
-//     mode: serializePostConditionMode(decodedPostConditions.post_condition_mode),
-//     post_conditions: normalizedPostConditions,
-//   };
-// }
+function serializePostConditions(tx: DecodedStacksTransaction) {
+  const serializePostConditionPrincipal = (
+    principal: codec.PostConditionPrincipal
+  ): PostConditionPrincipal => {
+    if (principal.type_id === codec.PostConditionPrincipalTypeID.Standard) {
+      return {
+        type_id: 'principal_standard',
+        address: principal.address,
+      };
+    }
+    if (principal.type_id === codec.PostConditionPrincipalTypeID.Contract) {
+      return {
+        type_id: 'principal_contract',
+        contract_name: principal.contract_name,
+        address: principal.address,
+      };
+    }
+    return {
+      type_id: 'principal_origin',
+    };
+  };
+  const serializePostCondition = (pc: codec.TxPostCondition): PostCondition => {
+    switch (pc.asset_info_id) {
+      case codec.PostConditionAssetInfoID.STX:
+        return {
+          type: 'stx',
+          condition_code: pc.condition_name,
+          amount: pc.amount,
+          principal: serializePostConditionPrincipal(pc.principal),
+        };
+      case codec.PostConditionAssetInfoID.FungibleAsset:
+        return {
+          type: 'fungible',
+          condition_code: pc.condition_name,
+          amount: pc.amount,
+          principal: serializePostConditionPrincipal(pc.principal),
+          asset: {
+            contract_name: pc.asset.contract_name,
+            asset_name: pc.asset.asset_name,
+            contract_address: pc.asset.contract_address,
+          },
+        };
+      case codec.PostConditionAssetInfoID.NonfungibleAsset:
+        return {
+          type: 'non_fungible',
+          condition_code: pc.condition_name,
+          principal: serializePostConditionPrincipal(pc.principal),
+          asset: {
+            contract_name: pc.asset.contract_name,
+            asset_name: pc.asset.asset_name,
+            contract_address: pc.asset.contract_address,
+          },
+          asset_value: {
+            hex: pc.asset_value.hex,
+            repr: pc.asset_value.repr,
+          },
+        };
+    }
+  };
+  const serializePostConditionMode = (byte: number): PostConditionMode => {
+    switch (byte) {
+      case 1:
+        return 'allow';
+      case 2:
+        return 'deny';
+    }
+    throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
+  };
+  const decodedPostConditions = tx.decodedTx.post_conditions;
+  const normalizedPostConditions = decodedPostConditions.map(pc => serializePostCondition(pc));
+  return {
+    mode: serializePostConditionMode(tx.decodedTx.post_condition_mode),
+    post_conditions: normalizedPostConditions,
+  };
+}
 
 function serializeTxStatus(replayedTx: StacksBlockReplayTransaction): Status {
   if (!replayedTx.result.Response.committed) {
@@ -293,13 +297,10 @@ function parseTransactionMemo(memoHex: string | undefined): string | null {
   // less than 34 bytes long will have right-side padded null-bytes.
   let memoBuffer = hexToBuffer(memoHex);
   while (memoBuffer.length > 0 && memoBuffer[memoBuffer.length - 1] === 0) {
-    memoBuffer = memoBuffer.slice(0, memoBuffer.length - 1);
+    memoBuffer = memoBuffer.subarray(0, memoBuffer.length - 1);
   }
-  if (memoBuffer.length === 0) {
-    return null;
-  }
-  const memoDecoded = memoBuffer.toString('utf8');
-  return memoDecoded;
+  if (memoBuffer.length === 0) return null;
+  return memoBuffer.toString('utf8');
 }
 
 function makeStxCurrency(): Currency {
@@ -332,7 +333,7 @@ function makeStxTransferOperations(
   event: StacksBlockReplayTransactionStxTransferEvent,
   index: number
 ): Operation[] {
-  const memo = parseTransactionMemo(event.stx_transfer_event.memo);
+  const memo = parseTransactionMemo(addHexPrefix(event.stx_transfer_event.memo));
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
