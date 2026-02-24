@@ -4,36 +4,19 @@ import { TransactionSchema } from './transaction.js';
 
 export const BlockMetadataSchema = Type.Object({
   canonical: Type.Boolean(),
-  burn_block_identifier: BlockIdentifierSchema,
-  burn_block_timestamp: Type.Integer(),
-  parent_microblock_identifier: Nullable(BlockIdentifierSchema),
-  tenure_height: Type.Integer(),
-  execution_cost: ExecutionCostSchema,
-  tx_total_size: Type.Integer(),
-  tx_count: Type.Integer(),
+  burn_block_identifier: Type.Optional(BlockIdentifierSchema),
+  burn_block_timestamp: Type.Optional(Type.Integer()),
+  parent_microblock_identifier: Type.Optional(BlockIdentifierSchema),
+  tenure_height: Type.Optional(Type.Integer()),
+  execution_cost: Type.Optional(ExecutionCostSchema),
+  tx_total_size: Type.Optional(Type.Integer()),
+  tx_count: Type.Optional(Type.Integer()),
   signatures: Type.Optional(
     Type.Object({
       signer_bitvec: Nullable(Type.String()),
       signer_signatures: Nullable(Type.Array(Type.String())),
     })
   ),
-  // TODO: Available starting in epoch3, only included in blocks where the pox cycle rewards are first calculated
-  // cycle_number: Nullable(Type.Integer()),
-  // reward_set: Nullable(
-  //   Type.Object({
-  //     pox_ustx_threshold: Type.String(),
-  //     rewarded_addresses: Type.Array(Type.String()),
-  //     signers: Nullable(
-  //       Type.Array(
-  //         Type.Object({
-  //           signing_key: Type.String(),
-  //           weight: Type.Integer(),
-  //           stacked_amt: Type.String(),
-  //         })
-  //       )
-  //     ),
-  //   })
-  // ),
 });
 export type BlockMetadata = Static<typeof BlockMetadataSchema>;
 

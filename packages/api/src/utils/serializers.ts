@@ -66,10 +66,26 @@ export async function serializeReplayedNakamotoBlock(
     },
     timestamp: Number(replay.timestamp) * 1000,
     transactions: [],
+    metadata: {
+      canonical: true,
+      tx_count: replay.transactions.length,
+      execution_cost: {
+        read_count: 0,
+        read_length: 0,
+        runtime: 0,
+        write_count: 0,
+        write_length: 0,
+      }
+    },
   };
   for (let i = 0; i < replay.transactions.length; i++) {
     // TODO: `tx_index` does not work from Stacks core (it's always 0).
     const tx = replay.transactions[i];
+    block.metadata!.execution_cost!.read_count += tx.execution_cost.read_count;
+    block.metadata!.execution_cost!.read_length += tx.execution_cost.read_length;
+    block.metadata!.execution_cost!.runtime += tx.execution_cost.runtime;
+    block.metadata!.execution_cost!.write_count += tx.execution_cost.write_count;
+    block.metadata!.execution_cost!.write_length += tx.execution_cost.write_length;
     const serializedTx = await serializeReplayedNakamotoTransaction(
       tx,
       replay.fees,
@@ -78,33 +94,6 @@ export async function serializeReplayedNakamotoBlock(
     );
     block.transactions.push(serializedTx);
   }
-  // if (options?.includeBlockMetadata || options?.includeBlockSignatures) {
-  //   block.metadata = {
-  //     burn_block_identifier: {
-  //       index: 0, // TODO: Implement burn block height
-  //       hash: `0x${decodedBlock.header.consensus_hash}`,
-  //     },
-  //     burn_block_timestamp: 0, // TODO: Implement burn block timestamp
-  //     tenure_height: 0, // TODO: Implement tenure height
-  //     execution_cost: {
-  //       read_count: block.execution_cost_read_count,
-  //       read_length: block.execution_cost_read_length,
-  //       runtime: block.execution_cost_runtime,
-  //       write_count: block.execution_cost_write_count,
-  //       write_length: block.execution_cost_write_length,
-  //     },
-  //     canonical: true,
-  //     parent_microblock_identifier: null,
-  //     tx_total_size: unwrap(block.tx_total_size),
-  //     tx_count: block.tx_count,
-  //     signatures: options.includeBlockSignatures
-  //       ? {
-  //           signer_bitvec: block.signer_bitvec,
-  //           signer_signatures: block.signer_signatures,
-  //         }
-  //       : undefined,
-  //   };
-  // }
 
   return block;
 }
