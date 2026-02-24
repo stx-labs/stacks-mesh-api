@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { RouteConfig } from '../index.js';
+import { ApiConfig } from '../index.js';
 import { BlockRoutes } from './block.js';
 import { NetworkRoutes } from './network.js';
 import { AccountRoutes } from './account.js';
@@ -9,7 +9,7 @@ import { CallRoutes } from './call.js';
 import { validateMeshRequest } from '../middleware/validations.js';
 import { handleMeshError } from '../middleware/error-handlers.js';
 
-export const MeshApiRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const MeshApiRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   fastify.setErrorHandler(handleMeshError);
   fastify.addHook('preHandler', validateMeshRequest(config));
   await fastify.register(NetworkRoutes, config);

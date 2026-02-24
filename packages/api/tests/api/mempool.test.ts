@@ -2,24 +2,16 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
+import { makeTestApiConfig } from './helpers.js';
 
 describe('/mempool', () => {
   let fastify: FastifyInstance;
   let mockAgent: MockAgent;
 
   beforeEach(async () => {
-    const rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    fastify = await buildApiServer({
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    });
+    const config = makeTestApiConfig();
+    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
     setGlobalDispatcher(mockAgent);
@@ -29,7 +21,7 @@ describe('/mempool', () => {
     mockAgent.close();
   });
 
-  test('should return 500 not implemented', async () => {
+  test('should return 500 not implemented for /mempool', async () => {
     const response = await fastify.inject({
       url: '/mempool',
       method: 'POST',
@@ -47,33 +39,8 @@ describe('/mempool', () => {
     assert.ok(json.description.includes('/mempool is not supported'));
     assert.strictEqual(json.retriable, false);
   });
-});
 
-describe('/mempool/transaction', () => {
-  let fastify: FastifyInstance;
-  let mockAgent: MockAgent;
-
-  beforeEach(async () => {
-    const rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    fastify = await buildApiServer({
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    });
-    mockAgent = new MockAgent();
-    mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
-  });
-
-  afterEach(() => {
-    mockAgent.close();
-  });
-
-  test('should return 500 not implemented', async () => {
+  test('should return 500 not implemented for /mempool/transaction', async () => {
     const response = await fastify.inject({
       url: '/mempool/transaction',
       method: 'POST',

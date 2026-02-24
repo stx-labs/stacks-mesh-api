@@ -7,7 +7,7 @@ import cors from '@fastify/cors';
 import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../cache/contract-abi-cache.js';
 
-export type RouteConfig = {
+export type ApiConfig = {
   rpcClient: StacksRpcClient;
   tokenMetadataCache: TokenMetadataCache;
   contractAbiCache: ContractAbiCache;
@@ -15,7 +15,7 @@ export type RouteConfig = {
   nodeVersion: string;
 };
 
-export async function buildApiServer(config: RouteConfig) {
+export async function buildApiServer(config: ApiConfig) {
   const fastify = Fastify({
     trustProxy: true,
     logger: PINO_LOGGER_CONFIG,

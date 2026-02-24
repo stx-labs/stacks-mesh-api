@@ -1,0 +1,338 @@
+{
+  "functions": [
+    {
+      "name": "dispatch",
+      "access": "private",
+      "args": [
+        { "name": "ii", "type": { "buffer": { "length": 2 } } },
+        { "name": "amt-in", "type": "uint128" }
+      ],
+      "outputs": { "type": { "response": { "ok": "uint128", "error": "uint128" } } }
+    },
+    {
+      "name": "exec",
+      "access": "private",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "a",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "add-liquidity",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "b",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "c",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "d",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "e",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "f",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "g",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "h",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "i",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "j",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "k",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "l",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "m",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "n",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "o",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "p",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "q",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r1",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r2",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r3",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r4",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r5",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r6",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r7",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r8",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "r9",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "remove-liquidity",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "s",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "swap",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "swap-exact-tokens-for-tokens",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "swap-tokens-for-exact-tokens",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "t",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "u",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "v",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "w",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "x",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "y",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "z",
+      "access": "public",
+      "args": [{ "name": "bu", "type": { "buffer": { "length": 8 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    }
+  ],
+  "variables": [
+    {
+      "name": "err-anti-rug",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-auth",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-burn-postconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-burn-preconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-check-owner",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-collect-postconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-collect-preconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-create-postconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-create-preconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-mint-postconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-mint-preconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-no-such-pool",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-swap-postconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "err-swap-preconditions",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    { "name": "owner", "type": "principal", "access": "constant" },
+    { "name": "this", "type": "principal", "access": "constant" }
+  ],
+  "maps": [],
+  "fungible_tokens": [],
+  "non_fungible_tokens": [],
+  "epoch": "Epoch32",
+  "clarity_version": "Clarity3"
+}

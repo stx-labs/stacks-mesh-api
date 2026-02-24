@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { RouteConfig } from '../index.js';
+import type { ApiConfig } from '../index.js';
 import {
   CallRequestSchema,
   CallResponseSchema,
@@ -7,7 +7,7 @@ import {
 } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 
-export const CallRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
 
   fastify.post(

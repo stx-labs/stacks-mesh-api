@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { RouteConfig } from '../index.js';
+import type { ApiConfig } from '../index.js';
 import {
   AccountBalanceRequestSchema,
   AccountBalanceResponse,
@@ -10,7 +10,7 @@ import {
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
 
-export const AccountRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
 
   fastify.post(

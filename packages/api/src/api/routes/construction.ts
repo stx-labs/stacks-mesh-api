@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { RouteConfig } from '../index.js';
+import type { ApiConfig } from '../index.js';
 import {
   getAddressFromPublicKey,
   makeUnsignedSTXTokenTransfer,
@@ -43,7 +43,7 @@ import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { addHexPrefix, removeHexPrefix } from '../../serializers/index.js';
 
-export const ConstructionRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (
+export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
   fastify,
   config
 ) => {

@@ -1,9 +1,9 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-import { buildApiServer, RouteConfig } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
+import { buildApiServer } from '../../src/api/index.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
+import { makeTestApiConfig } from './helpers.js';
 
 const TEST_ADDRESS = 'SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2';
 
@@ -52,21 +52,10 @@ function makeAccountInfo(overrides?: Record<string, unknown>) {
 
 describe('/account', () => {
   let fastify: FastifyInstance;
-  let rpcClient: StacksRpcClient;
   let mockAgent: MockAgent;
-  let config: RouteConfig;
 
   beforeEach(async () => {
-    rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    config = {
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    };
+    const config = makeTestApiConfig();
     fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();

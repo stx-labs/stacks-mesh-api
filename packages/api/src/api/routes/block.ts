@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../../stacks-rpc/stacks-rpc-client.js';
 import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
-import type { RouteConfig } from '../index.js';
+import type { ApiConfig } from '../index.js';
 import {
   BlockIdentifier,
   BlockRequestSchema,
@@ -18,7 +18,7 @@ import {
 } from '../../serializers/index.js';
 import { StacksBlockReplay } from '../../stacks-rpc/types.js';
 
-export const BlockRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, tokenMetadataCache, contractAbiCache } = config;
 
   fastify.post(

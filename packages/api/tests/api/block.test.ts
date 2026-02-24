@@ -1,13 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-import { buildApiServer, RouteConfig } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
+import { ApiConfig, buildApiServer } from '../../src/api/index.js';
+import { makeTestApiConfig } from './helpers.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-const fixturesDir = new URL('./fixtures/blocks', import.meta.url).pathname;
+const fixturesDir = new URL('./fixtures', import.meta.url).pathname;
 
 function loadFixture(relativePath: string) {
   return JSON.parse(fs.readFileSync(path.join(fixturesDir, relativePath), 'utf-8'));
@@ -31,11 +31,7 @@ function postBlock(fastify: FastifyInstance, hash: string) {
   });
 }
 
-function postBlockTransaction(
-  fastify: FastifyInstance,
-  blockHash: string,
-  txHash: string
-) {
+function postBlockTransaction(fastify: FastifyInstance, blockHash: string, txHash: string) {
   return fastify.inject({
     url: '/block/transaction',
     method: 'POST',
@@ -50,21 +46,11 @@ function postBlockTransaction(
 
 describe('/block', () => {
   let fastify: FastifyInstance;
-  let rpcClient: StacksRpcClient;
   let mockAgent: MockAgent;
-  let config: RouteConfig;
+  let config: ApiConfig;
 
   beforeEach(async () => {
-    rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    config = {
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    };
+    config = makeTestApiConfig();
     fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
@@ -76,7 +62,7 @@ describe('/block', () => {
   });
 
   describe('coinbase + tenure change block', () => {
-    const fixture = loadFixture('tx-types/5437107-coinbase.json');
+    const fixture = loadFixture('blocks/tx-types/5437107-coinbase.json');
 
     test('should return block with tenure_change and coinbase transactions', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -103,10 +89,7 @@ describe('/block', () => {
 
       // Tenure change transaction
       const tenureTx = block.transactions[0];
-      assert.strictEqual(
-        tenureTx.transaction_identifier.hash,
-        `0x${fixture.transactions[0].txid}`
-      );
+      assert.strictEqual(tenureTx.transaction_identifier.hash, `0x${fixture.transactions[0].txid}`);
       assert.strictEqual(tenureTx.metadata.type, 'tenure_change');
       assert.strictEqual(tenureTx.metadata.status, 'success');
       assert.strictEqual(tenureTx.metadata.sponsored, false);
@@ -155,7 +138,7 @@ describe('/block', () => {
   });
 
   describe('token transfer block', () => {
-    const fixture = loadFixture('tx-types/5437488-token-transfer.json');
+    const fixture = loadFixture('blocks/tx-types/5437488-token-transfer.json');
 
     test('should return block with STX transfer and correct operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -175,14 +158,12 @@ describe('/block', () => {
       assert.strictEqual(block.transactions.length, 1);
 
       const tx = block.transactions[0];
-      assert.strictEqual(
-        tx.transaction_identifier.hash,
-        `0x${fixture.transactions[0].txid}`
-      );
+      assert.strictEqual(tx.transaction_identifier.hash, `0x${fixture.transactions[0].txid}`);
       assert.strictEqual(tx.metadata.type, 'token_transfer');
       assert.strictEqual(tx.metadata.status, 'success');
       assert.strictEqual(tx.metadata.fee_rate, '180');
-      assert.strictEqual(tx.metadata.result, '0x0703');
+      assert.strictEqual(tx.metadata.result.hex, '0x0703');
+      assert.strictEqual(tx.metadata.result.repr, '(ok true)');
       assert.ok(tx.metadata.raw_tx.startsWith('0x'));
 
       // Operations: fee + send + receive = 3
@@ -215,11 +196,49 @@ describe('/block', () => {
   });
 
   describe('contract call block with events', () => {
-    const fixture = loadFixture('tx-types/5037488-contract-call.json');
+    const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
 
     test('should return block with multiple transactions and event-derived operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
+
+      // Set caches
+      config.contractAbiCache['cache'].set(
+        'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
+        loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
+      );
+      config.contractAbiCache['cache'].set(
+        'SP06ARSREC0N9AKZABRP23SXS62TWJ6KWPVDQHVX.cn',
+        loadFixture('contract-interfaces/cn.json')
+      );
+      config.contractAbiCache['cache'].set(
+        'SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.hemp',
+        loadFixture('contract-interfaces/hemp.json')
+      );
+      config.tokenMetadataCache['cache'].set(
+        'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey',
+        {
+          symbol: 'BLOCKSURVEY',
+          decimals: 6,
+          name: 'Blocksurvey',
+        }
+      );
+      config.tokenMetadataCache['cache'].set(
+        'SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token',
+        {
+          symbol: 'VIBES',
+          decimals: 6,
+          name: 'Vibes',
+        }
+      );
+      config.tokenMetadataCache['cache'].set(
+        'SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex',
+        {
+          symbol: 'TOKEN-ALEX',
+          decimals: 6,
+          name: 'Token Alex',
+        }
+      );
 
       const response = await postBlock(fastify, fixture.block_id);
       assert.strictEqual(response.statusCode, 200);
@@ -246,11 +265,26 @@ describe('/block', () => {
       assert.strictEqual(contractCallOp.type, 'contract_call');
       assert.strictEqual(contractCallOp.status, 'success');
       assert.ok(
-        contractCallOp.metadata.contract_identifier.includes(
-          'blocksurvey-proof-of-submission'
-        )
+        contractCallOp.metadata.contract_identifier.includes('blocksurvey-proof-of-submission')
       );
       assert.strictEqual(contractCallOp.metadata.function_name, 'proof-of-submission');
+
+      // Contract call args serialized from ABI
+      assert.strictEqual(contractCallOp.metadata.args.length, 4);
+      assert.strictEqual(contractCallOp.metadata.args[0].name, 'survey-id');
+      assert.strictEqual(contractCallOp.metadata.args[0].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[1].name, 'response-id');
+      assert.strictEqual(contractCallOp.metadata.args[1].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[2].name, 'response-hash');
+      assert.strictEqual(contractCallOp.metadata.args[2].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[3].name, 'gas-fee');
+      assert.strictEqual(contractCallOp.metadata.args[3].type, 'uint');
+      assert.strictEqual(contractCallOp.metadata.args[3].repr, 'u417');
+      // All args should have hex values
+      for (const arg of contractCallOp.metadata.args) {
+        assert.ok(arg.hex.startsWith('0x'), `Arg ${arg.name} hex should start with 0x`);
+        assert.ok(arg.repr, `Arg ${arg.name} should have repr`);
+      }
 
       const ftMintOp = tx1.operations[2];
       assert.strictEqual(ftMintOp.type, 'token_mint');
@@ -260,6 +294,10 @@ describe('/block', () => {
         'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey'
       );
       assert.strictEqual(ftMintOp.amount.currency.metadata.token_type, 'ft');
+      // Token metadata from cache
+      assert.strictEqual(ftMintOp.amount.currency.symbol, 'BLOCKSURVEY');
+      assert.strictEqual(ftMintOp.amount.currency.decimals, 6);
+      assert.strictEqual(ftMintOp.amount.currency.metadata.name, 'Blocksurvey');
 
       // Third tx: contract call with no events (committed: false)
       const tx2 = block.transactions[2];
@@ -267,12 +305,27 @@ describe('/block', () => {
       // fee + contract_call = 2 operations (no events)
       assert.strictEqual(tx2.operations.length, 2);
 
+      // Contract call args from cn ABI
+      const tx2ContractCallOp = tx2.operations[1];
+      assert.strictEqual(tx2ContractCallOp.metadata.function_name, 'r1');
+      assert.strictEqual(tx2ContractCallOp.metadata.args.length, 1);
+      assert.strictEqual(tx2ContractCallOp.metadata.args[0].name, 'bu');
+      assert.strictEqual(tx2ContractCallOp.metadata.args[0].type, '(buff 8)');
+      assert.ok(tx2ContractCallOp.metadata.args[0].hex.startsWith('0x'));
+
       // Fourth tx: contract call with stx_transfer, contract_event, ft_transfer events
       const tx3 = block.transactions[3];
       assert.strictEqual(tx3.metadata.type, 'contract_call');
 
       // Verify contract_call operation
       assert.strictEqual(tx3.operations[1].type, 'contract_call');
+
+      // Contract call args from hemp ABI
+      const tx3ContractCallOp = tx3.operations[1];
+      assert.strictEqual(tx3ContractCallOp.metadata.function_name, 'ri');
+      assert.strictEqual(tx3ContractCallOp.metadata.args.length, 2);
+      assert.strictEqual(tx3ContractCallOp.metadata.args[0].name, 'b');
+      assert.strictEqual(tx3ContractCallOp.metadata.args[1].name, 't');
 
       // Verify STX transfer operations from events
       const stxSendOp = tx3.operations[2];
@@ -294,7 +347,7 @@ describe('/block', () => {
       );
       assert.strictEqual(contractLogOp.metadata.topic, 'print');
 
-      // Verify FT transfer operations
+      // Verify FT transfer operations (VIBES)
       const ftSendOp = tx3.operations[7];
       assert.strictEqual(ftSendOp.type, 'token_transfer');
       assert.strictEqual(ftSendOp.amount.value, '-1077761294227');
@@ -303,11 +356,33 @@ describe('/block', () => {
         ftSendOp.amount.currency.metadata.asset_identifier,
         'SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token'
       );
+      // Token metadata from cache for VIBES
+      assert.strictEqual(ftSendOp.amount.currency.symbol, 'VIBES');
+      assert.strictEqual(ftSendOp.amount.currency.decimals, 6);
+      assert.strictEqual(ftSendOp.amount.currency.metadata.name, 'Vibes');
+
+      const ftReceiveOp = tx3.operations[8];
+      assert.strictEqual(ftReceiveOp.type, 'token_transfer');
+      assert.strictEqual(ftReceiveOp.amount.value, '1077761294227');
+      assert.strictEqual(ftReceiveOp.amount.currency.symbol, 'VIBES');
+
+      // Verify FT transfer operations (TOKEN-ALEX)
+      const alexSendOp = tx3.operations[11];
+      assert.strictEqual(alexSendOp.type, 'token_transfer');
+      assert.strictEqual(alexSendOp.amount.value, '-21062536889');
+      assert.strictEqual(
+        alexSendOp.amount.currency.metadata.asset_identifier,
+        'SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex'
+      );
+      // Token metadata from cache for TOKEN-ALEX
+      assert.strictEqual(alexSendOp.amount.currency.symbol, 'TOKEN-ALEX');
+      assert.strictEqual(alexSendOp.amount.currency.decimals, 6);
+      assert.strictEqual(alexSendOp.amount.currency.metadata.name, 'Token Alex');
     });
   });
 
   describe('contract deploy block', () => {
-    const fixture = loadFixture('tx-types/5299259-contract-deploy.json');
+    const fixture = loadFixture('blocks/tx-types/5299259-contract-deploy.json');
 
     test('should return block with contract deploy transaction', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -348,7 +423,7 @@ describe('/block', () => {
   });
 
   describe('tenure change extended', () => {
-    const fixture = loadFixture('tx-types/557923-tenure-change.json');
+    const fixture = loadFixture('blocks/tx-types/557923-tenure-change.json');
 
     test('should return block with tenure change extended cause', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -385,7 +460,7 @@ describe('/block', () => {
   });
 
   describe('NFT transfer event', () => {
-    const fixture = loadFixture('events/nft-transfer.json');
+    const fixture = loadFixture('blocks/events/nft-transfer.json');
 
     test('should serialize NFT transfer as token_transfer operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -419,7 +494,7 @@ describe('/block', () => {
   });
 
   describe('STX burn + NFT mint events', () => {
-    const fixture = loadFixture('events/stx-burn.json');
+    const fixture = loadFixture('blocks/events/stx-burn.json');
 
     test('should serialize STX burn and NFT mint events', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -465,7 +540,7 @@ describe('/block', () => {
   });
 
   describe('FT burn event', () => {
-    const fixture = loadFixture('events/ft-burn.json');
+    const fixture = loadFixture('blocks/events/ft-burn.json');
 
     test('should serialize FT burn events', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -483,8 +558,7 @@ describe('/block', () => {
       // Find the ft_burn operation - look for token_burn with ft metadata
       const ftBurnOps = tx.operations.filter(
         (op: { type: string; amount?: { currency?: { metadata?: { token_type: string } } } }) =>
-          op.type === 'token_burn' &&
-          op.amount?.currency?.metadata?.token_type === 'ft'
+          op.type === 'token_burn' && op.amount?.currency?.metadata?.token_type === 'ft'
       );
       assert.ok(ftBurnOps.length > 0, 'Expected at least one FT burn operation');
 
@@ -499,7 +573,7 @@ describe('/block', () => {
   });
 
   describe('contract event block', () => {
-    const fixture = loadFixture('events/contract-event.json');
+    const fixture = loadFixture('blocks/events/contract-event.json');
 
     test('should serialize contract events as contract_log operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -530,8 +604,7 @@ describe('/block', () => {
       // Verify FT transfer operations
       const ftTransferOps = tx.operations.filter(
         (op: { type: string; amount?: { currency?: { metadata?: { token_type: string } } } }) =>
-          op.type === 'token_transfer' &&
-          op.amount?.currency?.metadata?.token_type === 'ft'
+          op.type === 'token_transfer' && op.amount?.currency?.metadata?.token_type === 'ft'
       );
       assert.ok(ftTransferOps.length > 0, 'Expected FT transfer operations');
       // FT transfers come in send/receive pairs
@@ -541,7 +614,7 @@ describe('/block', () => {
 
   describe('/block/transaction', () => {
     test('should return a specific transaction from a block', async () => {
-      const fixture = loadFixture('tx-types/5437488-token-transfer.json');
+      const fixture = loadFixture('blocks/tx-types/5437488-token-transfer.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -558,7 +631,7 @@ describe('/block', () => {
     });
 
     test('should return a specific contract call from a multi-tx block', async () => {
-      const fixture = loadFixture('tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -578,7 +651,7 @@ describe('/block', () => {
 
   describe('execution cost metadata', () => {
     test('should include execution cost in transaction metadata', async () => {
-      const fixture = loadFixture('tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -600,7 +673,7 @@ describe('/block', () => {
 
   describe('operation index consistency', () => {
     test('should have sequential operation indices', async () => {
-      const fixture = loadFixture('tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 

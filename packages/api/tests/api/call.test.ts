@@ -2,8 +2,8 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
+import { makeTestApiConfig } from './helpers.js';
 
 const DEPLOYER = 'SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2';
 const CONTRACT = 'my-contract';
@@ -24,20 +24,11 @@ function postCall(fastify: FastifyInstance, method: string, parameters: object) 
 
 describe('/call', () => {
   let fastify: FastifyInstance;
-  let rpcClient: StacksRpcClient;
   let mockAgent: MockAgent;
 
   beforeEach(async () => {
-    rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    fastify = await buildApiServer({
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    });
+    const config = makeTestApiConfig();
+    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
     setGlobalDispatcher(mockAgent);

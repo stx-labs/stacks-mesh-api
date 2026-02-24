@@ -1,0 +1,122 @@
+{
+  "functions": [
+    {
+      "name": "get-response-by-id",
+      "access": "private",
+      "args": [{ "name": "response-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": { "string-utf8": { "length": 64 } } }
+    },
+    {
+      "name": "get-response-count-by-survey-id",
+      "access": "private",
+      "args": [{ "name": "survey-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": "uint128" }
+    },
+    {
+      "name": "is-response-already-submitted",
+      "access": "private",
+      "args": [{ "name": "response-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": "bool" }
+    },
+    {
+      "name": "is-survey-blocked",
+      "access": "private",
+      "args": [{ "name": "survey-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": "bool" }
+    },
+    {
+      "name": "validate-ownership",
+      "access": "private",
+      "args": [],
+      "outputs": { "type": "bool" }
+    },
+    {
+      "name": "add-to-black-list-survey",
+      "access": "public",
+      "args": [{ "name": "survey-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "proof-of-submission",
+      "access": "public",
+      "args": [
+        { "name": "survey-id", "type": { "string-utf8": { "length": 64 } } },
+        { "name": "response-id", "type": { "string-utf8": { "length": 64 } } },
+        { "name": "response-hash", "type": { "string-utf8": { "length": 64 } } },
+        { "name": "gas-fee", "type": "uint128" }
+      ],
+      "outputs": { "type": { "response": { "ok": "bool", "error": "uint128" } } }
+    },
+    {
+      "name": "get-response",
+      "access": "read_only",
+      "args": [{ "name": "response-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": {
+        "type": { "response": { "ok": { "string-utf8": { "length": 64 } }, "error": "none" } }
+      }
+    },
+    {
+      "name": "get-survey-response-count",
+      "access": "read_only",
+      "args": [{ "name": "survey-id", "type": { "string-utf8": { "length": 64 } } }],
+      "outputs": { "type": { "response": { "ok": "uint128", "error": "none" } } }
+    },
+    {
+      "name": "get-total-responses",
+      "access": "read_only",
+      "args": [],
+      "outputs": { "type": { "response": { "ok": "uint128", "error": "none" } } }
+    }
+  ],
+  "variables": [
+    { "name": "CONTRACT-OWNER", "type": "principal", "access": "constant" },
+    {
+      "name": "ERR-ALREADY-SUBMITTED",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "ERR-INVALID-DATA",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "ERR-LOW-GAS_FEE",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "ERR-NO-DATA-FOUND",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "ERR-OWNER-ONLY",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    {
+      "name": "ERR-SURVEY-BLOCKED",
+      "type": { "response": { "ok": "none", "error": "uint128" } },
+      "access": "constant"
+    },
+    { "name": "total-responses", "type": "uint128", "access": "variable" }
+  ],
+  "maps": [
+    { "name": "black-list-surveys", "key": { "string-utf8": { "length": 64 } }, "value": "bool" },
+    {
+      "name": "responses",
+      "key": { "tuple": [{ "name": "response-id", "type": { "string-utf8": { "length": 64 } } }] },
+      "value": { "tuple": [{ "name": "hash", "type": { "string-utf8": { "length": 64 } } }] }
+    },
+    {
+      "name": "survey-responses",
+      "key": { "tuple": [{ "name": "survey-id", "type": { "string-utf8": { "length": 64 } } }] },
+      "value": { "tuple": [{ "name": "count", "type": "uint128" }] }
+    }
+  ],
+  "fungible_tokens": [],
+  "non_fungible_tokens": [],
+  "epoch": "Epoch31",
+  "clarity_version": "Clarity3"
+}

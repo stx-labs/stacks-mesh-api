@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { RouteConfig } from '../index.js';
+import type { ApiConfig } from '../index.js';
 import {
   ErrorResponseSchema,
   MetadataRequestSchema,
@@ -22,7 +22,7 @@ import {
 } from '../../utils/constants.js';
 import { SERVER_VERSION } from '@stacks/api-toolkit';
 
-export const NetworkRoutes: FastifyPluginAsyncTypebox<RouteConfig> = async (fastify, config) => {
+export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
   fastify.post(

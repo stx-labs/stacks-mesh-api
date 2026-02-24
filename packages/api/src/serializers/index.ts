@@ -181,7 +181,7 @@ async function serializeReplayedNakamotoTransaction(
       position: {
         index,
       },
-      // raw_tx: addHexPrefix(replayedTx.hex),
+      raw_tx: addHexPrefix(replayedTx.hex),
       result: serializeTxResult(replayedTx),
       sender_address: tx.senderAddress,
       sponsor_address: tx.sponsorAddress,

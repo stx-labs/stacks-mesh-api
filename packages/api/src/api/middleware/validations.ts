@@ -1,7 +1,7 @@
 import { ErrorResponse, NetworkIdentifier } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { RouteConfig } from '../index.js';
+import { ApiConfig } from '../index.js';
 
 /**
  * Validates that the network identifier from the request matches the configured network
@@ -24,7 +24,7 @@ export function validateNetwork(
   return undefined;
 }
 
-export const validateMeshRequest = (config: RouteConfig) => {
+export const validateMeshRequest = (config: ApiConfig) => {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as Record<string, unknown>;
     if ('network_identifier' in body) {

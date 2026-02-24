@@ -1,27 +1,16 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-import { buildApiServer, RouteConfig } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
+import { buildApiServer } from '../../src/api/index.js';
+import { makeTestApiConfig } from './helpers.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
 
 describe('/network', () => {
   let fastify: FastifyInstance;
-  let rpcClient: StacksRpcClient;
   let mockAgent: MockAgent;
-  let config: RouteConfig;
 
   beforeEach(async () => {
-    rpcClient = new StacksRpcClient({
-      hostname: 'test.stacks.node',
-      port: 20444,
-      authToken: 'test-token',
-    });
-    config = {
-      rpcClient,
-      network: 'testnet',
-      nodeVersion: '1.0.0',
-    };
+    const config = makeTestApiConfig();
     fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
