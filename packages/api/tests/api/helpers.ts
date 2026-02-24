@@ -21,7 +21,7 @@ export function makeTestApiConfig(): ApiConfig {
   });
   return {
     rpcClient,
-    network: 'testnet',
+    network: 'mainnet',
     nodeVersion: '1.0.0',
     tokenMetadataCache,
     contractAbiCache,

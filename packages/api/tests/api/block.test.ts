@@ -24,7 +24,7 @@ function postBlock(fastify: FastifyInstance, hash: string) {
     url: '/block',
     method: 'POST',
     payload: JSON.stringify({
-      network_identifier: { blockchain: 'stacks', network: 'testnet' },
+      network_identifier: { blockchain: 'stacks', network: 'mainnet' },
       block_identifier: { hash: `0x${hash}` },
     }),
     headers: { 'content-type': 'application/json' },
@@ -36,7 +36,7 @@ function postBlockTransaction(fastify: FastifyInstance, blockHash: string, txHas
     url: '/block/transaction',
     method: 'POST',
     payload: JSON.stringify({
-      network_identifier: { blockchain: 'stacks', network: 'testnet' },
+      network_identifier: { blockchain: 'stacks', network: 'mainnet' },
       block_identifier: { hash: `0x${blockHash}` },
       transaction_identifier: { hash: `0x${txHash}` },
     }),
@@ -62,7 +62,40 @@ describe('/block', () => {
   });
 
   describe('coinbase + tenure change block', () => {
-    const fixture = loadFixture('blocks/tx-types/5437107-coinbase.json');
+    const fixture = loadFixture('blocks/coinbase.json');
+
+    test('should fetch block header if only block height is given', async () => {
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      // Mock block header fetch
+      const blockHeaderFixture = fs.readFileSync(
+        path.join(fixturesDir, 'blocks/coinbase.header.bin')
+      );
+      mockPool
+        .intercept({ path: `/v3/blocks/height/5437107`, method: 'GET' })
+        .reply(200, blockHeaderFixture, {
+          headers: { 'content-type': 'application/octet-stream' },
+        });
+
+      const response = await fastify.inject({
+        url: '/block',
+        method: 'POST',
+        payload: JSON.stringify({
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
+          block_identifier: { index: 5437107 },
+        }),
+        headers: { 'content-type': 'application/json' },
+      });
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const block = json.block;
+
+      assert.deepStrictEqual(block.block_identifier, {
+        index: 5437107,
+        hash: `0x${fixture.block_id}`,
+      });
+    });
 
     test('should return block with tenure_change and coinbase transactions', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -138,7 +171,7 @@ describe('/block', () => {
   });
 
   describe('token transfer block', () => {
-    const fixture = loadFixture('blocks/tx-types/5437488-token-transfer.json');
+    const fixture = loadFixture('blocks/token-transfer.json');
 
     test('should return block with STX transfer and correct operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -196,7 +229,7 @@ describe('/block', () => {
   });
 
   describe('contract call block with events', () => {
-    const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
+    const fixture = loadFixture('blocks/contract-call.json');
 
     test('should return block with multiple transactions and event-derived operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -382,7 +415,7 @@ describe('/block', () => {
   });
 
   describe('contract deploy block', () => {
-    const fixture = loadFixture('blocks/tx-types/5299259-contract-deploy.json');
+    const fixture = loadFixture('blocks/contract-deploy.json');
 
     test('should return block with contract deploy transaction', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -423,7 +456,7 @@ describe('/block', () => {
   });
 
   describe('tenure change extended', () => {
-    const fixture = loadFixture('blocks/tx-types/557923-tenure-change.json');
+    const fixture = loadFixture('blocks/tenure-change.json');
 
     test('should return block with tenure change extended cause', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -460,7 +493,7 @@ describe('/block', () => {
   });
 
   describe('NFT transfer event', () => {
-    const fixture = loadFixture('blocks/events/nft-transfer.json');
+    const fixture = loadFixture('blocks/nft-transfer.json');
 
     test('should serialize NFT transfer as token_transfer operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -494,7 +527,7 @@ describe('/block', () => {
   });
 
   describe('STX burn + NFT mint events', () => {
-    const fixture = loadFixture('blocks/events/stx-burn.json');
+    const fixture = loadFixture('blocks/stx-burn.json');
 
     test('should serialize STX burn and NFT mint events', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -540,7 +573,7 @@ describe('/block', () => {
   });
 
   describe('FT burn event', () => {
-    const fixture = loadFixture('blocks/events/ft-burn.json');
+    const fixture = loadFixture('blocks/ft-burn.json');
 
     test('should serialize FT burn events', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -573,7 +606,7 @@ describe('/block', () => {
   });
 
   describe('contract event block', () => {
-    const fixture = loadFixture('blocks/events/contract-event.json');
+    const fixture = loadFixture('blocks/contract-event.json');
 
     test('should serialize contract events as contract_log operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
@@ -614,7 +647,7 @@ describe('/block', () => {
 
   describe('/block/transaction', () => {
     test('should return a specific transaction from a block', async () => {
-      const fixture = loadFixture('blocks/tx-types/5437488-token-transfer.json');
+      const fixture = loadFixture('blocks/token-transfer.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -631,7 +664,7 @@ describe('/block', () => {
     });
 
     test('should return a specific contract call from a multi-tx block', async () => {
-      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -651,7 +684,7 @@ describe('/block', () => {
 
   describe('execution cost metadata', () => {
     test('should include execution cost in transaction metadata', async () => {
-      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
@@ -673,7 +706,7 @@ describe('/block', () => {
 
   describe('operation index consistency', () => {
     test('should have sequential operation indices', async () => {
-      const fixture = loadFixture('blocks/tx-types/5037488-contract-call.json');
+      const fixture = loadFixture('blocks/contract-call.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
 
