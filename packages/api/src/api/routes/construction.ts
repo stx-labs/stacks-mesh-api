@@ -11,7 +11,7 @@ import {
   serializePayload,
   AuthType,
 } from '@stacks/transactions';
-import codec from '@hirosystems/stacks-encoding-native-js';
+import codec from '@stacks/codec';
 import {
   ConstructionDeriveRequestSchema,
   ConstructionDeriveResponseSchema,

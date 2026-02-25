@@ -32,9 +32,6 @@
     "directory": "packages/mesh-schemas"
   },
   "license": "MIT",
-  "dependencies": {
-    "@hirosystems/stacks-encoding-native-js": "file:../../../stacks-encoding-native-js"
-  },
   "devDependencies": {
     "typescript": "^5.7.3"
   },

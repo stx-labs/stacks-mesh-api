@@ -1,6 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import type { StacksRpcClient } from '../../stacks-rpc/stacks-rpc-client.js';
-import stacksEncoding from '@hirosystems/stacks-encoding-native-js';
+import codec from '@stacks/codec';
 import type { ApiConfig } from '../index.js';
 import {
   BlockIdentifier,
@@ -83,7 +83,7 @@ async function fetchReplayedNakamotoBlock(
   // hash.
   if (!indexBlockHash) {
     const blockBytes = await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index!);
-    const decodedBlock = stacksEncoding.decodeNakamotoBlock(blockBytes);
+    const decodedBlock = codec.decodeNakamotoBlock(blockBytes);
     indexBlockHash = decodedBlock.header.index_block_hash;
   }
   // Replay block

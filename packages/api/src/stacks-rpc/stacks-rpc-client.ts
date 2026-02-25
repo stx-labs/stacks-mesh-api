@@ -21,7 +21,7 @@ import {
   StacksRpcError,
   StacksRpcSmartContractError,
 } from './errors.js';
-import codec from '@hirosystems/stacks-encoding-native-js';
+import codec from '@stacks/codec';
 
 /**
  * Configuration for the Stacks RPC client.

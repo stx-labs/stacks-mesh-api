@@ -9,7 +9,7 @@ import {
   PostCondition,
   PostConditionMode,
 } from '@stacks/mesh-schemas';
-import codec from '@hirosystems/stacks-encoding-native-js';
+import codec from '@stacks/codec';
 import {
   StacksBlockReplay,
   StacksBlockReplayTransaction,
