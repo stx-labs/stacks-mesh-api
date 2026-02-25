@@ -55,6 +55,44 @@ describe('/block', () => {
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
     setGlobalDispatcher(mockAgent);
+
+    // Set caches
+    config.contractAbiCache['cache'].set(
+      'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
+      loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SP06ARSREC0N9AKZABRP23SXS62TWJ6KWPVDQHVX.cn',
+      loadFixture('contract-interfaces/cn.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.hemp',
+      loadFixture('contract-interfaces/hemp.json')
+    );
+    config.tokenMetadataCache['cache'].set(
+      'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey',
+      {
+        symbol: 'BLOCKSURVEY',
+        decimals: 6,
+        name: 'Blocksurvey',
+      }
+    );
+    config.tokenMetadataCache['cache'].set(
+      'SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token',
+      {
+        symbol: 'VIBES',
+        decimals: 6,
+        name: 'Vibes',
+      }
+    );
+    config.tokenMetadataCache['cache'].set(
+      'SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex',
+      {
+        symbol: 'TOKEN-ALEX',
+        decimals: 6,
+        name: 'Token Alex',
+      }
+    );
   });
 
   afterEach(() => {
@@ -234,44 +272,6 @@ describe('/block', () => {
     test('should return block with multiple transactions and event-derived operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
-
-      // Set caches
-      config.contractAbiCache['cache'].set(
-        'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
-        loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
-      );
-      config.contractAbiCache['cache'].set(
-        'SP06ARSREC0N9AKZABRP23SXS62TWJ6KWPVDQHVX.cn',
-        loadFixture('contract-interfaces/cn.json')
-      );
-      config.contractAbiCache['cache'].set(
-        'SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.hemp',
-        loadFixture('contract-interfaces/hemp.json')
-      );
-      config.tokenMetadataCache['cache'].set(
-        'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey',
-        {
-          symbol: 'BLOCKSURVEY',
-          decimals: 6,
-          name: 'Blocksurvey',
-        }
-      );
-      config.tokenMetadataCache['cache'].set(
-        'SP27BB1Y2DGSXZHS7G9YHKTSH6KQ6BD3QG0AN3CR9.vibes-token::vibes-token',
-        {
-          symbol: 'VIBES',
-          decimals: 6,
-          name: 'Vibes',
-        }
-      );
-      config.tokenMetadataCache['cache'].set(
-        'SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex::alex',
-        {
-          symbol: 'TOKEN-ALEX',
-          decimals: 6,
-          name: 'Token Alex',
-        }
-      );
 
       const response = await postBlock(fastify, fixture.block_id);
       assert.strictEqual(response.statusCode, 200);
