@@ -26,7 +26,7 @@ describe('/mempool', () => {
       url: '/mempool',
       method: 'POST',
       payload: JSON.stringify({
-        network_identifier: { blockchain: 'stacks', network: 'testnet' },
+        network_identifier: { blockchain: 'stacks', network: 'mainnet' },
       }),
       headers: { 'content-type': 'application/json' },
     });
@@ -45,7 +45,7 @@ describe('/mempool', () => {
       url: '/mempool/transaction',
       method: 'POST',
       payload: JSON.stringify({
-        network_identifier: { blockchain: 'stacks', network: 'testnet' },
+        network_identifier: { blockchain: 'stacks', network: 'mainnet' },
         transaction_identifier: {
           hash: '0xabc123def456789012345678901234567890123456789012345678901234abcd',
         },

@@ -6,6 +6,7 @@ import {
   ErrorResponseSchema,
 } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
+import { StacksRpcSmartContractError } from '../../stacks-rpc/errors.js';
 
 export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -27,21 +28,31 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
       // TODO: Decode clarity values
       switch (method) {
         case 'contract_call_read_only': {
-          const callResult = await rpcClient.callReadOnlyFunction(
-            parameters.deployer_address,
-            parameters.contract_name,
-            parameters.function_name,
-            parameters.arguments,
-            parameters.sender,
-            parameters.sponsor
-          );
-          return reply.send({
-            idempotent: false,
-            result: {
-              okay: true,
-              result: callResult.result,
-            },
-          });
+          try {
+            const callResult = await rpcClient.callReadOnlyFunction(
+              parameters.deployer_address,
+              parameters.contract_name,
+              parameters.function_name,
+              parameters.arguments,
+              parameters.sender,
+              parameters.sponsor
+            );
+            return reply.send({
+              idempotent: false,
+              result: callResult,
+            });
+          } catch (error) {
+            if (error instanceof StacksRpcSmartContractError) {
+              return reply.send({
+                idempotent: false,
+                result: {
+                  okay: false,
+                  cause: error.message,
+                },
+              });
+            }
+            throw error;
+          }
         }
 
         case 'contract_get_interface': {

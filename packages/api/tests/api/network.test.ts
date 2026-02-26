@@ -37,7 +37,7 @@ describe('/network', () => {
         network_identifiers: [
           {
             blockchain: 'stacks',
-            network: 'testnet',
+            network: 'mainnet',
           },
         ],
       });
@@ -120,7 +120,7 @@ describe('/network', () => {
         payload: JSON.stringify({
           network_identifier: {
             blockchain: 'stacks',
-            network: 'testnet',
+            network: 'mainnet',
           },
         }),
         headers: {

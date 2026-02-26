@@ -14,7 +14,7 @@ function postCall(fastify: FastifyInstance, method: string, parameters: object) 
     url: '/call',
     method: 'POST',
     payload: JSON.stringify({
-      network_identifier: { blockchain: 'stacks', network: 'testnet' },
+      network_identifier: { blockchain: 'stacks', network: 'mainnet' },
       method,
       parameters,
     }),

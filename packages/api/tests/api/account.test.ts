@@ -87,7 +87,7 @@ describe('/account', () => {
         url: '/account/balance',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
         }),
         headers: { 'content-type': 'application/json' },
@@ -143,7 +143,7 @@ describe('/account', () => {
         url: '/account/balance',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
           block_identifier: { index: 140000, hash: historicalHash },
         }),
@@ -187,7 +187,7 @@ describe('/account', () => {
         url: '/account/balance',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
         }),
         headers: { 'content-type': 'application/json' },
@@ -225,7 +225,7 @@ describe('/account', () => {
         url: '/account/balance',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
         }),
         headers: { 'content-type': 'application/json' },
@@ -264,7 +264,7 @@ describe('/account', () => {
         url: '/account/balance',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
           block_identifier: { index: 199000, hash: tipHash },
         }),
@@ -288,7 +288,7 @@ describe('/account', () => {
         url: '/account/coins',
         method: 'POST',
         payload: JSON.stringify({
-          network_identifier: { blockchain: 'stacks', network: 'testnet' },
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
           account_identifier: { address: TEST_ADDRESS },
           include_mempool: false,
         }),

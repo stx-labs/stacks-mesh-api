@@ -25,6 +25,7 @@
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
+        // "--test-name-pattern", "/block",
         "tests/api/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",
@@ -33,6 +34,7 @@
       "env": {
         "NODE_ENV": "test",
       },
+      "preLaunchTask": "build",
     },
     {
       "type": "node",
@@ -49,6 +51,7 @@
       "env": {
         "NODE_ENV": "test",
       },
+      "preLaunchTask": "build",
     },
   ]
 }
