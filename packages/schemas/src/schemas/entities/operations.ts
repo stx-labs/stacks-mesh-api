@@ -237,6 +237,60 @@ const DelegateStackIncreaseOperationSchema = Type.Composite([
 ]);
 export type DelegateStackIncreaseOperation = Static<typeof DelegateStackIncreaseOperationSchema>;
 
+const StackAggregationIncreaseOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_aggregation_increase'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        reward_cycle: Type.Integer(),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackAggregationIncreaseOperation = Static<
+  typeof StackAggregationIncreaseOperationSchema
+>;
+
+const StackAggregationCommitIndexedOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_aggregation_commit_indexed'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        reward_cycle: Type.Integer(),
+        signer_key: Nullable(Type.String()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackAggregationCommitIndexedOperation = Static<
+  typeof StackAggregationCommitIndexedOperationSchema
+>;
+
+const DelegateStackExtendOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('delegate_stack_extend'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        extend_count: Type.Integer(),
+        delegator: Type.String(),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type DelegateStackExtendOperation = Static<typeof DelegateStackExtendOperationSchema>;
+
 const ContractLogOperationSchema = Type.Composite([
   BaseOperationSchema,
   Type.Object({
@@ -269,6 +323,9 @@ export const OperationSchema = Type.Union([
   StxLockOperationSchema,
   DelegateStxOperationSchema,
   RevokeDelegateStxOperationSchema,
+  StackAggregationIncreaseOperationSchema,
+  StackAggregationCommitIndexedOperationSchema,
+  DelegateStackExtendOperationSchema,
   DelegateStackIncreaseOperationSchema,
   ContractLogOperationSchema,
 ]);

@@ -1,1 +1,689 @@
-{"block_id":"c5b447181887732b77bd6fdcf110e237bccfa6bf4a38f6a9ef477158d9f45694","block_hash":"5031a49b2d3e2eb30ff27ed972c506e259d932507f8d3e6acc714ca619f7a84e","block_height":6817739,"parent_block_id":"bbbaf15525a2b8628beb103fa0dcfc69bb1ad92f8b3998634c8d34866ca3bcc0","consensus_hash":"da48408603c799e6a41168e2d37389da784079f7","fees":3904,"tx_merkle_root":"1534b2123a4e616a7f420a3f480cca3f4f907c1be6171f5f54ecbf21b35015a0","state_index_root":"275534c114fbb6185100e410af2382975cc9d76a91c9efd416c791847e2fe0c7","timestamp":1772107268,"miner_signature":"006c097949a1b3d7a7ed595265284db02590632ff48351d809c43dd06fd2f31caf1557e87d3d58838ec3dda45f10b6d0209221be1e8f46dd986720dfbb474fb925","signer_signature":[],"transactions":[{"txid":"284f52ccfa9eb90f3491945d93f48bc428c8f7f75239975159b7ba46b412ef1a","tx_index":0,"data":{"version":"Mainnet","chain_id":1,"auth":{"Standard":{"Singlesig":{"hash_mode":"P2PKH","signer":"f9c3c7ebe6bb8b84811931491f310dd0366da9b6","nonce":2361,"tx_fee":2000,"key_encoding":"Compressed","signature":"010bb76fd191eb23f49d88cdcf602d281764f2b3810ea66bd6ca48ff5ceb2d918c4e3afbc40a972cb3938fc042eda89492ef36f6ee78c1316807ebf34324456491"}}},"anchor_mode":"Any","post_condition_mode":"Allow","post_conditions":[],"payload":{"ContractCall":{"address":{"version":22,"bytes":"f9c3c7ebe6bb8b84811931491f310dd0366da9b6"},"contract_name":"campaign-manager","function_name":"create-campaign","function_args":[{"UInt":500000},{"UInt":1000}]}}},"hex":"00000000010400f9c3c7ebe6bb8b84811931491f310dd0366da9b6000000000000093900000000000007d000010bb76fd191eb23f49d88cdcf602d281764f2b3810ea66bd6ca48ff5ceb2d918c4e3afbc40a972cb3938fc042eda89492ef36f6ee78c1316807ebf343244564910301000000000216f9c3c7ebe6bb8b84811931491f310dd0366da9b61063616d706169676e2d6d616e616765720f6372656174652d63616d706169676e00000002010000000000000000000000000007a12001000000000000000000000000000003e8","result":{"Response":{"committed":true,"data":{"UInt":67}}},"result_hex":"0x070100000000000000000000000000000043","stx_burned":0,"execution_cost":{"write_length":152,"write_count":2,"read_length":833,"read_count":6,"runtime":7585},"events":[],"post_condition_aborted":false,"vm_error":null,"cpu_instructions":null,"cpu_cycles":null,"cpu_ref_cycles":null},{"txid":"e05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287","tx_index":0,"data":{"version":"Mainnet","chain_id":1,"auth":{"Standard":{"Singlesig":{"hash_mode":"P2PKH","signer":"cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1","nonce":1497,"tx_fee":976,"key_encoding":"Compressed","signature":"0198c0836b3c28f7fac56601e697a583acffeb0de22335d76648d00a3b15bd40864acf1b030f3e24c4fb59456b54f5b3d921a6bfa25e6f1790b2eb822cd08523fd"}}},"anchor_mode":"Any","post_condition_mode":"Deny","post_conditions":[],"payload":{"ContractCall":{"address":{"version":22,"bytes":"0000000000000000000000000000000000000000"},"contract_name":"pox-4","function_name":"delegate-stack-increase","function_args":[{"Principal":{"Standard":[22,[214,134,220,78,196,147,71,230,229,118,50,173,237,116,72,184,202,129,189,103]]}},{"Tuple":{"type_signature":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}},"data_map":{"hashbytes":{"Sequence":{"Buffer":{"data":[50,105,144,220,157,155,2,108,208,177,236,108,136,235,6,125,138,166,130,36]}}},"version":{"Sequence":{"Buffer":{"data":[4]}}}}}},{"UInt":18287484723}]}}},"hex":"00000000010400cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea100000000000005d900000000000003d0000198c0836b3c28f7fac56601e697a583acffeb0de22335d76648d00a3b15bd40864acf1b030f3e24c4fb59456b54f5b3d921a6bfa25e6f1790b2eb822cd08523fd0302000000000216000000000000000000000000000000000000000005706f782d341764656c65676174652d737461636b2d696e637265617365000000030516d686dc4ec49347e6e57632aded7448b8ca81bd670c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e020000000104010000000000000000000000044204df33","result":{"Response":{"committed":true,"data":{"Tuple":{"type_signature":{"type_map":{"stacker":"PrincipalType","total-locked":"UIntType"}},"data_map":{"stacker":{"Principal":{"Standard":[22,[214,134,220,78,196,147,71,230,229,118,50,173,237,116,72,184,202,129,189,103]]}},"total-locked":{"UInt":530325439643}}}}}},"result_hex":"0x070c0000000207737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd670c746f74616c2d6c6f636b65640100000000000000000000007b79dc049b","stx_burned":0,"execution_cost":{"write_length":167,"write_count":2,"read_length":78985,"read_count":25,"runtime":376958},"events":[{"committed":true,"contract_event":{"contract_identifier":"SP000000000000000000002Q6VF78.pox-4","raw_value":"0x070c000000060762616c616e6365010000000000000000000000044426276c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e5c5e04646174610c000000070964656c656761746f720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea10c656e642d6379636c652d69640a01000000000000000000000000000000830b696e6372656173652d6279010000000000000000000000044204df3308706f782d616464720c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e02000000010407737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd670e73746172742d6379636c652d696401000000000000000000000000000000820c746f74616c2d6c6f636b65640100000000000000000000007b79dc049b066c6f636b65640100000000000000000000007737d72568046e616d650d0000001764656c65676174652d737461636b2d696e63726561736507737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd67","topic":"print","value":{"Response":{"committed":true,"data":{"Tuple":{"data_map":{"balance":{"UInt":18323220332},"burnchain-unlock-height":{"UInt":941150},"data":{"Tuple":{"data_map":{"delegator":{"Principal":{"Standard":[22,[207,86,216,2,122,110,139,143,30,158,43,234,134,245,177,106,44,54,254,161]]}},"end-cycle-id":{"Optional":{"data":{"UInt":131}}},"increase-by":{"UInt":18287484723},"pox-addr":{"Tuple":{"data_map":{"hashbytes":{"Sequence":{"Buffer":{"data":[50,105,144,220,157,155,2,108,208,177,236,108,136,235,6,125,138,166,130,36]}}},"version":{"Sequence":{"Buffer":{"data":[4]}}}},"type_signature":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}}},"stacker":{"Principal":{"Standard":[22,[214,134,220,78,196,147,71,230,229,118,50,173,237,116,72,184,202,129,189,103]]}},"start-cycle-id":{"UInt":130},"total-locked":{"UInt":530325439643}},"type_signature":{"type_map":{"delegator":"PrincipalType","end-cycle-id":{"OptionalType":"UIntType"},"increase-by":"UIntType","pox-addr":{"TupleType":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}},"stacker":"PrincipalType","start-cycle-id":"UIntType","total-locked":"UIntType"}}}},"locked":{"UInt":512037954920},"name":{"Sequence":{"String":{"ASCII":{"data":[100,101,108,101,103,97,116,101,45,115,116,97,99,107,45,105,110,99,114,101,97,115,101]}}}},"stacker":{"Principal":{"Standard":[22,[214,134,220,78,196,147,71,230,229,118,50,173,237,116,72,184,202,129,189,103]]}}},"type_signature":{"type_map":{"balance":"UIntType","burnchain-unlock-height":"UIntType","data":{"TupleType":{"type_map":{"delegator":"PrincipalType","end-cycle-id":{"OptionalType":"UIntType"},"increase-by":"UIntType","pox-addr":{"TupleType":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}},"stacker":"PrincipalType","start-cycle-id":"UIntType","total-locked":"UIntType"}}},"locked":"UIntType","name":{"SequenceType":{"StringType":{"ASCII":23}}},"stacker":"PrincipalType"}}}}}}},"event_index":0,"txid":"0xe05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287","type":"contract_event"},{"committed":true,"event_index":1,"stx_lock_event":{"contract_identifier":"SP000000000000000000002Q6VF78.pox-4","locked_address":"SP3B8DQ2ERJ9MFSQ5ERSAVVBM92WCN0DXCXBHKV5Y","locked_amount":"530325439643","unlock_height":"941150"},"txid":"0xe05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287","type":"stx_lock_event"}],"post_condition_aborted":false,"vm_error":null,"cpu_instructions":null,"cpu_cycles":null,"cpu_ref_cycles":null},{"txid":"76425c5e5d7652f4420ba36cbfbec0c9bc1b5abb665c08603c773283ca5397dc","tx_index":0,"data":{"version":"Mainnet","chain_id":1,"auth":{"Standard":{"Singlesig":{"hash_mode":"P2PKH","signer":"f2bba6df751755ab9ac1df8b387d981cfe265cdf","nonce":2611103,"tx_fee":180,"key_encoding":"Compressed","signature":"019cabe8b88987cc5e8ce44cbe7c21b7b7137fd4931ad08585f0204a120e3560807fe8542362d10b80afe8307002dda287d4cabecfe631b8b6a6becbb957e01f15"}}},"anchor_mode":"Any","post_condition_mode":"Deny","post_conditions":[],"payload":{"TokenTransfer":[{"Standard":[22,[251,217,161,112,47,78,204,68,252,1,241,137,76,114,252,187,35,165,60,232]]},1,"00000000000000000000000000000000000000000000000000000000000000000000"]}},"hex":"00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000027d79f00000000000000b400019cabe8b88987cc5e8ce44cbe7c21b7b7137fd4931ad08585f0204a120e3560807fe8542362d10b80afe8307002dda287d4cabecfe631b8b6a6becbb957e01f15030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000","result":{"Response":{"committed":true,"data":{"Bool":true}}},"result_hex":"0x0703","stx_burned":0,"execution_cost":{"write_length":0,"write_count":0,"read_length":0,"read_count":0,"runtime":0},"events":[{"committed":true,"event_index":0,"stx_transfer_event":{"amount":"1","memo":"00000000000000000000000000000000000000000000000000000000000000000000","recipient":"SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR","sender":"SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"},"txid":"0x76425c5e5d7652f4420ba36cbfbec0c9bc1b5abb665c08603c773283ca5397dc","type":"stx_transfer_event"}],"post_condition_aborted":false,"vm_error":null,"cpu_instructions":null,"cpu_cycles":null,"cpu_ref_cycles":null},{"txid":"b7af9035dfdf514e2a7f39058e9a922c1a29aa1541cd2b179ba859b7087bb2d1","tx_index":0,"data":{"version":"Mainnet","chain_id":1,"auth":{"Standard":{"Singlesig":{"hash_mode":"P2PKH","signer":"cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1","nonce":1498,"tx_fee":748,"key_encoding":"Compressed","signature":"01242e03ca137b0bb421b954a54c80964e5fcd3250be8c4721934b8fc10ca56b0d63c947512653b32fba7fce6f1cdf52c57aad1ec46c185dff06322987b4df5198"}}},"anchor_mode":"Any","post_condition_mode":"Deny","post_conditions":[],"payload":{"ContractCall":{"address":{"version":22,"bytes":"0000000000000000000000000000000000000000"},"contract_name":"pox-4","function_name":"stack-aggregation-increase","function_args":[{"Tuple":{"type_signature":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}},"data_map":{"hashbytes":{"Sequence":{"Buffer":{"data":[50,105,144,220,157,155,2,108,208,177,236,108,136,235,6,125,138,166,130,36]}}},"version":{"Sequence":{"Buffer":{"data":[4]}}}}}},{"UInt":130},{"UInt":4},{"Optional":{"data":{"Sequence":{"Buffer":{"data":[76,146,179,182,155,216,183,48,149,148,8,117,182,43,111,39,244,227,18,101,223,158,64,74,62,207,154,112,83,122,102,245,25,158,35,245,249,246,93,146,190,50,240,21,187,200,200,158,6,11,74,196,223,163,80,29,32,216,120,131,59,79,145,184,1]}}}}},{"Sequence":{"Buffer":{"data":[3,157,197,41,123,146,193,246,180,143,74,104,225,128,184,83,255,110,129,136,251,120,66,38,82,169,11,143,225,73,65,173,206]}}},{"UInt":999999998999999938560},{"UInt":26846}]}}},"hex":"00000000010400cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea100000000000005da00000000000002ec0001242e03ca137b0bb421b954a54c80964e5fcd3250be8c4721934b8fc10ca56b0d63c947512653b32fba7fce6f1cdf52c57aad1ec46c185dff06322987b4df51980302000000000216000000000000000000000000000000000000000005706f782d341a737461636b2d6167677265676174696f6e2d696e637265617365000000070c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e020000000104010000000000000000000000000000008201000000000000000000000000000000040a02000000414c92b3b69bd8b73095940875b62b6f27f4e31265df9e404a3ecf9a70537a66f5199e23f5f9f65d92be32f015bbc8c89e060b4ac4dfa3501d20d878833b4f91b8010200000021039dc5297b92c1f6b48f4a68e180b853ff6e8188fb78422652a90b8fe14941adce01000000000000003635c9acdd09fa000001000000000000000000000000000068de","result":{"Response":{"committed":true,"data":{"Bool":true}}},"result_hex":"0x0703","stx_burned":0,"execution_cost":{"write_length":825,"write_count":5,"read_length":77708,"read_count":16,"runtime":183305},"events":[{"committed":true,"contract_event":{"contract_identifier":"SP000000000000000000002Q6VF78.pox-4","raw_value":"0x070c000000060762616c616e6365010000000000000000000000000ca904b8176275726e636861696e2d756e6c6f636b2d686569676874010000000000000000000000000000000004646174610c0000000b0b616d6f756e742d7573747801000000000000000000000005f19cd17407617574682d696401000000000000000000000000000068de0964656c656761746f720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea10c656e642d6379636c652d69640a01000000000000000000000000000000830a6d61782d616d6f756e7401000000000000003635c9acdd09fa000008706f782d616464720c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e0200000001040c7265776172642d6379636c650100000000000000000000000000000082127265776172642d6379636c652d696e64657801000000000000000000000000000000040a7369676e65722d6b65790200000021039dc5297b92c1f6b48f4a68e180b853ff6e8188fb78422652a90b8fe14941adce0a7369676e65722d7369670a02000000414c92b3b69bd8b73095940875b62b6f27f4e31265df9e404a3ecf9a70537a66f5199e23f5f9f65d92be32f015bbc8c89e060b4ac4dfa3501d20d878833b4f91b8010e73746172742d6379636c652d69640100000000000000000000000000000082066c6f636b65640100000000000000000000000000000000046e616d650d0000001a737461636b2d6167677265676174696f6e2d696e63726561736507737461636b65720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1","topic":"print","value":{"Response":{"committed":true,"data":{"Tuple":{"data_map":{"balance":{"UInt":212403384},"burnchain-unlock-height":{"UInt":0},"data":{"Tuple":{"data_map":{"amount-ustx":{"UInt":25528422772},"auth-id":{"UInt":26846},"delegator":{"Principal":{"Standard":[22,[207,86,216,2,122,110,139,143,30,158,43,234,134,245,177,106,44,54,254,161]]}},"end-cycle-id":{"Optional":{"data":{"UInt":131}}},"max-amount":{"UInt":999999998999999938560},"pox-addr":{"Tuple":{"data_map":{"hashbytes":{"Sequence":{"Buffer":{"data":[50,105,144,220,157,155,2,108,208,177,236,108,136,235,6,125,138,166,130,36]}}},"version":{"Sequence":{"Buffer":{"data":[4]}}}},"type_signature":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}}},"reward-cycle":{"UInt":130},"reward-cycle-index":{"UInt":4},"signer-key":{"Sequence":{"Buffer":{"data":[3,157,197,41,123,146,193,246,180,143,74,104,225,128,184,83,255,110,129,136,251,120,66,38,82,169,11,143,225,73,65,173,206]}}},"signer-sig":{"Optional":{"data":{"Sequence":{"Buffer":{"data":[76,146,179,182,155,216,183,48,149,148,8,117,182,43,111,39,244,227,18,101,223,158,64,74,62,207,154,112,83,122,102,245,25,158,35,245,249,246,93,146,190,50,240,21,187,200,200,158,6,11,74,196,223,163,80,29,32,216,120,131,59,79,145,184,1]}}}}},"start-cycle-id":{"UInt":130}},"type_signature":{"type_map":{"amount-ustx":"UIntType","auth-id":"UIntType","delegator":"PrincipalType","end-cycle-id":{"OptionalType":"UIntType"},"max-amount":"UIntType","pox-addr":{"TupleType":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}},"reward-cycle":"UIntType","reward-cycle-index":"UIntType","signer-key":{"SequenceType":{"BufferType":33}},"signer-sig":{"OptionalType":{"SequenceType":{"BufferType":65}}},"start-cycle-id":"UIntType"}}}},"locked":{"UInt":0},"name":{"Sequence":{"String":{"ASCII":{"data":[115,116,97,99,107,45,97,103,103,114,101,103,97,116,105,111,110,45,105,110,99,114,101,97,115,101]}}}},"stacker":{"Principal":{"Standard":[22,[207,86,216,2,122,110,139,143,30,158,43,234,134,245,177,106,44,54,254,161]]}}},"type_signature":{"type_map":{"balance":"UIntType","burnchain-unlock-height":"UIntType","data":{"TupleType":{"type_map":{"amount-ustx":"UIntType","auth-id":"UIntType","delegator":"PrincipalType","end-cycle-id":{"OptionalType":"UIntType"},"max-amount":"UIntType","pox-addr":{"TupleType":{"type_map":{"hashbytes":{"SequenceType":{"BufferType":20}},"version":{"SequenceType":{"BufferType":1}}}}},"reward-cycle":"UIntType","reward-cycle-index":"UIntType","signer-key":{"SequenceType":{"BufferType":33}},"signer-sig":{"OptionalType":{"SequenceType":{"BufferType":65}}},"start-cycle-id":"UIntType"}}},"locked":"UIntType","name":{"SequenceType":{"StringType":{"ASCII":26}}},"stacker":"PrincipalType"}}}}}}},"event_index":0,"txid":"0xb7af9035dfdf514e2a7f39058e9a922c1a29aa1541cd2b179ba859b7087bb2d1","type":"contract_event"}],"post_condition_aborted":false,"vm_error":null,"cpu_instructions":null,"cpu_cycles":null,"cpu_ref_cycles":null}],"valid_merkle_root":true}
+{
+  "block_id": "c5b447181887732b77bd6fdcf110e237bccfa6bf4a38f6a9ef477158d9f45694",
+  "block_hash": "5031a49b2d3e2eb30ff27ed972c506e259d932507f8d3e6acc714ca619f7a84e",
+  "block_height": 6817739,
+  "parent_block_id": "bbbaf15525a2b8628beb103fa0dcfc69bb1ad92f8b3998634c8d34866ca3bcc0",
+  "consensus_hash": "da48408603c799e6a41168e2d37389da784079f7",
+  "fees": 3904,
+  "tx_merkle_root": "1534b2123a4e616a7f420a3f480cca3f4f907c1be6171f5f54ecbf21b35015a0",
+  "state_index_root": "275534c114fbb6185100e410af2382975cc9d76a91c9efd416c791847e2fe0c7",
+  "timestamp": 1772107268,
+  "miner_signature": "006c097949a1b3d7a7ed595265284db02590632ff48351d809c43dd06fd2f31caf1557e87d3d58838ec3dda45f10b6d0209221be1e8f46dd986720dfbb474fb925",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "284f52ccfa9eb90f3491945d93f48bc428c8f7f75239975159b7ba46b412ef1a",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f9c3c7ebe6bb8b84811931491f310dd0366da9b6",
+              "nonce": 2361,
+              "tx_fee": 2000,
+              "key_encoding": "Compressed",
+              "signature": "010bb76fd191eb23f49d88cdcf602d281764f2b3810ea66bd6ca48ff5ceb2d918c4e3afbc40a972cb3938fc042eda89492ef36f6ee78c1316807ebf34324456491"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Allow",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "f9c3c7ebe6bb8b84811931491f310dd0366da9b6" },
+            "contract_name": "campaign-manager",
+            "function_name": "create-campaign",
+            "function_args": [{ "UInt": 500000 }, { "UInt": 1000 }]
+          }
+        }
+      },
+      "hex": "00000000010400f9c3c7ebe6bb8b84811931491f310dd0366da9b6000000000000093900000000000007d000010bb76fd191eb23f49d88cdcf602d281764f2b3810ea66bd6ca48ff5ceb2d918c4e3afbc40a972cb3938fc042eda89492ef36f6ee78c1316807ebf343244564910301000000000216f9c3c7ebe6bb8b84811931491f310dd0366da9b61063616d706169676e2d6d616e616765720f6372656174652d63616d706169676e00000002010000000000000000000000000007a12001000000000000000000000000000003e8",
+      "result": { "Response": { "committed": true, "data": { "UInt": 67 } } },
+      "result_hex": "0x070100000000000000000000000000000043",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 152,
+        "write_count": 2,
+        "read_length": 833,
+        "read_count": 6,
+        "runtime": 7585
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "e05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1",
+              "nonce": 1497,
+              "tx_fee": 976,
+              "key_encoding": "Compressed",
+              "signature": "0198c0836b3c28f7fac56601e697a583acffeb0de22335d76648d00a3b15bd40864acf1b030f3e24c4fb59456b54f5b3d921a6bfa25e6f1790b2eb822cd08523fd"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "delegate-stack-increase",
+            "function_args": [
+              {
+                "Principal": {
+                  "Standard": [
+                    22,
+                    [
+                      214, 134, 220, 78, 196, 147, 71, 230, 229, 118, 50, 173, 237, 116, 72, 184,
+                      202, 129, 189, 103
+                    ]
+                  ]
+                }
+              },
+              {
+                "Tuple": {
+                  "type_signature": {
+                    "type_map": {
+                      "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                      "version": { "SequenceType": { "BufferType": 1 } }
+                    }
+                  },
+                  "data_map": {
+                    "hashbytes": {
+                      "Sequence": {
+                        "Buffer": {
+                          "data": [
+                            50, 105, 144, 220, 157, 155, 2, 108, 208, 177, 236, 108, 136, 235, 6,
+                            125, 138, 166, 130, 36
+                          ]
+                        }
+                      }
+                    },
+                    "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                  }
+                }
+              },
+              { "UInt": 18287484723 }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea100000000000005d900000000000003d0000198c0836b3c28f7fac56601e697a583acffeb0de22335d76648d00a3b15bd40864acf1b030f3e24c4fb59456b54f5b3d921a6bfa25e6f1790b2eb822cd08523fd0302000000000216000000000000000000000000000000000000000005706f782d341764656c65676174652d737461636b2d696e637265617365000000030516d686dc4ec49347e6e57632aded7448b8ca81bd670c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e020000000104010000000000000000000000044204df33",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Tuple": {
+              "type_signature": {
+                "type_map": { "stacker": "PrincipalType", "total-locked": "UIntType" }
+              },
+              "data_map": {
+                "stacker": {
+                  "Principal": {
+                    "Standard": [
+                      22,
+                      [
+                        214, 134, 220, 78, 196, 147, 71, 230, 229, 118, 50, 173, 237, 116, 72, 184,
+                        202, 129, 189, 103
+                      ]
+                    ]
+                  }
+                },
+                "total-locked": { "UInt": 530325439643 }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070c0000000207737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd670c746f74616c2d6c6f636b65640100000000000000000000007b79dc049b",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 167,
+        "write_count": 2,
+        "read_length": 78985,
+        "read_count": 25,
+        "runtime": 376958
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e6365010000000000000000000000044426276c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e5c5e04646174610c000000070964656c656761746f720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea10c656e642d6379636c652d69640a01000000000000000000000000000000830b696e6372656173652d6279010000000000000000000000044204df3308706f782d616464720c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e02000000010407737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd670e73746172742d6379636c652d696401000000000000000000000000000000820c746f74616c2d6c6f636b65640100000000000000000000007b79dc049b066c6f636b65640100000000000000000000007737d72568046e616d650d0000001764656c65676174652d737461636b2d696e63726561736507737461636b65720516d686dc4ec49347e6e57632aded7448b8ca81bd67",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 18323220332 },
+                      "burnchain-unlock-height": { "UInt": 941150 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "delegator": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    207, 86, 216, 2, 122, 110, 139, 143, 30, 158, 43, 234, 134, 245,
+                                    177, 106, 44, 54, 254, 161
+                                  ]
+                                ]
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 131 } } },
+                            "increase-by": { "UInt": 18287484723 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          50, 105, 144, 220, 157, 155, 2, 108, 208, 177, 236, 108,
+                                          136, 235, 6, 125, 138, 166, 130, 36
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "stacker": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    214, 134, 220, 78, 196, 147, 71, 230, 229, 118, 50, 173, 237,
+                                    116, 72, 184, 202, 129, 189, 103
+                                  ]
+                                ]
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 130 },
+                            "total-locked": { "UInt": 530325439643 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 512037954920 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 97, 99, 107,
+                                45, 105, 110, 99, 114, 101, 97, 115, 101
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              214, 134, 220, 78, 196, 147, 71, 230, 229, 118, 50, 173, 237, 116, 72,
+                              184, 202, 129, 189, 103
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 23 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0xe05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 1,
+          "stx_lock_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "locked_address": "SP3B8DQ2ERJ9MFSQ5ERSAVVBM92WCN0DXCXBHKV5Y",
+            "locked_amount": "530325439643",
+            "unlock_height": "941150"
+          },
+          "txid": "0xe05ee56a77130d2465675f11f5e2ec1badd6d4da4cb1cf59e6d3c17961767287",
+          "type": "stx_lock_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "76425c5e5d7652f4420ba36cbfbec0c9bc1b5abb665c08603c773283ca5397dc",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f2bba6df751755ab9ac1df8b387d981cfe265cdf",
+              "nonce": 2611103,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "019cabe8b88987cc5e8ce44cbe7c21b7b7137fd4931ad08585f0204a120e3560807fe8542362d10b80afe8307002dda287d4cabecfe631b8b6a6becbb957e01f15"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  251, 217, 161, 112, 47, 78, 204, 68, 252, 1, 241, 137, 76, 114, 252, 187, 35, 165,
+                  60, 232
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000027d79f00000000000000b400019cabe8b88987cc5e8ce44cbe7c21b7b7137fd4931ad08585f0204a120e3560807fe8542362d10b80afe8307002dda287d4cabecfe631b8b6a6becbb957e01f15030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR",
+            "sender": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"
+          },
+          "txid": "0x76425c5e5d7652f4420ba36cbfbec0c9bc1b5abb665c08603c773283ca5397dc",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "b7af9035dfdf514e2a7f39058e9a922c1a29aa1541cd2b179ba859b7087bb2d1",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1",
+              "nonce": 1498,
+              "tx_fee": 748,
+              "key_encoding": "Compressed",
+              "signature": "01242e03ca137b0bb421b954a54c80964e5fcd3250be8c4721934b8fc10ca56b0d63c947512653b32fba7fce6f1cdf52c57aad1ec46c185dff06322987b4df5198"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "stack-aggregation-increase",
+            "function_args": [
+              {
+                "Tuple": {
+                  "type_signature": {
+                    "type_map": {
+                      "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                      "version": { "SequenceType": { "BufferType": 1 } }
+                    }
+                  },
+                  "data_map": {
+                    "hashbytes": {
+                      "Sequence": {
+                        "Buffer": {
+                          "data": [
+                            50, 105, 144, 220, 157, 155, 2, 108, 208, 177, 236, 108, 136, 235, 6,
+                            125, 138, 166, 130, 36
+                          ]
+                        }
+                      }
+                    },
+                    "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                  }
+                }
+              },
+              { "UInt": 130 },
+              { "UInt": 4 },
+              {
+                "Optional": {
+                  "data": {
+                    "Sequence": {
+                      "Buffer": {
+                        "data": [
+                          76, 146, 179, 182, 155, 216, 183, 48, 149, 148, 8, 117, 182, 43, 111, 39,
+                          244, 227, 18, 101, 223, 158, 64, 74, 62, 207, 154, 112, 83, 122, 102, 245,
+                          25, 158, 35, 245, 249, 246, 93, 146, 190, 50, 240, 21, 187, 200, 200, 158,
+                          6, 11, 74, 196, 223, 163, 80, 29, 32, 216, 120, 131, 59, 79, 145, 184, 1
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      3, 157, 197, 41, 123, 146, 193, 246, 180, 143, 74, 104, 225, 128, 184, 83,
+                      255, 110, 129, 136, 251, 120, 66, 38, 82, 169, 11, 143, 225, 73, 65, 173, 206
+                    ]
+                  }
+                }
+              },
+              { "UInt": 999999998999999938560 },
+              { "UInt": 26846 }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea100000000000005da00000000000002ec0001242e03ca137b0bb421b954a54c80964e5fcd3250be8c4721934b8fc10ca56b0d63c947512653b32fba7fce6f1cdf52c57aad1ec46c185dff06322987b4df51980302000000000216000000000000000000000000000000000000000005706f782d341a737461636b2d6167677265676174696f6e2d696e637265617365000000070c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e020000000104010000000000000000000000000000008201000000000000000000000000000000040a02000000414c92b3b69bd8b73095940875b62b6f27f4e31265df9e404a3ecf9a70537a66f5199e23f5f9f65d92be32f015bbc8c89e060b4ac4dfa3501d20d878833b4f91b8010200000021039dc5297b92c1f6b48f4a68e180b853ff6e8188fb78422652a90b8fe14941adce01000000000000003635c9acdd09fa000001000000000000000000000000000068de",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 825,
+        "write_count": 5,
+        "read_length": 77708,
+        "read_count": 16,
+        "runtime": 183305
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e6365010000000000000000000000000ca904b8176275726e636861696e2d756e6c6f636b2d686569676874010000000000000000000000000000000004646174610c0000000b0b616d6f756e742d7573747801000000000000000000000005f19cd17407617574682d696401000000000000000000000000000068de0964656c656761746f720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea10c656e642d6379636c652d69640a01000000000000000000000000000000830a6d61782d616d6f756e7401000000000000003635c9acdd09fa000008706f782d616464720c00000002096861736862797465730200000014326990dc9d9b026cd0b1ec6c88eb067d8aa682240776657273696f6e0200000001040c7265776172642d6379636c650100000000000000000000000000000082127265776172642d6379636c652d696e64657801000000000000000000000000000000040a7369676e65722d6b65790200000021039dc5297b92c1f6b48f4a68e180b853ff6e8188fb78422652a90b8fe14941adce0a7369676e65722d7369670a02000000414c92b3b69bd8b73095940875b62b6f27f4e31265df9e404a3ecf9a70537a66f5199e23f5f9f65d92be32f015bbc8c89e060b4ac4dfa3501d20d878833b4f91b8010e73746172742d6379636c652d69640100000000000000000000000000000082066c6f636b65640100000000000000000000000000000000046e616d650d0000001a737461636b2d6167677265676174696f6e2d696e63726561736507737461636b65720516cf56d8027a6e8b8f1e9e2bea86f5b16a2c36fea1",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 212403384 },
+                      "burnchain-unlock-height": { "UInt": 0 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "amount-ustx": { "UInt": 25528422772 },
+                            "auth-id": { "UInt": 26846 },
+                            "delegator": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    207, 86, 216, 2, 122, 110, 139, 143, 30, 158, 43, 234, 134, 245,
+                                    177, 106, 44, 54, 254, 161
+                                  ]
+                                ]
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 131 } } },
+                            "max-amount": { "UInt": 999999998999999938560 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          50, 105, 144, 220, 157, 155, 2, 108, 208, 177, 236, 108,
+                                          136, 235, 6, 125, 138, 166, 130, 36
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "reward-cycle": { "UInt": 130 },
+                            "reward-cycle-index": { "UInt": 4 },
+                            "signer-key": {
+                              "Sequence": {
+                                "Buffer": {
+                                  "data": [
+                                    3, 157, 197, 41, 123, 146, 193, 246, 180, 143, 74, 104, 225,
+                                    128, 184, 83, 255, 110, 129, 136, 251, 120, 66, 38, 82, 169, 11,
+                                    143, 225, 73, 65, 173, 206
+                                  ]
+                                }
+                              }
+                            },
+                            "signer-sig": {
+                              "Optional": {
+                                "data": {
+                                  "Sequence": {
+                                    "Buffer": {
+                                      "data": [
+                                        76, 146, 179, 182, 155, 216, 183, 48, 149, 148, 8, 117, 182,
+                                        43, 111, 39, 244, 227, 18, 101, 223, 158, 64, 74, 62, 207,
+                                        154, 112, 83, 122, 102, 245, 25, 158, 35, 245, 249, 246, 93,
+                                        146, 190, 50, 240, 21, 187, 200, 200, 158, 6, 11, 74, 196,
+                                        223, 163, 80, 29, 32, 216, 120, 131, 59, 79, 145, 184, 1
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 130 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "auth-id": "UIntType",
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "reward-cycle": "UIntType",
+                              "reward-cycle-index": "UIntType",
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 0 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                115, 116, 97, 99, 107, 45, 97, 103, 103, 114, 101, 103, 97, 116,
+                                105, 111, 110, 45, 105, 110, 99, 114, 101, 97, 115, 101
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              207, 86, 216, 2, 122, 110, 139, 143, 30, 158, 43, 234, 134, 245, 177,
+                              106, 44, 54, 254, 161
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "auth-id": "UIntType",
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "reward-cycle": "UIntType",
+                              "reward-cycle-index": "UIntType",
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 26 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0xb7af9035dfdf514e2a7f39058e9a922c1a29aa1541cd2b179ba859b7087bb2d1",
+          "type": "contract_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}
