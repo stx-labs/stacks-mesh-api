@@ -1,5 +1,5 @@
 import * as assert from 'node:assert/strict';
-import { afterEach, beforeEach, describe, test } from 'node:test';
+import { afterEach, beforeEach, before, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { ApiConfig, buildApiServer } from '../../src/api/index.js';
 import { makeTestApiConfig } from './helpers.js';
@@ -49,14 +49,8 @@ describe('/block', () => {
   let mockAgent: MockAgent;
   let config: ApiConfig;
 
-  beforeEach(async () => {
+  before(() => {
     config = makeTestApiConfig();
-    fastify = await buildApiServer(config);
-    mockAgent = new MockAgent();
-    mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
-
-    // Set caches
     config.contractAbiCache['cache'].set(
       'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
       loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
@@ -68,6 +62,46 @@ describe('/block', () => {
     config.contractAbiCache['cache'].set(
       'SP2H674PRTZV6YW56K0FMR7GDGZE4ZC5HMYZ3CDEV.hemp',
       loadFixture('contract-interfaces/hemp.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SP1G4ZDXED8XM2XJ4Q4GJ7F4PG4EJQ1KKXRCD0S3K.message-board',
+      loadFixture('contract-interfaces/message-board.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SPFJRRM1NTW9V3AQ324NMWHSNAZQ6YM1D5XK1BHA.message-board',
+      loadFixture('contract-interfaces/message-board.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SPHMTFCMSSB0K32EZGN90XB16FCB4YE56CTZ16FR.message-board',
+      loadFixture('contract-interfaces/message-board.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SP2QEZ06AGJ3RKJPBV14SY1V5BBFNAW33D96YPGZF.BNS-V2',
+      loadFixture('contract-interfaces/BNS-V2.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stacking-dao-core-v6',
+      loadFixture('contract-interfaces/stacking-dao-core-v6.json')
+    );
+    config.contractAbiCache['cache'].set(
+      'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-swap-helper-v-1-3',
+      loadFixture('contract-interfaces/xyk-swap-helper-v-1-3.json')
+    );
+    config.tokenMetadataCache['cache'].set(
+      'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststx-token::ststx',
+      {
+        symbol: 'stSTX',
+        decimals: 6,
+        name: 'stSTX',
+      }
+    );
+    config.tokenMetadataCache['cache'].set(
+      'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token',
+      {
+        symbol: 'sBTC',
+        decimals: 8,
+        name: 'sBTC',
+      }
     );
     config.tokenMetadataCache['cache'].set(
       'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-token::blocksurvey',
@@ -93,6 +127,13 @@ describe('/block', () => {
         name: 'Token Alex',
       }
     );
+  });
+
+  beforeEach(async () => {
+    fastify = await buildApiServer(config);
+    mockAgent = new MockAgent();
+    mockAgent.disableNetConnect();
+    setGlobalDispatcher(mockAgent);
   });
 
   afterEach(() => {
