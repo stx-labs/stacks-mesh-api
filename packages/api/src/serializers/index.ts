@@ -24,6 +24,7 @@ import {
   StacksBlockReplayTransactionNftTransferEvent,
   StacksBlockReplayTransactionPayload,
   StacksBlockReplayTransactionStxBurnEvent,
+  StacksBlockReplayTransactionStxLockEvent,
   StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
@@ -517,29 +518,29 @@ function makeStxBurnOperation(
   };
 }
 
-// function makeStxLockOperation(
-//   tx: StacksDbTransaction,
-//   event: StacksDbStxLockEvent,
-//   index: number
-// ): StacksOperation {
-//   return {
-//     operation_identifier: { index },
-//     type: 'stx_lock',
-//     status: serializeTxStatus(tx.status),
-//     account: {
-//       address: event.locked_address,
-//     },
-//     amount: {
-//       value: (0n - BigInt(event.locked_amount)).toString(10),
-//       currency: makeStxCurrency(),
-//     },
-//     metadata: {
-//       unlock_height: event.unlock_height,
-//       locked_address: event.locked_address,
-//       contract_name: event.contract_name,
-//     },
-//   };
-// }
+function makeStxLockOperation(
+  tx: DecodedStacksTransaction,
+  event: StacksBlockReplayTransactionStxLockEvent,
+  index: number
+): Operation {
+  return {
+    operation_identifier: { index },
+    type: 'stx_lock',
+    status: tx.status,
+    account: {
+      address: event.stx_lock_event.locked_address,
+    },
+    amount: {
+      value: (0n - BigInt(event.stx_lock_event.locked_amount)).toString(10),
+      currency: makeStxCurrency(),
+    },
+    metadata: {
+      unlock_height: parseInt(event.stx_lock_event.unlock_height),
+      locked_address: event.stx_lock_event.locked_address,
+      contract_name: event.stx_lock_event.contract_identifier,
+    },
+  };
+}
 
 // function makeStxMintOperation(
 //   tx: StacksDbTransaction,
@@ -803,7 +804,7 @@ async function serializeStacksTransactionOperations(
     case codec.TxPayloadTypeID.CoinbaseToAltRecipient:
     case codec.TxPayloadTypeID.NakamotoCoinbase:
       ops.push(makeCoinbaseOperation(tx, ops.length));
-      // TODO: Add miner rewards and unlocks
+      // TODO: Add miner rewards
       break;
   }
 
@@ -814,6 +815,9 @@ async function serializeStacksTransactionOperations(
         break;
       case 'stx_burn_event':
         ops.push(makeStxBurnOperation(tx, event, ops.length));
+        break;
+      case 'stx_lock_event':
+        ops.push(makeStxLockOperation(tx, event, ops.length));
         break;
       // TODO: stx mint not reported in events from core, see block
       // 0xe1410b8188303242471a57e8bca75c5f61ba8537dfe3d1b92b9cca655e59c16b
@@ -851,9 +855,6 @@ async function serializeStacksTransactionOperations(
   //             ops.push(makeStxMintOperation(tx, event, ops.length));
   //             break;
   //         }
-  //         break;
-  //       case StacksDbEventTypeId.StxLock:
-  //         ops.push(makeStxLockOperation(tx, event, ops.length));
   //         break;
   //     }
   //   }

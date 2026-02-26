@@ -457,6 +457,19 @@ export interface StacksBlockReplayTransactionStxBurnEvent {
   type: 'stx_burn_event';
 }
 
+export interface StacksBlockReplayTransactionStxLockEvent {
+  committed: boolean;
+  event_index: number;
+  stx_lock_event: {
+    contract_identifier: string;
+    locked_address: string;
+    locked_amount: string;
+    unlock_height: string;
+  };
+  txid: string;
+  type: 'stx_lock_event';
+}
+
 export interface StacksBlockReplayTransactionFtMintEvent {
   committed: boolean;
   event_index: number;
@@ -549,7 +562,8 @@ export interface StacksBlockReplayTransactionNftBurnEvent {
 
 export type StacksBlockReplayTransactionStxEvent =
   | StacksBlockReplayTransactionStxTransferEvent
-  | StacksBlockReplayTransactionStxBurnEvent;
+  | StacksBlockReplayTransactionStxBurnEvent
+  | StacksBlockReplayTransactionStxLockEvent;
 
 export type StacksBlockReplayTransactionFtEvent =
   | StacksBlockReplayTransactionFtMintEvent
