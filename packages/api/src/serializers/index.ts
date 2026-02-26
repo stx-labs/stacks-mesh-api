@@ -10,6 +10,7 @@ import {
   PostConditionMode,
 } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
+import { makeSyntheticPoxOperation } from './pox-operations.js';
 import {
   StacksBlockReplay,
   StacksBlockReplayTransaction,
@@ -38,12 +39,13 @@ import { getTypeString } from '@stacks/transactions';
 export type MeshSerializationConfig = {
   tokenMetadataCache: TokenMetadataCache;
   contractAbiCache: ContractAbiCache;
+  network: 'mainnet' | 'testnet';
 };
 
 /**
  * A decoded Stacks Nakamoto transaction.
  */
-type DecodedStacksTransaction = {
+export type DecodedStacksTransaction = {
   replayedTx: StacksBlockReplayTransaction;
   decodedTx: codec.DecodedTxResult;
   fee: number;
@@ -312,7 +314,7 @@ function parseTransactionMemo(memoHex: string | undefined): string | null {
   return memoBuffer.toString('utf8');
 }
 
-function makeStxCurrency(): Currency {
+export function makeStxCurrency(): Currency {
   return {
     symbol: 'STX',
     decimals: 6,
@@ -752,12 +754,14 @@ function makeNftBurnOperation(
   };
 }
 
-function makeContractEventOperation(
+function makeContractEventOperations(
   tx: DecodedStacksTransaction,
   event: StacksBlockReplayTransactionContractEvent,
-  index: number
-): Operation {
-  return {
+  index: number,
+  config: MeshSerializationConfig
+): Operation[] {
+  const ops: Operation[] = [];
+  ops.push({
     operation_identifier: { index },
     type: 'contract_log',
     status: tx.status,
@@ -772,7 +776,14 @@ function makeContractEventOperation(
       contract_identifier: event.contract_event.contract_identifier,
       topic: event.contract_event.topic,
     },
-  };
+  });
+  try {
+    const poxEvent = codec.decodePoxSyntheticEvent(event.contract_event.raw_value, config.network);
+    if (poxEvent) ops.push(makeSyntheticPoxOperation(poxEvent, index + 1, tx));
+  } catch (error) {
+    // Not a valid synthetic PoX event
+  }
+  return ops;
 }
 
 async function serializeStacksTransactionOperations(
@@ -840,7 +851,7 @@ async function serializeStacksTransactionOperations(
         ops.push(makeNftBurnOperation(tx, event, ops.length));
         break;
       case 'contract_event':
-        ops.push(makeContractEventOperation(tx, event, ops.length));
+        ops.push(...makeContractEventOperations(tx, event, ops.length, config));
         break;
     }
   }

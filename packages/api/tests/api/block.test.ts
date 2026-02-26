@@ -2,16 +2,10 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, before, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { ApiConfig, buildApiServer } from '../../src/api/index.js';
-import { makeTestApiConfig } from './helpers.js';
+import { FIXTURES_DIR, loadFixture, makeTestApiConfig } from './helpers.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
-const fixturesDir = new URL('./fixtures', import.meta.url).pathname;
-
-function loadFixture(relativePath: string) {
-  return JSON.parse(fs.readFileSync(path.join(fixturesDir, relativePath), 'utf-8'));
-}
 
 function mockReplay(mockPool: ReturnType<MockAgent['get']>, blockId: string, fixture: object) {
   mockPool
@@ -149,7 +143,7 @@ describe('/block', () => {
 
       // Mock block header fetch
       const blockHeaderFixture = fs.readFileSync(
-        path.join(fixturesDir, 'blocks/coinbase.header.bin')
+        path.join(FIXTURES_DIR, 'blocks/coinbase.header.bin')
       );
       mockPool
         .intercept({ path: `/v3/blocks/height/5437107`, method: 'GET' })

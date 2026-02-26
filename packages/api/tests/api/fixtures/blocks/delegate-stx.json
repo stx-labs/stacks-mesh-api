@@ -1,0 +1,520 @@
+{
+  "block_id": "b027a9b07584e644aa057763bc8718a74bd1764192ae2b6079470e4e5da4826e",
+  "block_hash": "3d0ed1cdb344c59a0032d1f54535d5638c4b11f7badaa32d722fedfc73006357",
+  "block_height": 6821892,
+  "parent_block_id": "d421197952a1221b820610dbc75c7532aa7421282748c8137a24938c9bc62882",
+  "consensus_hash": "af607c95e936097a7f6e3c13fed1fbcc84352e6f",
+  "fees": 153360,
+  "tx_merkle_root": "33d8135df7a68406e6976cdd973aec7243e3ecd45b68b81df106dd88b903a31f",
+  "state_index_root": "f5e943111515f63db7b299b6bc304cb5b7957fa68c99eb57230e738cd29491e1",
+  "timestamp": 1772123453,
+  "miner_signature": "00df6665426a4dd071ca32dcc5f1b1a0c0abffb6bdf2a21e18712c3afcd099a81e40d478ccbc8faf5bab6900f57bb20c745cbbe4f2c197346170757e18596858ab",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "5d51b999f5a7958adc085e761bad5a997de62d072ed3a9be0d16582a5646f722",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "e74f64bd1f6419a62790d320fffec431446deeec",
+              "nonce": 12,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "00cce02ab10c608baa4f5739e54a35ab03d6c10a9bfeaa5c01e6bc222f163ddc7b40bf4d65f37777613602d6c038599d63bcc96c9662f8a1dd3642d492f71e7026"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "allow-contract-caller",
+            "function_args": [
+              {
+                "Principal": {
+                  "Contract": {
+                    "issuer": [
+                      22,
+                      [
+                        0, 0, 229, 249, 163, 5, 255, 28, 214, 105, 40, 100, 88, 124, 135, 66, 82,
+                        117, 145, 61
+                      ]
+                    ],
+                    "name": "pox4-pools"
+                  }
+                }
+              },
+              { "Optional": { "data": null } }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400e74f64bd1f6419a62790d320fffec431446deeec000000000000000c0000000000000bb80000cce02ab10c608baa4f5739e54a35ab03d6c10a9bfeaa5c01e6bc222f163ddc7b40bf4d65f37777613602d6c038599d63bcc96c9662f8a1dd3642d492f71e70260302000000000216000000000000000000000000000000000000000005706f782d3415616c6c6f772d636f6e74726163742d63616c6c65720000000206160000e5f9a305ff1cd6692864587c87425275913d0a706f78342d706f6f6c7309",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 105,
+        "write_count": 1,
+        "read_length": 76974,
+        "read_count": 4,
+        "runtime": 84860
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "0f591072ea8b1eabd2189c818708cc801b10c2261e2bd51d000df9aa60052742",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8",
+              "nonce": 2612760,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "010f69196eb20b05d9d4f53a4a6e6c66cb8706f7bce727b31f045ac89f8688f3dc63a4a019f276535f4d81fc8da68366a7855508d01c3c911d9939ba1a6d74fd65"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  242, 187, 166, 223, 117, 23, 85, 171, 154, 193, 223, 139, 56, 125, 152, 28, 254,
+                  38, 92, 223
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000027de1800000000000000b400010f69196eb20b05d9d4f53a4a6e6c66cb8706f7bce727b31f045ac89f8688f3dc63a4a019f276535f4d81fc8da68366a7855508d01c3c911d9939ba1a6d74fd65030200000000000516f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2",
+            "sender": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR"
+          },
+          "txid": "0x0f591072ea8b1eabd2189c818708cc801b10c2261e2bd51d000df9aa60052742",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "e11bd918dd5d78c8a64a5fde6bf7e76deeac53d9de8b09e396100801ce7e9da2",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "e74f64bd1f6419a62790d320fffec431446deeec",
+              "nonce": 13,
+              "tx_fee": 150000,
+              "key_encoding": "Compressed",
+              "signature": "01ecb2f4dd8795dabfd92c6614d32270dfac0dd9580b674a4d91ebda8482aba6e95ca86e4f4bc4fd25754f1a006e211189804a1be4b50946e05462225dd639c5ab"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000e5f9a305ff1cd6692864587c87425275913d" },
+            "contract_name": "pox4-pools",
+            "function_name": "delegate-stx",
+            "function_args": [
+              { "UInt": 3049000000 },
+              {
+                "Principal": {
+                  "Standard": [
+                    22,
+                    [
+                      59, 188, 101, 209, 18, 231, 158, 169, 210, 0, 30, 21, 248, 166, 21, 136, 86,
+                      149, 216, 182
+                    ]
+                  ]
+                }
+              },
+              { "Optional": { "data": null } },
+              {
+                "Optional": {
+                  "data": {
+                    "Tuple": {
+                      "type_signature": {
+                        "type_map": {
+                          "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                          "version": { "SequenceType": { "BufferType": 1 } }
+                        }
+                      },
+                      "data_map": {
+                        "hashbytes": {
+                          "Sequence": {
+                            "Buffer": {
+                              "data": [
+                                219, 20, 19, 58, 157, 187, 29, 14, 22, 182, 5, 19, 69, 62, 72, 182,
+                                255, 40, 71, 169
+                              ]
+                            }
+                          }
+                        },
+                        "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Tuple": {
+                  "type_signature": {
+                    "type_map": {
+                      "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                      "version": { "SequenceType": { "BufferType": 1 } }
+                    }
+                  },
+                  "data_map": {
+                    "hashbytes": {
+                      "Sequence": {
+                        "Buffer": {
+                          "data": [
+                            3, 162, 6, 222, 233, 151, 18, 32, 205, 108, 6, 141, 67, 201, 234, 78,
+                            149, 154, 149, 120
+                          ]
+                        }
+                      }
+                    },
+                    "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                  }
+                }
+              },
+              { "Optional": { "data": null } }
+            ]
+          }
+        }
+      },
+      "hex": "00000000010400e74f64bd1f6419a62790d320fffec431446deeec000000000000000d00000000000249f00001ecb2f4dd8795dabfd92c6614d32270dfac0dd9580b674a4d91ebda8482aba6e95ca86e4f4bc4fd25754f1a006e211189804a1be4b50946e05462225dd639c5ab03020000000002160000e5f9a305ff1cd6692864587c87425275913d0a706f78342d706f6f6c730c64656c65676174652d7374780000000601000000000000000000000000b5bc0c4005163bbc65d112e79ea9d2001e15f8a615885695d8b6090a0c00000002096861736862797465730200000014db14133a9dbb1d0e16b60513453e48b6ff2847a90776657273696f6e0200000001040c0000000209686173686279746573020000001403a206dee9971220cd6c068d43c9ea4e959a95780776657273696f6e02000000010409",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 283,
+        "write_count": 3,
+        "read_length": 175375,
+        "read_count": 17,
+        "runtime": 231430
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000098428df2176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e542a04646174610c000000030b64656c65676174652d746f05163bbc65d112e79ea9d2001e15f8a615885695d8b60c656e642d6379636c652d6964090e73746172742d6379636c652d69640100000000000000000000000000000082066c6f636b65640100000000000000000000000020b91340046e616d650d000000137265766f6b652d64656c65676174652d73747807737461636b65720516e74f64bd1f6419a62790d320fffec431446deeec",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 2554498546 },
+                      "burnchain-unlock-height": { "UInt": 939050 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "delegate-to": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    59, 188, 101, 209, 18, 231, 158, 169, 210, 0, 30, 21, 248, 166,
+                                    21, 136, 86, 149, 216, 182
+                                  ]
+                                ]
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": null } },
+                            "start-cycle-id": { "UInt": 130 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 549000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                114, 101, 118, 111, 107, 101, 45, 100, 101, 108, 101, 103, 97, 116,
+                                101, 45, 115, 116, 120
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              231, 79, 100, 189, 31, 100, 25, 166, 39, 144, 211, 32, 255, 254, 196,
+                              49, 68, 109, 238, 236
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 19 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0xe11bd918dd5d78c8a64a5fde6bf7e76deeac53d9de8b09e396100801ce7e9da2",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000098428df2176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e542a04646174610c000000060b616d6f756e742d7573747801000000000000000000000000b5bc0c400b64656c65676174652d746f05163bbc65d112e79ea9d2001e15f8a615885695d8b60c656e642d6379636c652d69640908706f782d61646472090e73746172742d6379636c652d6964010000000000000000000000000000008212756e6c6f636b2d6275726e2d68656967687409066c6f636b65640100000000000000000000000020b91340046e616d650d0000000c64656c65676174652d73747807737461636b65720516e74f64bd1f6419a62790d320fffec431446deeec",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 2554498546 },
+                      "burnchain-unlock-height": { "UInt": 939050 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "amount-ustx": { "UInt": 3049000000 },
+                            "delegate-to": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    59, 188, 101, 209, 18, 231, 158, 169, 210, 0, 30, 21, 248, 166,
+                                    21, 136, 86, 149, 216, 182
+                                  ]
+                                ]
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": null } },
+                            "pox-addr": { "Optional": { "data": null } },
+                            "start-cycle-id": { "UInt": 130 },
+                            "unlock-burn-height": { "Optional": { "data": null } }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "pox-addr": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": { "OptionalType": "NoType" }
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 549000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 120]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              231, 79, 100, 189, 31, 100, 25, 166, 39, 144, 211, 32, 255, 254, 196,
+                              49, 68, 109, 238, 236
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "pox-addr": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": { "OptionalType": "NoType" }
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 1,
+          "txid": "0xe11bd918dd5d78c8a64a5fde6bf7e76deeac53d9de8b09e396100801ce7e9da2",
+          "type": "contract_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "62ae882c755f100f874214720f327f0c186da4a8d9ee6eb2b3bec099d6c1f244",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8",
+              "nonce": 2612761,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "01b69f7a46dee4e13eef1eda2d0321a4417d84f719aa0f241eec21fbe8d70ce8f93738e3f2e0a7c89dbad067b6481b00190d324831eaf8d58115c43e4c038ab080"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  242, 187, 166, 223, 117, 23, 85, 171, 154, 193, 223, 139, 56, 125, 152, 28, 254,
+                  38, 92, 223
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000027de1900000000000000b40001b69f7a46dee4e13eef1eda2d0321a4417d84f719aa0f241eec21fbe8d70ce8f93738e3f2e0a7c89dbad067b6481b00190d324831eaf8d58115c43e4c038ab080030200000000000516f2bba6df751755ab9ac1df8b387d981cfe265cdf000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2",
+            "sender": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR"
+          },
+          "txid": "0x62ae882c755f100f874214720f327f0c186da4a8d9ee6eb2b3bec099d6c1f244",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

@@ -1,0 +1,725 @@
+{
+  "block_id": "e5e7b517b2e47b7c537961ded3dce52376659699a29a83f6b908d5e4574cd485",
+  "block_hash": "69cea696ffd78eff1fbf405d4fc98e1942454cc01a96b102ad6ab00d100eca28",
+  "block_height": 6813921,
+  "parent_block_id": "d439436199a56b9aee202d70ff01eda7b3488572c80b55b91f2a0abadf4572b3",
+  "consensus_hash": "336fa1b2c3a7b377c8dbf3e51cd9faa5f516065f",
+  "fees": 5999,
+  "tx_merkle_root": "ce66d7d9721b9e1519a88d19c3c1655a525fdd982633c3e368fdb8cf668e966f",
+  "state_index_root": "e3d95510efa41a9af05da68fcb237b784160ea2bada4e771d89683868e5366e9",
+  "timestamp": 1772091321,
+  "miner_signature": "001b825863df1997f662aef052ccea5c72317e7c8c8b95e1984c70c6c24f3bdcc43e4aebc86d88ddb6a2eb7befc6c050c2822ec22297a9e8cb732020dffeef60c8",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "3a3aa885f1fc91574f2643b11a7468a0fed58f41bd47d6e6d96e61ec9bb767e0",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "606e7cefdb3d829fd1eb1fea7fc6ce0bfa0e9b48",
+              "nonce": 450,
+              "tx_fee": 3000,
+              "key_encoding": "Compressed",
+              "signature": "01fe8ce235fca08a1171376a39a8e2ea3f32beef7220e2d622993cea0e33344d89039932cd73c97534899dbeb04eb04671ee18fbff00d3761cb06267cfe586df76"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Allow",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "a1aa0bfbf76f3afa9a1d2b2f1138b8a9c45c2d87" },
+            "contract_name": "Counter",
+            "function_name": "increment",
+            "function_args": []
+          }
+        }
+      },
+      "hex": "00000000010400606e7cefdb3d829fd1eb1fea7fc6ce0bfa0e9b4800000000000001c20000000000000bb80001fe8ce235fca08a1171376a39a8e2ea3f32beef7220e2d622993cea0e33344d89039932cd73c97534899dbeb04eb04671ee18fbff00d3761cb06267cfe586df760301000000000216a1aa0bfbf76f3afa9a1d2b2f1138b8a9c45c2d8707436f756e74657209696e6372656d656e7400000000",
+      "result": { "Response": { "committed": true, "data": { "Int": 587 } } },
+      "result_hex": "0x07000000000000000000000000000000024b",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 18,
+        "write_count": 1,
+        "read_length": 1708,
+        "read_count": 6,
+        "runtime": 4059
+      },
+      "events": [],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "3cea2906b9c618f49568e2fcdf09e81179129b8c",
+              "nonce": 9,
+              "tx_fee": 2999,
+              "key_encoding": "Compressed",
+              "signature": "0197f9fd0d245e24fe41e81ebdfeba9e14786b9ce9a22549c9f4ced4767a81d31146c7b0545828358681b39a09686b235f0c1f85fa6bc71bf370fd3c0564e98332"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "296a283b358830510c486f90c13d924b92a6590e" },
+            "contract_name": "pox4-multi-pool-v1",
+            "function_name": "delegate-stx",
+            "function_args": [
+              { "UInt": 334352803 },
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      12, 0, 0, 0, 5, 1, 99, 13, 0, 0, 0, 3, 115, 116, 120, 1, 112, 11, 0, 0, 0, 0,
+                      1, 114, 11, 0, 0, 0, 0, 1, 115, 13, 0, 0, 0, 0, 1, 118, 1, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "hex": "000000000104003cea2906b9c618f49568e2fcdf09e81179129b8c00000000000000090000000000000bb7000197f9fd0d245e24fe41e81ebdfeba9e14786b9ce9a22549c9f4ced4767a81d31146c7b0545828358681b39a09686b235f0c1f85fa6bc71bf370fd3c0564e983320302000000000216296a283b358830510c486f90c13d924b92a6590e12706f78342d6d756c74692d706f6f6c2d76310c64656c65676174652d737478000000020100000000000000000000000013edd1a302000000370c0000000501630d0000000373747801700b0000000001720b0000000001730d0000000001760100000000000000000000000000000001",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Tuple": {
+              "type_signature": {
+                "type_map": {
+                  "lock-amount": "UIntType",
+                  "stacker": "PrincipalType",
+                  "unlock-burn-height": "UIntType"
+                }
+              },
+              "data_map": {
+                "lock-amount": { "UInt": 333349804 },
+                "stacker": {
+                  "Principal": {
+                    "Standard": [
+                      22,
+                      [
+                        60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9, 232, 17, 121,
+                        18, 155, 140
+                      ]
+                    ]
+                  }
+                },
+                "unlock-burn-height": { "UInt": 941150 }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070c000000030b6c6f636b2d616d6f756e740100000000000000000000000013de83ac07737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c12756e6c6f636b2d6275726e2d68656967687401000000000000000000000000000e5c5e",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 809,
+        "write_count": 8,
+        "read_length": 560601,
+        "read_count": 107,
+        "runtime": 1350469
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.pox4-multi-pool-v1",
+            "raw_value": "0x0c0000000201610d0000000c64656c65676174652d737478077061796c6f616402000000370c0000000501630d0000000373747801700b0000000001720b0000000001730d0000000001760100000000000000000000000000000001",
+            "topic": "print",
+            "value": {
+              "Tuple": {
+                "data_map": {
+                  "a": {
+                    "Sequence": {
+                      "String": {
+                        "ASCII": {
+                          "data": [100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 120]
+                        }
+                      }
+                    }
+                  },
+                  "payload": {
+                    "Sequence": {
+                      "Buffer": {
+                        "data": [
+                          12, 0, 0, 0, 5, 1, 99, 13, 0, 0, 0, 3, 115, 116, 120, 1, 112, 11, 0, 0, 0,
+                          0, 1, 114, 11, 0, 0, 0, 0, 1, 115, 13, 0, 0, 0, 0, 1, 118, 1, 0, 0, 0, 0,
+                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+                        ]
+                      }
+                    }
+                  }
+                },
+                "type_signature": {
+                  "type_map": {
+                    "a": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                    "payload": { "SequenceType": { "BufferType": 55 } }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000000331d2c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e542a04646174610c000000030b64656c65676174652d746f0616296a283b358830510c486f90c13d924b92a6590e12706f78342d6d756c74692d706f6f6c2d76310c656e642d6379636c652d6964090e73746172742d6379636c652d69640100000000000000000000000000000082066c6f636b65640100000000000000000000000013baa8c0046e616d650d000000137265766f6b652d64656c65676174652d73747807737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 3349804 },
+                      "burnchain-unlock-height": { "UInt": 939050 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "delegate-to": {
+                              "Principal": {
+                                "Contract": {
+                                  "issuer": [
+                                    22,
+                                    [
+                                      41, 106, 40, 59, 53, 136, 48, 81, 12, 72, 111, 144, 193, 61,
+                                      146, 75, 146, 166, 89, 14
+                                    ]
+                                  ],
+                                  "name": "pox4-multi-pool-v1"
+                                }
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": null } },
+                            "start-cycle-id": { "UInt": 130 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 331000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                114, 101, 118, 111, 107, 101, 45, 100, 101, 108, 101, 103, 97, 116,
+                                101, 45, 115, 116, 120
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9, 232,
+                              17, 121, 18, 155, 140
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 19 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 1,
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000000331d2c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e542a04646174610c000000060b616d6f756e742d757374780100000000000000000000000013edd1a30b64656c65676174652d746f0616296a283b358830510c486f90c13d924b92a6590e12706f78342d6d756c74692d706f6f6c2d76310c656e642d6379636c652d69640908706f782d61646472090e73746172742d6379636c652d6964010000000000000000000000000000008212756e6c6f636b2d6275726e2d68656967687409066c6f636b65640100000000000000000000000013baa8c0046e616d650d0000000c64656c65676174652d73747807737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 3349804 },
+                      "burnchain-unlock-height": { "UInt": 939050 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "amount-ustx": { "UInt": 334352803 },
+                            "delegate-to": {
+                              "Principal": {
+                                "Contract": {
+                                  "issuer": [
+                                    22,
+                                    [
+                                      41, 106, 40, 59, 53, 136, 48, 81, 12, 72, 111, 144, 193, 61,
+                                      146, 75, 146, 166, 89, 14
+                                    ]
+                                  ],
+                                  "name": "pox4-multi-pool-v1"
+                                }
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": null } },
+                            "pox-addr": { "Optional": { "data": null } },
+                            "start-cycle-id": { "UInt": 130 },
+                            "unlock-burn-height": { "Optional": { "data": null } }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "pox-addr": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": { "OptionalType": "NoType" }
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 331000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 120]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9, 232,
+                              17, 121, 18, 155, 140
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "delegate-to": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "NoType" },
+                              "pox-addr": { "OptionalType": "NoType" },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": { "OptionalType": "NoType" }
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 2,
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000000331d2c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e542a04646174610c000000070964656c656761746f720616296a283b358830510c486f90c13d924b92a6590e12706f78342d6d756c74692d706f6f6c2d76310c656e642d6379636c652d69640a01000000000000000000000000000000830c657874656e642d636f756e74010000000000000000000000000000000108706f782d616464720c00000002096861736862797465730200000014f39f20b9d2202a705c99c4f8ee8920653473bc1a0776657273696f6e02000000010407737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c0e73746172742d6379636c652d6964010000000000000000000000000000008212756e6c6f636b2d6275726e2d68656967687401000000000000000000000000000e5c5e066c6f636b65640100000000000000000000000013baa8c0046e616d650d0000001564656c65676174652d737461636b2d657874656e6407737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 3349804 },
+                      "burnchain-unlock-height": { "UInt": 939050 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "delegator": {
+                              "Principal": {
+                                "Contract": {
+                                  "issuer": [
+                                    22,
+                                    [
+                                      41, 106, 40, 59, 53, 136, 48, 81, 12, 72, 111, 144, 193, 61,
+                                      146, 75, 146, 166, 89, 14
+                                    ]
+                                  ],
+                                  "name": "pox4-multi-pool-v1"
+                                }
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 131 } } },
+                            "extend-count": { "UInt": 1 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          243, 159, 32, 185, 210, 32, 42, 112, 92, 153, 196, 248,
+                                          238, 137, 32, 101, 52, 115, 188, 26
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "stacker": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9,
+                                    232, 17, 121, 18, 155, 140
+                                  ]
+                                ]
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 130 },
+                            "unlock-burn-height": { "UInt": 941150 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "extend-count": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 331000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 97, 99, 107,
+                                45, 101, 120, 116, 101, 110, 100
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9, 232,
+                              17, 121, 18, 155, 140
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "extend-count": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 21 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 3,
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 4,
+          "stx_lock_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "locked_address": "SPYEMA86Q731HX4ND3HFSQR9X08QJ4MVHK303S47",
+            "locked_amount": "331000000",
+            "unlock_height": "941150"
+          },
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "stx_lock_event"
+        },
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000000000331d2c176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e5c5e04646174610c000000070964656c656761746f720616296a283b358830510c486f90c13d924b92a6590e12706f78342d6d756c74692d706f6f6c2d76310c656e642d6379636c652d69640a01000000000000000000000000000000830b696e6372656173652d6279010000000000000000000000000023daec08706f782d616464720c00000002096861736862797465730200000014f39f20b9d2202a705c99c4f8ee8920653473bc1a0776657273696f6e02000000010407737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c0e73746172742d6379636c652d696401000000000000000000000000000000820c746f74616c2d6c6f636b65640100000000000000000000000013de83ac066c6f636b65640100000000000000000000000013baa8c0046e616d650d0000001764656c65676174652d737461636b2d696e63726561736507737461636b657205163cea2906b9c618f49568e2fcdf09e81179129b8c",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 3349804 },
+                      "burnchain-unlock-height": { "UInt": 941150 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "delegator": {
+                              "Principal": {
+                                "Contract": {
+                                  "issuer": [
+                                    22,
+                                    [
+                                      41, 106, 40, 59, 53, 136, 48, 81, 12, 72, 111, 144, 193, 61,
+                                      146, 75, 146, 166, 89, 14
+                                    ]
+                                  ],
+                                  "name": "pox4-multi-pool-v1"
+                                }
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 131 } } },
+                            "increase-by": { "UInt": 2349804 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          243, 159, 32, 185, 210, 32, 42, 112, 92, 153, 196, 248,
+                                          238, 137, 32, 101, 52, 115, 188, 26
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "stacker": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9,
+                                    232, 17, 121, 18, 155, 140
+                                  ]
+                                ]
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 130 },
+                            "total-locked": { "UInt": 333349804 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 331000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                100, 101, 108, 101, 103, 97, 116, 101, 45, 115, 116, 97, 99, 107,
+                                45, 105, 110, 99, 114, 101, 97, 115, 101
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              60, 234, 41, 6, 185, 198, 24, 244, 149, 104, 226, 252, 223, 9, 232,
+                              17, 121, 18, 155, 140
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "stacker": "PrincipalType",
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 23 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 5,
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 6,
+          "stx_lock_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "locked_address": "SPYEMA86Q731HX4ND3HFSQR9X08QJ4MVHK303S47",
+            "locked_amount": "333349804",
+            "unlock_height": "941150"
+          },
+          "txid": "0x8b86b9af6b46a2f28e138b4ee718294ea5b7fce6b655193d295d89cc9a146b5d",
+          "type": "stx_lock_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

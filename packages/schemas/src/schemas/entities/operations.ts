@@ -180,6 +180,63 @@ const StxLockOperationSchema = Type.Composite([
 ]);
 export type StxLockOperation = Static<typeof StxLockOperationSchema>;
 
+const BasePoxOperationMetadataSchema = Type.Object({
+  locked: Type.String(),
+  balance: Type.String(),
+  burnchain_unlock_height: Type.Integer(),
+  pox_addr: Type.Optional(Type.String()),
+  pox_addr_raw: Type.Optional(Type.String()),
+});
+
+const DelegateStxOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('delegate_stx'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        delegate_to: Type.String(),
+        unlock_burn_height: Nullable(Type.Integer()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type DelegateStxOperation = Static<typeof DelegateStxOperationSchema>;
+
+const RevokeDelegateStxOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('revoke_delegate_stx'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        delegate_to: Type.String(),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type RevokeDelegateStxOperation = Static<typeof RevokeDelegateStxOperationSchema>;
+
+const DelegateStackIncreaseOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('delegate_stack_increase'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        delegator: Type.String(),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type DelegateStackIncreaseOperation = Static<typeof DelegateStackIncreaseOperationSchema>;
+
 const ContractLogOperationSchema = Type.Composite([
   BaseOperationSchema,
   Type.Object({
@@ -210,6 +267,9 @@ export const OperationSchema = Type.Union([
   TokenMintOperationSchema,
   TokenBurnOperationSchema,
   StxLockOperationSchema,
+  DelegateStxOperationSchema,
+  RevokeDelegateStxOperationSchema,
+  DelegateStackIncreaseOperationSchema,
   ContractLogOperationSchema,
 ]);
 export type Operation = Static<typeof OperationSchema>;

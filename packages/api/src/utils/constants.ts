@@ -65,6 +65,18 @@ export const OPERATION_TYPES = [
   'poison_microblock',
   'stx_lock',
   'contract_log',
+  'handle-unlock',
+  'stack-stx',
+  'stack-increase',
+  'stack-extend',
+  'delegate-stx',
+  'delegate-stack-stx',
+  'delegate-stack-increase',
+  'delegate-stack-extend',
+  'stack-aggregation-commit',
+  'stack-aggregation-commit-indexed',
+  'stack-aggregation-increase',
+  'revoke-delegate-stx',
 ];
 
 export const CALL_METHODS = [

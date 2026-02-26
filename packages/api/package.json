@@ -32,7 +32,7 @@
     "@fastify/type-provider-typebox": "^6.1.0",
     "@sinclair/typebox": "^0.34.48",
     "@stacks/api-toolkit": "^1.12.2",
-    "@stacks/codec": "^1.4.1",
+    "@stacks/codec": "file:../../../stacks-codec-js",
     "@stacks/mesh-schemas": "*",
     "@stacks/transactions": "^7.3.1",
     "env-schema": "^7.0.0",
