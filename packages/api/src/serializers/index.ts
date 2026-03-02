@@ -10,7 +10,7 @@ import {
   PostConditionMode,
 } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
-import { makeSyntheticPoxOperation } from './pox-operations.js';
+import { isPoxPrintEvent, makeSyntheticPoxOperation } from './pox-operations.js';
 import {
   StacksBlockReplay,
   StacksBlockReplayTransaction,
@@ -777,12 +777,104 @@ function makeContractEventOperations(
       topic: event.contract_event.topic,
     },
   });
-  try {
-    const poxEvent = codec.decodePoxSyntheticEvent(event.contract_event.raw_value, config.network);
-    if (poxEvent) ops.push(makeSyntheticPoxOperation(poxEvent, index + 1, tx));
-  } catch (error) {
-    // Not a valid synthetic PoX event
+  if (isPoxPrintEvent(event)) {
+    try {
+      const poxEvent = codec.decodePoxSyntheticEvent(event.contract_event.raw_value, config.network);
+      if (poxEvent) ops.push(makeSyntheticPoxOperation(poxEvent, index + 1, tx));
+    } catch (error) {
+      // Not a valid synthetic PoX event
+    }
   }
+  return ops;
+}
+
+/**
+ * Serializes a decoded transaction into Mesh operations purely from the transaction payload.
+ * Unlike {@link serializeStacksTransactionOperations}, this does not require replay events or
+ * caches, making it suitable for `/construction/parse` where only the raw transaction hex is
+ * available.
+ */
+export function serializeDecodedTransactionOperations(
+  decodedTx: codec.DecodedTxResult
+): Operation[] {
+  const senderAddress = decodedTx.auth.origin_condition.signer.address;
+  const fee = Number(BigInt(decodedTx.auth.origin_condition.tx_fee));
+  const sponsored = decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored;
+  const sponsorAddress = sponsored
+    ? (decodedTx.auth as codec.TxAuthSponsored).sponsor_condition.signer.address
+    : null;
+
+  const tx: DecodedStacksTransaction = {
+    replayedTx: { events: [] } as unknown as StacksBlockReplayTransaction,
+    decodedTx,
+    fee,
+    sponsored,
+    senderAddress,
+    sponsorAddress,
+    nonce: parseInt(decodedTx.auth.origin_condition.nonce),
+    status: 'success',
+  };
+
+  const ops: Operation[] = [];
+  if (fee > 0) ops.push(makeFeeOperation(tx));
+
+  switch (decodedTx.payload.type_id) {
+    case codec.TxPayloadTypeID.TokenTransfer: {
+      const payload = decodedTx.payload as codec.TxPayloadTokenTransfer;
+      const amount = BigInt(payload.amount);
+      const memo = parseTransactionMemo(addHexPrefix(payload.memo_hex));
+      ops.push({
+        operation_identifier: { index: ops.length },
+        type: 'token_transfer',
+        status: 'success',
+        account: { address: senderAddress },
+        amount: { value: (0n - amount).toString(), currency: makeStxCurrency() },
+        metadata: { memo },
+      });
+      ops.push({
+        operation_identifier: { index: ops.length },
+        type: 'token_transfer',
+        status: 'success',
+        account: { address: payload.recipient.address },
+        amount: { value: amount.toString(), currency: makeStxCurrency() },
+        metadata: { memo },
+      });
+      break;
+    }
+    case codec.TxPayloadTypeID.TenureChange:
+      ops.push(makeTenureChangeOperation(tx, ops.length));
+      break;
+    case codec.TxPayloadTypeID.SmartContract:
+    case codec.TxPayloadTypeID.VersionedSmartContract:
+      ops.push(makeSmartContractOperation(tx, ops.length));
+      break;
+    case codec.TxPayloadTypeID.ContractCall: {
+      const payload = decodedTx.payload as codec.TxPayloadContractCall;
+      ops.push({
+        operation_identifier: { index: ops.length },
+        type: 'contract_call',
+        status: 'success',
+        account: { address: senderAddress },
+        metadata: {
+          contract_identifier: `${payload.address}.${payload.contract_name}`,
+          function_name: payload.function_name,
+          args: payload.function_args.map(c => ({
+            hex: c.hex,
+            repr: c.repr,
+            name: '',
+            type: codec.decodeClarityValueToTypeName(c.hex),
+          })),
+        },
+      });
+      break;
+    }
+    case codec.TxPayloadTypeID.Coinbase:
+    case codec.TxPayloadTypeID.CoinbaseToAltRecipient:
+    case codec.TxPayloadTypeID.NakamotoCoinbase:
+      ops.push(makeCoinbaseOperation(tx, ops.length));
+      break;
+  }
+
   return ops;
 }
 

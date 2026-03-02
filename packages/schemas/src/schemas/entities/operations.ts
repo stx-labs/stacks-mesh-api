@@ -205,6 +205,24 @@ const DelegateStxOperationSchema = Type.Composite([
 ]);
 export type DelegateStxOperation = Static<typeof DelegateStxOperationSchema>;
 
+const DelegateStackStxOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('delegate_stack_stx'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        lock_period: Type.String(),
+        delegator: Type.String(),
+        burnchain_start_height: Nullable(Type.Integer()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type DelegateStackStxOperation = Static<typeof DelegateStackStxOperationSchema>;
+
 const RevokeDelegateStxOperationSchema = Type.Composite([
   BaseAccountOperationSchema,
   Type.Object({
@@ -255,6 +273,23 @@ export type StackAggregationIncreaseOperation = Static<
   typeof StackAggregationIncreaseOperationSchema
 >;
 
+const StackAggregationCommitOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_aggregation_commit'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        reward_cycle: Type.Integer(),
+        signer_key: Nullable(Type.String()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackAggregationCommitOperation = Static<typeof StackAggregationCommitOperationSchema>;
+
 const StackAggregationCommitIndexedOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
   Type.Object({
@@ -291,6 +326,71 @@ const DelegateStackExtendOperationSchema = Type.Composite([
 ]);
 export type DelegateStackExtendOperation = Static<typeof DelegateStackExtendOperationSchema>;
 
+const HandleUnlockOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('handle_unlock'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        first_cycle_locked: Type.Integer(),
+        first_unlocked_cycle: Type.Integer(),
+      }),
+    ]),
+  }),
+]);
+export type HandleUnlockOperation = Static<typeof HandleUnlockOperationSchema>;
+
+const StackStxOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_stx'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        lock_period: Type.Integer(),
+        burnchain_start_height: Type.Integer(),
+        signer_key: Nullable(Type.String()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackStxOperation = Static<typeof StackStxOperationSchema>;
+
+const StackIncreaseOperationSchema = Type.Composite([
+  BaseAmountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_increase'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        signer_key: Nullable(Type.String()),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackIncreaseOperation = Static<typeof StackIncreaseOperationSchema>;
+
+const StackExtendOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('stack_extend'),
+    metadata: Type.Composite([
+      BasePoxOperationMetadataSchema,
+      Type.Object({
+        extend_count: Type.Integer(),
+        start_cycle_id: Nullable(Type.Integer()),
+        end_cycle_id: Nullable(Type.Integer()),
+      }),
+    ]),
+  }),
+]);
+export type StackExtendOperation = Static<typeof StackExtendOperationSchema>;
+
 const ContractLogOperationSchema = Type.Composite([
   BaseOperationSchema,
   Type.Object({
@@ -312,21 +412,27 @@ export type ContractLogOperation = Static<typeof ContractLogOperationSchema>;
 
 export const OperationSchema = Type.Union([
   CoinbaseOperationSchema,
-  FeeOperationSchema,
-  TokenTransferOperationSchema,
   ContractCallOperationSchema,
-  SmartContractOperationSchema,
-  TenureChangeOperationSchema,
-  PoisonMicroblockOperationSchema,
-  TokenMintOperationSchema,
-  TokenBurnOperationSchema,
-  StxLockOperationSchema,
-  DelegateStxOperationSchema,
-  RevokeDelegateStxOperationSchema,
-  StackAggregationIncreaseOperationSchema,
-  StackAggregationCommitIndexedOperationSchema,
+  ContractLogOperationSchema,
   DelegateStackExtendOperationSchema,
   DelegateStackIncreaseOperationSchema,
-  ContractLogOperationSchema,
+  DelegateStackStxOperationSchema,
+  DelegateStxOperationSchema,
+  FeeOperationSchema,
+  HandleUnlockOperationSchema,
+  PoisonMicroblockOperationSchema,
+  RevokeDelegateStxOperationSchema,
+  SmartContractOperationSchema,
+  StackAggregationCommitIndexedOperationSchema,
+  StackAggregationCommitOperationSchema,
+  StackAggregationIncreaseOperationSchema,
+  StackExtendOperationSchema,
+  StackIncreaseOperationSchema,
+  StackStxOperationSchema,
+  StxLockOperationSchema,
+  TenureChangeOperationSchema,
+  TokenBurnOperationSchema,
+  TokenMintOperationSchema,
+  TokenTransferOperationSchema,
 ]);
 export type Operation = Static<typeof OperationSchema>;

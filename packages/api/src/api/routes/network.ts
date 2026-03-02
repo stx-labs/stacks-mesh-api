@@ -20,10 +20,9 @@ import {
   OPERATION_TYPES,
   MESH_SPECIFICATION_VERSION,
 } from '../../utils/constants.js';
-import { SERVER_VERSION } from '@stacks/api-toolkit';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
-  const { rpcClient, network } = config;
+  const { rpcClient, network, nodeVersion, apiVersion } = config;
 
   fastify.post(
     '/network/list',
@@ -110,8 +109,8 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       const response: NetworkOptionsResponse = {
         version: {
           rosetta_version: MESH_SPECIFICATION_VERSION,
-          node_version: config.nodeVersion,
-          middleware_version: `stacks-mesh-api ${SERVER_VERSION.tag} (${SERVER_VERSION.branch}:${SERVER_VERSION.commit})`,
+          node_version: nodeVersion,
+          middleware_version: apiVersion,
         },
         allow: {
           operation_statuses: OPERATION_STATUSES,

@@ -41,7 +41,11 @@ import type {
 } from '@stacks/mesh-schemas';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
-import { addHexPrefix, removeHexPrefix } from '../../serializers/index.js';
+import {
+  addHexPrefix,
+  removeHexPrefix,
+  serializeDecodedTransactionOperations,
+} from '../../serializers/index.js';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
   fastify,
@@ -448,57 +452,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
       try {
         const txHex = removeHexPrefix(transaction);
         const decodedTx = codec.decodeTransaction(txHex);
-        const operations: ConstructionParseResponse['operations'] = [];
-
         const senderAddress = decodedTx.auth.origin_condition.signer.address;
-        const fee = BigInt(decodedTx.auth.origin_condition.tx_fee);
-        const isSponsored =
-          decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored;
-
-        // Fee operation
-        if (fee > 0n) {
-          operations.push({
-            operation_identifier: { index: 0 },
-            type: 'fee',
-            status: 'success',
-            account: { address: senderAddress },
-            amount: {
-              value: (0n - fee).toString(),
-              currency: STX_CURRENCY,
-            },
-            metadata: { sponsored: isSponsored },
-          });
-        }
-
-        // Payload-specific operations
-        if (decodedTx.payload.type_id === codec.TxPayloadTypeID.TokenTransfer) {
-          const payload = decodedTx.payload;
-          const recipientAddress = payload.recipient.address;
-          const amount = BigInt(payload.amount);
-
-          operations.push({
-            operation_identifier: { index: operations.length },
-            type: 'token_transfer',
-            status: 'success',
-            account: { address: senderAddress },
-            amount: {
-              value: (0n - amount).toString(),
-              currency: STX_CURRENCY,
-            },
-          });
-
-          operations.push({
-            operation_identifier: { index: operations.length },
-            type: 'token_transfer',
-            status: 'success',
-            account: { address: recipientAddress },
-            amount: {
-              value: amount.toString(),
-              currency: STX_CURRENCY,
-            },
-          });
-        }
-        // TODO: Handle ContractCall, SmartContract, and other payload types
+        const operations = serializeDecodedTransactionOperations(decodedTx);
 
         const response: ConstructionParseResponse = {
           operations,
