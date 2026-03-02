@@ -3,6 +3,7 @@ dist/
 .env
 *.log
 .DS_Store
+.claude/
 
 # Package build outputs
 packages/*/dist/
