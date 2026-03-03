@@ -280,7 +280,6 @@ export interface StacksPeer {
   public_key_hash: string;
   authenticated: boolean;
   stackerdbs: string[];
-  age: number;
 }
 
 export interface StacksCost {

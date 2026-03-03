@@ -123,3 +123,8 @@ export const PoxContractIdentifier = {
 export const PoxContractIdentifiers = Object.values(PoxContractIdentifier).flatMap(
   Object.values
 ) as string[];
+
+export const GENESIS_BLOCK_HASH = {
+  mainnet: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
+  testnet: '0x0000000000000000000000000000000000000000000000000000000000000000',
+} as const;

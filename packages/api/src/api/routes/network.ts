@@ -19,7 +19,11 @@ import {
   OPERATION_STATUSES,
   OPERATION_TYPES,
   MESH_SPECIFICATION_VERSION,
+  GENESIS_BLOCK_HASH,
 } from '../../utils/constants.js';
+import codec from '@stacks/codec';
+import { addHexPrefix } from '../../serializers/index.js';
+import { StacksPeer } from '../../stacks-rpc/types.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network, nodeVersion, apiVersion } = config;
@@ -59,35 +63,58 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
         rpcClient.getNeighbors(),
       ]);
 
+      // Get the current block timestamp. Only available on Nakamoto blocks.
+      let currentBlockTimestamp = 0;
+      try {
+        const currentBlock = await rpcClient.getNakamotoBlockByHeight(nodeInfo.stacks_tip_height);
+        const decodedBlock = codec.decodeNakamotoBlock(currentBlock);
+        currentBlockTimestamp = Number(decodedBlock.header.timestamp);
+      } catch (error) {
+        // Ignore, perhaps not a Nakamoto block yet.
+      }
+
+      // Create a map of public key hash to peer for deduplication.
+      const peerMap = new Map<string, Peer>();
+      const neighborGroups = [
+        { peers: neighbors.bootstrap, type: 'bootstrap' },
+        { peers: neighbors.sample, type: 'sample' },
+        { peers: neighbors.inbound, type: 'inbound' },
+        { peers: neighbors.outbound, type: 'outbound' },
+      ] as const;
+      for (const { peers, type } of neighborGroups) {
+        for (const peer of peers) {
+          const existing = peerMap.get(peer.public_key_hash);
+          if (existing) {
+            existing.metadata.type.push(type);
+          } else {
+            peerMap.set(peer.public_key_hash, {
+              peer_id: peer.public_key_hash,
+              metadata: {
+                ip: peer.ip,
+                port: peer.port,
+                peer_version: peer.peer_version,
+                type: [type],
+              },
+            });
+          }
+        }
+      }
+
       const response: NetworkStatusResponse = {
         current_block_identifier: {
           index: nodeInfo.stacks_tip_height,
-          hash: nodeInfo.stacks_tip,
+          hash: addHexPrefix(nodeInfo.stacks_tip),
         },
-        current_block_timestamp: Date.now(), // TODO: use the actual block timestamp
+        current_block_timestamp: currentBlockTimestamp,
         genesis_block_identifier: {
-          index: 0,
-          hash: nodeInfo.genesis_chainstate_hash, // TODO: use the actual genesis block hash
+          index: 1,
+          hash: GENESIS_BLOCK_HASH[network],
         },
         sync_status: {
           current_index: nodeInfo.stacks_tip_height,
           synced: nodeInfo.is_fully_synced,
         },
-        peers: [
-          ...neighbors.bootstrap,
-          ...neighbors.sample,
-          ...neighbors.inbound,
-          ...neighbors.outbound,
-        ].map(
-          (peer): Peer => ({
-            peer_id: peer.public_key_hash,
-            // TODO: add more metadata
-            metadata: {
-              ip: peer.ip,
-              port: peer.port,
-            },
-          })
-        ),
+        peers: Array.from(peerMap.values()),
       };
 
       return reply.send(response);
