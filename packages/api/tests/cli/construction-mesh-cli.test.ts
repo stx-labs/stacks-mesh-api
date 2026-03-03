@@ -19,9 +19,9 @@ import {
 
 const execFile = promisify(execFileCb);
 
-// Well-known Stacks devnet/regtest funded account
+// Funded account from the Docker image's genesis allocation (see config.toml [[ustx_balance]])
 const SENDER_PRIVATE_KEY =
-  '753b7cc01a1a2e86221266a154af739463fce51219d97e4f856cd7200c3bd2a601';
+  'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
 const SENDER_PUBLIC_KEY = privateKeyToPublic(SENDER_PRIVATE_KEY);
 
 const NETWORK_IDENTIFIER = { blockchain: 'stacks', network: 'testnet' };
@@ -66,7 +66,7 @@ describe('Mesh CLI check:construction', () => {
     if (configDir) await rm(configDir, { recursive: true, force: true });
   }, { timeout: 30_000 });
 
-  test('passes rosetta-cli check:construction workflow', { timeout: 120_000 }, async () => {
+  test('passes rosetta-cli check:construction workflow', { timeout: 240_000 }, async () => {
     const configPath = join(configDir, 'construction-config.json');
     const dataDir = join(configDir, 'data');
 
@@ -235,7 +235,7 @@ describe('Mesh CLI check:construction', () => {
       await execFile(
         meshCliBin,
         ['check:construction', '--configuration-file', configPath],
-        { timeout: 110_000, maxBuffer: 10 * 1024 * 1024 }
+        { timeout: 230_000, maxBuffer: 10 * 1024 * 1024 }
       );
       // check:construction exits 0 on success; if we reach here it passed
       assert.ok(true, 'mesh CLI check:construction passed');

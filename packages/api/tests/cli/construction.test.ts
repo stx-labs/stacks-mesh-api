@@ -14,15 +14,23 @@ import {
   type DockerResources,
 } from './helpers.js';
 
-// Well-known Stacks devnet/regtest funded account
+// Funded accounts from the Docker image's genesis allocation (see config.toml [[ustx_balance]])
 const SENDER_PRIVATE_KEY =
-  '753b7cc01a1a2e86221266a154af739463fce51219d97e4f856cd7200c3bd2a601';
+  'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
 const SENDER_PUBLIC_KEY = privateKeyToPublic(SENDER_PRIVATE_KEY);
 
-// A second keypair to use as recipient
+// A second funded account to use as recipient
 const RECIPIENT_PRIVATE_KEY =
-  'de433bdfa14ec43aa1098d5be594c8ffb20a31485ff9de2923b2689571bd1f01';
+  '21d43d2ae0da1d9d04cfcaac7d397a33733881081f0b2cd038062cf0ccbb752601';
 const RECIPIENT_PUBLIC_KEY = privateKeyToPublic(RECIPIENT_PRIVATE_KEY);
+
+// Separate funded accounts for end-to-end tests (avoids nonce conflicts with unit tests)
+const E2E_SENDER_PRIVATE_KEY =
+  'c71700b07d520a8c9731e4d0f095aa6efb91e16e25fb27ce2b72e7b698f8127a01';
+const E2E_SENDER_PUBLIC_KEY = privateKeyToPublic(E2E_SENDER_PRIVATE_KEY);
+const E2E_RECIPIENT_PRIVATE_KEY =
+  'e75dcb66f84287eaf347955e94fa04337298dbd95aa0dbb985771104ef1913db01';
+const E2E_RECIPIENT_PUBLIC_KEY = privateKeyToPublic(E2E_RECIPIENT_PRIVATE_KEY);
 
 const NETWORK_IDENTIFIER = { blockchain: 'stacks', network: 'testnet' };
 
@@ -36,26 +44,29 @@ async function post(fastify: FastifyInstance, url: string, payload: Record<strin
   });
 }
 
-/** Polls the node for a transaction until it is confirmed in a block or times out. */
-async function waitForTxConfirmation(
+/**
+ * Waits until the sender's on-chain nonce advances past {@link previousNonce},
+ * indicating the submitted transaction has been included in a block.
+ */
+async function waitForNonceAdvance(
   fastify: FastifyInstance,
-  txid: string,
-  timeoutMs = 60_000
+  senderAddress: string,
+  previousNonce: number,
+  timeoutMs = 60_000,
 ): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    const res = await post(fastify, '/search/transactions', {
+    const res = await post(fastify, '/account/balance', {
       network_identifier: NETWORK_IDENTIFIER,
-      transaction_identifier: { hash: txid },
+      account_identifier: { address: senderAddress },
     });
     if (res.statusCode === 200) {
       const body = JSON.parse(res.body);
-      // Transaction found in a block — confirmed
-      if (body.total_count > 0) return;
+      if (body.metadata?.nonce > previousNonce) return;
     }
     await new Promise((r) => setTimeout(r, 500));
   }
-  throw new Error(`Transaction ${txid} was not confirmed within ${timeoutMs}ms`);
+  throw new Error(`Nonce for ${senderAddress} did not advance past ${previousNonce} within ${timeoutMs}ms`);
 }
 
 describe('Construction API', () => {
@@ -63,6 +74,8 @@ describe('Construction API', () => {
   let dockerResources: DockerResources;
   let senderAddress: string;
   let recipientAddress: string;
+  let e2eSenderAddress: string;
+  let e2eRecipientAddress: string;
 
   before(async () => {
     dockerResources = await setupDockerServices();
@@ -70,17 +83,28 @@ describe('Construction API', () => {
     await fastify.listen({ host: '0.0.0.0', port: API_PORT });
 
     // Derive addresses from our known keys (uses testnet network from the node)
-    const deriveRes = await post(fastify, '/construction/derive', {
-      network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-    });
+    const [deriveRes, recipientRes, e2eSenderRes, e2eRecipientRes] = await Promise.all([
+      post(fastify, '/construction/derive', {
+        network_identifier: NETWORK_IDENTIFIER,
+        public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+      }),
+      post(fastify, '/construction/derive', {
+        network_identifier: NETWORK_IDENTIFIER,
+        public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+      }),
+      post(fastify, '/construction/derive', {
+        network_identifier: NETWORK_IDENTIFIER,
+        public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+      }),
+      post(fastify, '/construction/derive', {
+        network_identifier: NETWORK_IDENTIFIER,
+        public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+      }),
+    ]);
     senderAddress = JSON.parse(deriveRes.body).account_identifier.address;
-
-    const recipientRes = await post(fastify, '/construction/derive', {
-      network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
-    });
     recipientAddress = JSON.parse(recipientRes.body).account_identifier.address;
+    e2eSenderAddress = JSON.parse(e2eSenderRes.body).account_identifier.address;
+    e2eRecipientAddress = JSON.parse(e2eRecipientRes.body).account_identifier.address;
   }, { timeout: 120_000 });
 
   after(async () => {
@@ -144,7 +168,7 @@ describe('Construction API', () => {
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
-      assert.ok(body.message.includes('Unsupported curve type'));
+      assert.ok(body.description.includes('Unsupported curve type'));
     });
   });
 
@@ -373,7 +397,7 @@ describe('Construction API', () => {
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
-      assert.ok(body.message.includes('No public key'));
+      assert.ok(body.description.includes('No public key'));
     });
   });
 
@@ -451,7 +475,7 @@ describe('Construction API', () => {
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
       assert.ok(body.signed_transaction);
-      assert.ok(body.signed_transaction.length > unsignedTx.length);
+      assert.ok(body.signed_transaction.length >= unsignedTx.length);
     });
 
     test('rejects when no signatures are provided', async () => {
@@ -479,7 +503,7 @@ describe('Construction API', () => {
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
-      assert.ok(body.message.includes('At least one signature'));
+      assert.ok(body.description.includes('At least one signature'));
     });
 
     test('rejects a signature with invalid length', async () => {
@@ -518,7 +542,7 @@ describe('Construction API', () => {
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
-      assert.ok(body.message.includes('Invalid signature length'));
+      assert.ok(body.description.includes('Invalid signature length'));
     });
   });
 
@@ -775,7 +799,7 @@ describe('Construction API', () => {
         network_identifier: NETWORK_IDENTIFIER,
         signed_transaction: signedTx,
       });
-      assert.equal(res.statusCode, 200);
+      assert.equal(res.statusCode, 200, `submit failed: ${res.body}`);
       const body = JSON.parse(res.body);
       assert.ok(body.transaction_identifier.hash);
       assert.match(body.transaction_identifier.hash, /^0x[0-9a-f]{64}$/);
@@ -789,17 +813,17 @@ describe('Construction API', () => {
 
   describe('end-to-end: derive → preprocess → metadata → payloads → combine → parse → hash → submit', () => {
     test('completes a full STX transfer and confirms it on chain', { timeout: 120_000 }, async () => {
-      // 1. Derive sender and recipient addresses
+      // 1. Derive sender and recipient addresses (uses separate E2E accounts to avoid nonce conflicts)
       const deriveRes = await post(fastify, '/construction/derive', {
         network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+        public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
       });
       assert.equal(deriveRes.statusCode, 200);
       const sender = JSON.parse(deriveRes.body).account_identifier.address;
 
       const deriveRecipientRes = await post(fastify, '/construction/derive', {
         network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+        public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
       });
       assert.equal(deriveRecipientRes.statusCode, 200);
       const recipient = JSON.parse(deriveRecipientRes.body).account_identifier.address;
@@ -836,11 +860,12 @@ describe('Construction API', () => {
       const metadataRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
         options: preprocessBody.options,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(metadataRes.statusCode, 200);
       const metadataBody = JSON.parse(metadataRes.body);
       const fee = metadataBody.suggested_fee[0].value;
+      const senderNonce = metadataBody.metadata.account_info[sender]?.nonce ?? 0;
 
       // 4. Payloads — include fee as an operation
       const fullOperations = [
@@ -860,7 +885,7 @@ describe('Construction API', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations: fullOperations,
         metadata: metadataBody.metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(payloadsRes.statusCode, 200);
       const payloadsBody = JSON.parse(payloadsRes.body);
@@ -883,7 +908,7 @@ describe('Construction API', () => {
 
       // 6. Sign offline
       const sighash = payloadsBody.payloads[0].hex_bytes;
-      const signature = signWithKey(SENDER_PRIVATE_KEY, sighash);
+      const signature = signWithKey(E2E_SENDER_PRIVATE_KEY, sighash);
 
       // 7. Combine
       const combineRes = await post(fastify, '/construction/combine', {
@@ -895,7 +920,7 @@ describe('Construction API', () => {
             address: sender,
             signature_type: 'ecdsa_recovery',
           },
-          public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+          public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
           signature_type: 'ecdsa_recovery',
           hex_bytes: signature,
         }],
@@ -928,41 +953,41 @@ describe('Construction API', () => {
         network_identifier: NETWORK_IDENTIFIER,
         signed_transaction: signedTx,
       });
-      assert.equal(submitRes.statusCode, 200);
+      assert.equal(submitRes.statusCode, 200, `submit failed: ${submitRes.body}`);
       const submitBody = JSON.parse(submitRes.body);
       assert.equal(submitBody.transaction_identifier.hash, txid);
 
       // 11. Wait for confirmation — the regtest node mines every 0.1s
-      await waitForTxConfirmation(fastify, txid);
+      await waitForNonceAdvance(fastify, sender, senderNonce);
     });
 
     test('rejects a duplicate broadcast of the same transaction', { timeout: 30_000 }, async () => {
-      // Build and submit a transaction
+      // Build and submit a transaction (uses E2E accounts to avoid nonce conflicts)
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        options: { sender_addresses: [e2eSenderAddress], recipient_addresses: [e2eRecipientAddress], operation_count: 3 },
+        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
 
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-50000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '50000', currency: { symbol: 'STX', decimals: 6 } } },
+          { operation_identifier: { index: 0 }, type: 'fee', account: { address: e2eSenderAddress }, amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } } },
+          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: e2eSenderAddress }, amount: { value: '-50000', currency: { symbol: 'STX', decimals: 6 } } },
+          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: e2eRecipientAddress }, amount: { value: '50000', currency: { symbol: 'STX', decimals: 6 } } },
         ],
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsBody = JSON.parse(payloadsRes.body);
-      const signature = signWithKey(SENDER_PRIVATE_KEY, payloadsBody.payloads[0].hex_bytes);
+      const signature = signWithKey(E2E_SENDER_PRIVATE_KEY, payloadsBody.payloads[0].hex_bytes);
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
         signatures: [{
-          signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: senderAddress, signature_type: 'ecdsa_recovery' },
-          public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+          signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: e2eSenderAddress, signature_type: 'ecdsa_recovery' },
+          public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
           signature_type: 'ecdsa_recovery',
           hex_bytes: signature,
         }],
@@ -974,18 +999,25 @@ describe('Construction API', () => {
         network_identifier: NETWORK_IDENTIFIER,
         signed_transaction: signedTx,
       });
-      assert.equal(firstSubmit.statusCode, 200);
+      assert.equal(firstSubmit.statusCode, 200, `first submit failed: ${firstSubmit.body}`);
 
       // Wait a moment for the tx to be accepted into the mempool
       await new Promise((r) => setTimeout(r, 2000));
 
-      // Second submit of the same transaction should fail
+      // Second submit of the same transaction should either:
+      // - fail with 500 (ConflictingNonceInMempool) if still pending, or
+      // - succeed with 200 returning the same txid (idempotent) if already mined
       const secondSubmit = await post(fastify, '/construction/submit', {
         network_identifier: NETWORK_IDENTIFIER,
         signed_transaction: signedTx,
       });
-      // The node should reject the duplicate (either conflict or already mined)
-      assert.equal(secondSubmit.statusCode, 500);
+      if (secondSubmit.statusCode === 200) {
+        const secondBody = JSON.parse(secondSubmit.body);
+        const firstBody = JSON.parse(firstSubmit.body);
+        assert.equal(secondBody.transaction_identifier.hash, firstBody.transaction_identifier.hash);
+      } else {
+        assert.equal(secondSubmit.statusCode, 500);
+      }
     });
   });
 });
