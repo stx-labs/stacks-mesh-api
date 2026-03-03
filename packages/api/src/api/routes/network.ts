@@ -20,10 +20,10 @@ import {
   OPERATION_TYPES,
   MESH_SPECIFICATION_VERSION,
   GENESIS_BLOCK_HASH,
+  GENESIS_BLOCK_TIMESTAMP,
 } from '../../utils/constants.js';
 import codec from '@stacks/codec';
 import { addHexPrefix } from '../../serializers/index.js';
-import { StacksPeer } from '../../stacks-rpc/types.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network, nodeVersion, apiVersion } = config;
@@ -64,7 +64,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       ]);
 
       // Get the current block timestamp. Only available on Nakamoto blocks.
-      let currentBlockTimestamp = 0;
+      let currentBlockTimestamp = GENESIS_BLOCK_TIMESTAMP;
       try {
         const currentBlock = await rpcClient.getNakamotoBlockByHeight(nodeInfo.stacks_tip_height);
         const decodedBlock = codec.decodeNakamotoBlock(currentBlock);
@@ -144,7 +144,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
           operation_types: OPERATION_TYPES,
           errors: getAllErrors(),
           historical_balance_lookup: true,
-          timestamp_start_index: 1, // TODO: use the actual timestamp start index
+          timestamp_start_index: GENESIS_BLOCK_TIMESTAMP,
           call_methods: CALL_METHODS,
           balance_exemptions: [],
           mempool_coins: false,
