@@ -10,6 +10,10 @@ import {
   sigHashPreSign,
   serializePayload,
   AuthType,
+  serializePayloadBytes,
+  makeUnsignedContractCall,
+  hexToCV,
+  makeUnsignedContractDeploy,
 } from '@stacks/transactions';
 import codec from '@stacks/codec';
 import {
@@ -32,7 +36,6 @@ import {
 } from '@stacks/mesh-schemas';
 import type {
   ConstructionDeriveResponse,
-  ConstructionPreprocessResponse,
   ConstructionMetadataResponse,
   ConstructionPayloadsResponse,
   ConstructionCombineResponse,
@@ -47,13 +50,9 @@ import {
   serializeDecodedTransactionOperations,
 } from '../../serializers/index.js';
 
-export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
-  fastify,
-  config
-) => {
+export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
 
-  // Derives a Stacks address from a public key.
   fastify.post(
     '/construction/derive',
     {
@@ -67,20 +66,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
     },
     async (request, reply) => {
       const { public_key } = request.body;
-
-      if (public_key.curve_type !== 'secp256k1') {
-        return reply.status(500).send(
-          MeshErrors.invalidPublicKey(
-            `Unsupported curve type: ${public_key.curve_type}. Stacks only supports secp256k1.`
-          )
-        );
-      }
-
       try {
-        const address = getAddressFromPublicKey(
-          removeHexPrefix(public_key.hex_bytes),
-          network
-        );
+        const address = getAddressFromPublicKey(removeHexPrefix(public_key.hex_bytes), network);
         const response: ConstructionDeriveResponse = {
           account_identifier: { address },
         };
@@ -92,8 +79,6 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
     }
   );
 
-  // Analyzes operations to determine what metadata is needed for transaction construction.
-  // Returns options to pass to /construction/metadata and lists required public keys.
   fastify.post(
     '/construction/preprocess',
     {
@@ -106,38 +91,106 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
       },
     },
     async (request, reply) => {
-      const { operations, max_fee, suggested_fee_multiplier } = request.body;
+      const { operations } = request.body;
+      const maxFee = request.body.max_fee?.[0]?.value
+        ? { max_fee: request.body.max_fee[0].value }
+        : undefined;
+      const suggestedFeeMultiplier = request.body.suggested_fee_multiplier
+        ? { suggested_fee_multiplier: request.body.suggested_fee_multiplier }
+        : undefined;
 
-      const senderAddresses = new Set<string>();
-      const recipientAddresses = new Set<string>();
-
-      for (const op of operations) {
-        if ('account' in op && op.account?.address && 'amount' in op && op.amount?.value) {
-          const value = BigInt(op.amount.value);
-          if (value < 0n) {
-            senderAddresses.add(op.account.address);
-          } else if (value > 0n) {
-            recipientAddresses.add(op.account.address);
+      // `contract_call` and `contract_deploy` are the only valid single operation types.
+      // `token_transfer` requires two operations: one with a negative amount and one with a
+      // positive amount. Other operation types are not allowed.
+      switch (operations.length) {
+        case 1: {
+          const op = operations[0];
+          switch (op.type) {
+            case 'contract_call': {
+              return reply.send({
+                options: {
+                  type: 'contract_call',
+                  sender_address: op.account.address,
+                  contract_identifier: op.metadata.contract_identifier,
+                  function_name: op.metadata.function_name,
+                  args: op.metadata.args,
+                  ...maxFee,
+                  ...suggestedFeeMultiplier,
+                },
+                required_public_keys: [{ address: op.account.address }],
+              });
+            }
+            case 'contract_deploy': {
+              return reply.send({
+                options: {
+                  type: 'contract_deploy',
+                  sender_address: op.account.address,
+                  contract_name: op.metadata.contract_name,
+                  clarity_version: op.metadata.clarity_version,
+                  source_code: op.metadata.source_code,
+                },
+                required_public_keys: [{ address: op.account.address }],
+              });
+            }
+            default:
+              return reply
+                .status(500)
+                .send(MeshErrors.invalidTransaction('Token transfers require two operations'));
           }
         }
+        case 2: {
+          const [op1, op2] = operations;
+          if (op1.type !== 'token_transfer' || op2.type !== 'token_transfer') {
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidTransaction(
+                  'Token transfer operations cannot be combined with other operations'
+                )
+              );
+          }
+          let senderAddress: string | undefined;
+          let recipientAddress: string | undefined;
+          const value1 = BigInt(op1.amount.value);
+          const value2 = BigInt(op2.amount.value);
+          if (
+            (value1 < 0n && value2 < 0n) ||
+            (value1 > 0n && value2 > 0n) ||
+            value1 === 0n ||
+            value2 === 0n
+          ) {
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidTransaction(
+                  'Token transfers require one negative and one positive amount'
+                )
+              );
+          }
+          if (value1 < 0n) {
+            senderAddress = op1.account.address;
+            recipientAddress = op2.account.address;
+          } else {
+            senderAddress = op2.account.address;
+            recipientAddress = op1.account.address;
+          }
+          return reply.send({
+            options: {
+              type: 'token_transfer',
+              sender_address: senderAddress,
+              recipient_address: recipientAddress,
+            },
+            required_public_keys: [{ address: senderAddress }],
+          });
+        }
+        default:
+          return reply
+            .status(500)
+            .send(MeshErrors.invalidTransaction('Invalid operation count: must be 1 or 2'));
       }
-
-      const response: ConstructionPreprocessResponse = {
-        options: {
-          sender_addresses: Array.from(senderAddresses),
-          recipient_addresses: Array.from(recipientAddresses),
-          operation_count: operations.length,
-          ...(max_fee?.[0]?.value ? { max_fee: max_fee[0].value } : {}),
-          ...(suggested_fee_multiplier ? { suggested_fee_multiplier } : {}),
-        },
-        required_public_keys: Array.from(senderAddresses).map(address => ({ address })),
-      };
-      return reply.send(response);
     }
   );
 
-  // Fetches on-chain metadata needed for transaction construction: account nonces, fee estimates,
-  // and the recent block hash.
   fastify.post(
     '/construction/metadata',
     {
@@ -152,50 +205,66 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
     async (request, reply) => {
       const { options, public_keys } = request.body;
 
+      // Estimate fee using a representative STX transfer payload
+      let suggestedFee = 200; // Default fallback fee in uSTX
       try {
-        const senderAddresses: string[] = (options?.sender_addresses as string[]) ?? [];
-
-        // Fetch account info (nonce, balance) for all sender addresses
-        const accountInfos = await Promise.all(
-          senderAddresses.map(async (address) => {
-            try {
-              const info = await rpcClient.getAccount(address);
-              return { address, nonce: info.nonce, balance: BigInt(info.balance).toString() };
-            } catch {
-              return { address, nonce: 0, balance: '0' };
-            }
-          })
-        );
-
-        // Estimate fee using a representative STX transfer payload
-        let suggestedFee = 200; // Default fallback fee in uSTX
-        try {
-          const dummyPubKey = public_keys?.[0]?.hex_bytes ?? '0'.repeat(66);
-          const dummyRecipient = senderAddresses[0] ?? 'SP000000000000000000002Q6VF78';
-          const dummyTx = await makeUnsignedSTXTokenTransfer({
-            recipient: dummyRecipient,
-            amount: 1,
-            fee: 0,
-            nonce: 0,
-            publicKey: removeHexPrefix(dummyPubKey),
-            network,
-          });
-          const payloadHex = serializePayload(dummyTx.payload);
-          const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
-          suggestedFee =
-            feeEstimate.estimations[1]?.fee ??
-            feeEstimate.estimations[0]?.fee ??
-            suggestedFee;
-        } catch {
-          // Keep default fallback fee
+        const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
+        switch (options.type) {
+          case 'token_transfer': {
+            const dummyTx = await makeUnsignedSTXTokenTransfer({
+              recipient: options.recipient_address,
+              amount: 1,
+              fee: 0,
+              nonce: 0,
+              publicKey: dummyPubKey,
+              network,
+            });
+            const payloadHex = serializePayload(dummyTx.payload);
+            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
+            suggestedFee =
+              feeEstimate.estimations[1]?.fee ??
+              feeEstimate.estimations[0]?.fee ??
+              serializePayloadBytes(dummyTx.payload).length ??
+              suggestedFee;
+            break;
+          }
+          case 'contract_call': {
+            const [contractAddress, contractName] = options.contract_identifier.split('.');
+            const dummyTx = await makeUnsignedContractCall({
+              contractAddress,
+              contractName,
+              functionName: options.function_name,
+              functionArgs: options.args.map(arg => hexToCV(arg)),
+              publicKey: dummyPubKey,
+              fee: 0,
+            });
+            const payloadHex = serializePayload(dummyTx.payload);
+            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
+            suggestedFee =
+              feeEstimate.estimations[1]?.fee ??
+              feeEstimate.estimations[0]?.fee ??
+              serializePayloadBytes(dummyTx.payload).length ??
+              suggestedFee;
+            break;
+          }
+          case 'contract_deploy': {
+            const dummyTx = await makeUnsignedContractDeploy({
+              contractName: options.contract_name,
+              codeBody: options.source_code,
+              clarityVersion: options.clarity_version,
+              publicKey: dummyPubKey,
+              fee: 0,
+            });
+            const payloadHex = serializePayload(dummyTx.payload);
+            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
+            suggestedFee =
+              feeEstimate.estimations[1]?.fee ??
+              feeEstimate.estimations[0]?.fee ??
+              serializePayloadBytes(dummyTx.payload).length ??
+              suggestedFee;
+            break;
+          }
         }
-
-        // Cap fee if max_fee was specified in options
-        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
-        if (maxFee !== undefined && suggestedFee > maxFee) {
-          suggestedFee = maxFee;
-        }
-
         // Apply fee multiplier if specified
         const feeMultiplier = options?.suggested_fee_multiplier
           ? Number(options.suggested_fee_multiplier)
@@ -203,33 +272,31 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
         if (feeMultiplier !== undefined) {
           suggestedFee = Math.round(suggestedFee * feeMultiplier);
         }
-
-        const nodeInfo = await rpcClient.getInfo();
-
-        const response: ConstructionMetadataResponse = {
-          metadata: {
-            account_info: accountInfos.reduce(
-              (acc, info) => {
-                acc[info.address] = { nonce: info.nonce, balance: info.balance };
-                return acc;
-              },
-              {} as Record<string, { nonce: number; balance: string }>
-            ),
-            recent_block_hash: nodeInfo.stacks_tip,
-          },
-          suggested_fee: [
-            {
-              value: String(suggestedFee),
-              currency: STX_CURRENCY,
-            },
-          ],
-        };
-
-        return reply.send(response);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return reply.status(500).send(MeshErrors.rpcError(message));
+        // Cap fee if max_fee was specified in options
+        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
+        if (maxFee !== undefined && suggestedFee > maxFee) {
+          suggestedFee = maxFee;
+        }
+      } catch {
+        // Keep default fallback fee
       }
+
+      const senderInfo = await rpcClient.getAccount(options.sender_address);
+      const response: ConstructionMetadataResponse = {
+        metadata: {
+          ...options,
+          sender_nonce: senderInfo.nonce,
+          sender_balance: BigInt(senderInfo.balance).toString(),
+        },
+        suggested_fee: [
+          {
+            value: String(suggestedFee),
+            currency: STX_CURRENCY,
+          },
+        ],
+      };
+
+      return reply.send(response);
     }
   );
 
@@ -271,27 +338,23 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
             if ('metadata' in op && op.metadata?.memo) {
               memo = op.metadata.memo;
             }
-          } else if (op.type === 'fee' && 'amount' in op) {
-            feeAmount = BigInt(op.amount.value);
-            if (feeAmount < 0n) feeAmount = -feeAmount;
           }
         }
 
         if (!senderAddress || !recipientAddress || !transferAmount) {
-          return reply.status(500).send(
-            MeshErrors.invalidTransaction(
-              'Operations must include token_transfer operations with a sender (negative amount) and recipient (positive amount)'
-            )
-          );
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.invalidTransaction(
+                'Operations must include token_transfer operations with a sender (negative amount) and recipient (positive amount)'
+              )
+            );
         }
 
         // Find the sender's public key by deriving addresses from each provided key
         const senderPubKey = public_keys?.find(pk => {
           try {
-            const derivedAddress = getAddressFromPublicKey(
-              removeHexPrefix(pk.hex_bytes),
-              network
-            );
+            const derivedAddress = getAddressFromPublicKey(removeHexPrefix(pk.hex_bytes), network);
             return derivedAddress === senderAddress;
           } catch {
             return false;
@@ -299,11 +362,11 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
         });
 
         if (!senderPubKey) {
-          return reply.status(500).send(
-            MeshErrors.invalidPublicKey(
-              'No public key provided that matches the sender address'
-            )
-          );
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.invalidPublicKey('No public key provided that matches the sender address')
+            );
         }
 
         // Read nonce from metadata
@@ -330,12 +393,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
 
         // Compute the signing payload (the sighash the signer must sign)
         const initialSighash = unsignedTx.signBegin();
-        const sigHash = sigHashPreSign(
-          initialSighash,
-          AuthType.Standard,
-          fee,
-          BigInt(nonce)
-        );
+        const sigHash = sigHashPreSign(initialSighash, AuthType.Standard, fee, BigInt(nonce));
 
         const response: ConstructionPayloadsResponse = {
           unsigned_transaction: removeHexPrefix(unsignedTxHex),
@@ -387,11 +445,13 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
 
         if (isSingleSig(spendingCondition)) {
           if (signatures.length !== 1) {
-            return reply.status(500).send(
-              MeshErrors.invalidSignature(
-                `Expected exactly 1 signature for single-sig transaction, got ${signatures.length}`
-              )
-            );
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidSignature(
+                  `Expected exactly 1 signature for single-sig transaction, got ${signatures.length}`
+                )
+              );
           }
 
           const sig = signatures[0];
@@ -399,11 +459,13 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
 
           // Recoverable ECDSA signatures are 65 bytes (130 hex characters)
           if (signatureHex.length !== 130) {
-            return reply.status(500).send(
-              MeshErrors.invalidSignature(
-                `Invalid signature length: expected 130 hex characters (65 bytes), got ${signatureHex.length}`
-              )
-            );
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidSignature(
+                  `Invalid signature length: expected 130 hex characters (65 bytes), got ${signatureHex.length}`
+                )
+              );
           }
 
           spendingCondition.signature = createMessageSignature(signatureHex);
@@ -412,9 +474,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
           return reply
             .status(500)
             .send(
-              MeshErrors.notImplemented(
-                'Multi-sig transaction combining is not yet supported'
-              )
+              MeshErrors.notImplemented('Multi-sig transaction combining is not yet supported')
             );
         }
 
@@ -453,13 +513,11 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
         const txHex = removeHexPrefix(transaction);
         const decodedTx = codec.decodeTransaction(txHex);
         const senderAddress = decodedTx.auth.origin_condition.signer.address;
-        const operations = serializeDecodedTransactionOperations(decodedTx);
+        const operations = await serializeDecodedTransactionOperations(decodedTx, config);
 
         const response: ConstructionParseResponse = {
           operations,
-          ...(signed
-            ? { account_identifier_signers: [{ address: senderAddress }] }
-            : {}),
+          ...(signed ? { account_identifier_signers: [{ address: senderAddress }] } : {}),
         };
 
         return reply.send(response);
@@ -525,11 +583,13 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
         const result = await rpcClient.broadcastTransaction(signed_transaction);
 
         if (result.error) {
-          return reply.status(500).send(
-            MeshErrors.transactionBroadcastError(
-              `${result.reason}: ${JSON.stringify(result.reason_data)}`
-            )
-          );
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.transactionBroadcastError(
+                `${result.reason}: ${JSON.stringify(result.reason_data)}`
+              )
+            );
         }
 
         const response: TransactionIdentifierResponse = {

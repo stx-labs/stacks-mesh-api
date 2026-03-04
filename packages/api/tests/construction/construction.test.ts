@@ -1,10 +1,7 @@
 import * as assert from 'node:assert/strict';
 import { before, after, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-import {
-  privateKeyToPublic,
-  signWithKey,
-} from '@stacks/transactions';
+import { privateKeyToPublic, signWithKey } from '@stacks/transactions';
 
 import {
   setupDockerServices,
@@ -15,18 +12,15 @@ import {
 } from './helpers.js';
 
 // Funded accounts from the Docker image's genesis allocation (see config.toml [[ustx_balance]])
-const SENDER_PRIVATE_KEY =
-  'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
+const SENDER_PRIVATE_KEY = 'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
 const SENDER_PUBLIC_KEY = privateKeyToPublic(SENDER_PRIVATE_KEY);
 
 // A second funded account to use as recipient
-const RECIPIENT_PRIVATE_KEY =
-  '21d43d2ae0da1d9d04cfcaac7d397a33733881081f0b2cd038062cf0ccbb752601';
+const RECIPIENT_PRIVATE_KEY = '21d43d2ae0da1d9d04cfcaac7d397a33733881081f0b2cd038062cf0ccbb752601';
 const RECIPIENT_PUBLIC_KEY = privateKeyToPublic(RECIPIENT_PRIVATE_KEY);
 
 // Separate funded accounts for end-to-end tests (avoids nonce conflicts with unit tests)
-const E2E_SENDER_PRIVATE_KEY =
-  'c71700b07d520a8c9731e4d0f095aa6efb91e16e25fb27ce2b72e7b698f8127a01';
+const E2E_SENDER_PRIVATE_KEY = 'c71700b07d520a8c9731e4d0f095aa6efb91e16e25fb27ce2b72e7b698f8127a01';
 const E2E_SENDER_PUBLIC_KEY = privateKeyToPublic(E2E_SENDER_PRIVATE_KEY);
 const E2E_RECIPIENT_PRIVATE_KEY =
   'e75dcb66f84287eaf347955e94fa04337298dbd95aa0dbb985771104ef1913db01';
@@ -52,7 +46,7 @@ async function waitForNonceAdvance(
   fastify: FastifyInstance,
   senderAddress: string,
   previousNonce: number,
-  timeoutMs = 60_000,
+  timeoutMs = 60_000
 ): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
@@ -64,9 +58,11 @@ async function waitForNonceAdvance(
       const body = JSON.parse(res.body);
       if (body.metadata?.nonce > previousNonce) return;
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 500));
   }
-  throw new Error(`Nonce for ${senderAddress} did not advance past ${previousNonce} within ${timeoutMs}ms`);
+  throw new Error(
+    `Nonce for ${senderAddress} did not advance past ${previousNonce} within ${timeoutMs}ms`
+  );
 }
 
 describe('Construction API', () => {
@@ -77,40 +73,46 @@ describe('Construction API', () => {
   let e2eSenderAddress: string;
   let e2eRecipientAddress: string;
 
-  before(async () => {
-    dockerResources = await setupDockerServices();
-    fastify = await buildTestServer();
-    await fastify.listen({ host: '0.0.0.0', port: API_PORT });
+  before(
+    async () => {
+      dockerResources = await setupDockerServices();
+      fastify = await buildTestServer();
+      await fastify.listen({ host: '0.0.0.0', port: API_PORT });
 
-    // Derive addresses from our known keys (uses testnet network from the node)
-    const [deriveRes, recipientRes, e2eSenderRes, e2eRecipientRes] = await Promise.all([
-      post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-      }),
-      post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
-      }),
-      post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-      }),
-      post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
-      }),
-    ]);
-    senderAddress = JSON.parse(deriveRes.body).account_identifier.address;
-    recipientAddress = JSON.parse(recipientRes.body).account_identifier.address;
-    e2eSenderAddress = JSON.parse(e2eSenderRes.body).account_identifier.address;
-    e2eRecipientAddress = JSON.parse(e2eRecipientRes.body).account_identifier.address;
-  }, { timeout: 120_000 });
+      // Derive addresses from our known keys (uses testnet network from the node)
+      const [deriveRes, recipientRes, e2eSenderRes, e2eRecipientRes] = await Promise.all([
+        post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
+          public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+        }),
+        post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
+          public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+        }),
+        post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
+          public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+        }),
+        post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
+          public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+        }),
+      ]);
+      senderAddress = JSON.parse(deriveRes.body).account_identifier.address;
+      recipientAddress = JSON.parse(recipientRes.body).account_identifier.address;
+      e2eSenderAddress = JSON.parse(e2eSenderRes.body).account_identifier.address;
+      e2eRecipientAddress = JSON.parse(e2eRecipientRes.body).account_identifier.address;
+    },
+    { timeout: 120_000 }
+  );
 
-  after(async () => {
-    await fastify?.close();
-    await teardownDockerServices(dockerResources);
-  }, { timeout: 30_000 });
+  after(
+    async () => {
+      await fastify?.close();
+      await teardownDockerServices(dockerResources);
+    },
+    { timeout: 30_000 }
+  );
 
   // ── /construction/derive ────────────────────────────────────────────────
 
@@ -168,31 +170,24 @@ describe('Construction API', () => {
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
-      assert.ok(body.description.includes('Unsupported curve type'));
     });
   });
 
   // ── /construction/preprocess ────────────────────────────────────────────
 
   describe('/construction/preprocess', () => {
-    test('extracts sender and recipient from transfer operations', async () => {
+    test('extracts sender and recipient from token_transfer', async () => {
       const res = await post(fastify, '/construction/preprocess', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
           {
             operation_identifier: { index: 0 },
-            type: 'fee',
-            account: { address: senderAddress },
-            amount: { value: '-180', currency: { symbol: 'STX', decimals: 6 } },
-          },
-          {
-            operation_identifier: { index: 1 },
             type: 'token_transfer',
             account: { address: senderAddress },
             amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
           },
           {
-            operation_identifier: { index: 2 },
+            operation_identifier: { index: 1 },
             type: 'token_transfer',
             account: { address: recipientAddress },
             amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
@@ -202,12 +197,90 @@ describe('Construction API', () => {
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
       assert.ok(body.options);
-      assert.ok(body.options.sender_addresses.includes(senderAddress));
-      assert.ok(body.options.recipient_addresses.includes(recipientAddress));
-      assert.equal(body.options.operation_count, 3);
+      assert.equal(body.options.type, 'token_transfer');
+      assert.equal(body.options.sender_address, senderAddress);
+      assert.equal(body.options.recipient_address, recipientAddress);
       assert.ok(body.required_public_keys);
       assert.equal(body.required_public_keys.length, 1);
       assert.equal(body.required_public_keys[0].address, senderAddress);
+    });
+
+    test('rejects when no sender address is provided', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+    });
+
+    test('rejects token_transfer when no recipient address is provided', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+    });
+
+    test('rejects token_transfer when multiple recipient addresses are provided', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: 'SP000000000000000000002Q6VF78' },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+    });
+
+    test('rejects token_transfer when multiple sender addresses are provided', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: 'SP000000000000000000002Q6VF78' },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
     });
 
     test('forwards max_fee and suggested_fee_multiplier', async () => {
@@ -248,9 +321,7 @@ describe('Construction API', () => {
           recipient_addresses: [recipientAddress],
           operation_count: 3,
         },
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
@@ -283,9 +354,7 @@ describe('Construction API', () => {
           operation_count: 3,
           max_fee: '100',
         },
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
@@ -305,9 +374,7 @@ describe('Construction API', () => {
           recipient_addresses: [recipientAddress],
           operation_count: 3,
         },
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
 
@@ -334,9 +401,7 @@ describe('Construction API', () => {
           },
         ],
         metadata,
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
@@ -365,9 +430,7 @@ describe('Construction API', () => {
           },
         ],
         metadata: {},
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
     });
@@ -391,9 +454,7 @@ describe('Construction API', () => {
         ],
         metadata: {},
         // Provide a key that doesn't match senderAddress
-        public_keys: [
-          { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
@@ -413,9 +474,7 @@ describe('Construction API', () => {
           recipient_addresses: [recipientAddress],
           operation_count: 3,
         },
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
 
@@ -442,9 +501,7 @@ describe('Construction API', () => {
           },
         ],
         metadata,
-        public_keys: [
-          { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-        ],
+        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsBody = JSON.parse(payloadsRes.body);
       const unsignedTx = payloadsBody.unsigned_transaction;
@@ -482,15 +539,34 @@ describe('Construction API', () => {
       // Build a minimal unsigned tx
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-1000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '1000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata: JSON.parse(metaRes.body).metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
@@ -509,15 +585,34 @@ describe('Construction API', () => {
     test('rejects a signature with invalid length', async () => {
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-1000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '1000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata: JSON.parse(metaRes.body).metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
@@ -553,7 +648,11 @@ describe('Construction API', () => {
     async function buildTransaction(sign: boolean) {
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
@@ -561,9 +660,24 @@ describe('Construction API', () => {
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-5000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '5000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-5000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '5000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
@@ -572,10 +686,7 @@ describe('Construction API', () => {
 
       if (!sign) return payloadsBody.unsigned_transaction;
 
-      const signature = signWithKey(
-        SENDER_PRIVATE_KEY,
-        payloadsBody.payloads[0].hex_bytes
-      );
+      const signature = signWithKey(SENDER_PRIVATE_KEY, payloadsBody.payloads[0].hex_bytes);
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
@@ -659,7 +770,11 @@ describe('Construction API', () => {
       // Build a signed transaction
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
@@ -667,25 +782,41 @@ describe('Construction API', () => {
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-2000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '2000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-2000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '2000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsBody = JSON.parse(payloadsRes.body);
 
-      const signature = signWithKey(
-        SENDER_PRIVATE_KEY,
-        payloadsBody.payloads[0].hex_bytes
-      );
+      const signature = signWithKey(SENDER_PRIVATE_KEY, payloadsBody.payloads[0].hex_bytes);
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
         signatures: [
           {
-            signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: senderAddress, signature_type: 'ecdsa_recovery' },
+            signing_payload: {
+              hex_bytes: payloadsBody.payloads[0].hex_bytes,
+              address: senderAddress,
+              signature_type: 'ecdsa_recovery',
+            },
             public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
             signature_type: 'ecdsa_recovery',
             hex_bytes: signature,
@@ -708,7 +839,11 @@ describe('Construction API', () => {
     test('returns the same hash for the same signed transaction', async () => {
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
@@ -716,9 +851,24 @@ describe('Construction API', () => {
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-3000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '3000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-3000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '3000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
@@ -728,18 +878,30 @@ describe('Construction API', () => {
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
-        signatures: [{
-          signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: senderAddress, signature_type: 'ecdsa_recovery' },
-          public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-          signature_type: 'ecdsa_recovery',
-          hex_bytes: signature,
-        }],
+        signatures: [
+          {
+            signing_payload: {
+              hex_bytes: payloadsBody.payloads[0].hex_bytes,
+              address: senderAddress,
+              signature_type: 'ecdsa_recovery',
+            },
+            public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+            signature_type: 'ecdsa_recovery',
+            hex_bytes: signature,
+          },
+        ],
       });
       const signedTx = JSON.parse(combineRes.body).signed_transaction;
 
       const [res1, res2] = await Promise.all([
-        post(fastify, '/construction/hash', { network_identifier: NETWORK_IDENTIFIER, signed_transaction: signedTx }),
-        post(fastify, '/construction/hash', { network_identifier: NETWORK_IDENTIFIER, signed_transaction: signedTx }),
+        post(fastify, '/construction/hash', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed_transaction: signedTx,
+        }),
+        post(fastify, '/construction/hash', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed_transaction: signedTx,
+        }),
       ]);
       const hash1 = JSON.parse(res1.body).transaction_identifier.hash;
       const hash2 = JSON.parse(res2.body).transaction_identifier.hash;
@@ -754,7 +916,11 @@ describe('Construction API', () => {
       // Build a signed transaction through the full flow
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [senderAddress], recipient_addresses: [recipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [senderAddress],
+          recipient_addresses: [recipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
@@ -762,28 +928,46 @@ describe('Construction API', () => {
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: senderAddress }, amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: senderAddress }, amount: { value: '-100000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: recipientAddress }, amount: { value: '100000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-100000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '100000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata,
         public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const payloadsBody = JSON.parse(payloadsRes.body);
 
-      const signature = signWithKey(
-        SENDER_PRIVATE_KEY,
-        payloadsBody.payloads[0].hex_bytes
-      );
+      const signature = signWithKey(SENDER_PRIVATE_KEY, payloadsBody.payloads[0].hex_bytes);
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
-        signatures: [{
-          signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: senderAddress, signature_type: 'ecdsa_recovery' },
-          public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-          signature_type: 'ecdsa_recovery',
-          hex_bytes: signature,
-        }],
+        signatures: [
+          {
+            signing_payload: {
+              hex_bytes: payloadsBody.payloads[0].hex_bytes,
+              address: senderAddress,
+              signature_type: 'ecdsa_recovery',
+            },
+            public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+            signature_type: 'ecdsa_recovery',
+            hex_bytes: signature,
+          },
+        ],
       });
       const signedTx = JSON.parse(combineRes.body).signed_transaction;
 
@@ -812,160 +996,170 @@ describe('Construction API', () => {
   // ── Full end-to-end flow ────────────────────────────────────────────────
 
   describe('end-to-end: derive → preprocess → metadata → payloads → combine → parse → hash → submit', () => {
-    test('completes a full STX transfer and confirms it on chain', { timeout: 120_000 }, async () => {
-      // 1. Derive sender and recipient addresses (uses separate E2E accounts to avoid nonce conflicts)
-      const deriveRes = await post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-      });
-      assert.equal(deriveRes.statusCode, 200);
-      const sender = JSON.parse(deriveRes.body).account_identifier.address;
-
-      const deriveRecipientRes = await post(fastify, '/construction/derive', {
-        network_identifier: NETWORK_IDENTIFIER,
-        public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
-      });
-      assert.equal(deriveRecipientRes.statusCode, 200);
-      const recipient = JSON.parse(deriveRecipientRes.body).account_identifier.address;
-
-      const transferAmount = '500000'; // 0.5 STX
-
-      // 2. Preprocess
-      const operations = [
-        {
-          operation_identifier: { index: 0 },
-          type: 'token_transfer',
-          account: { address: sender },
-          amount: { value: `-${transferAmount}`, currency: { symbol: 'STX', decimals: 6 } },
-        },
-        {
-          operation_identifier: { index: 1 },
-          type: 'token_transfer',
-          account: { address: recipient },
-          amount: { value: transferAmount, currency: { symbol: 'STX', decimals: 6 } },
-        },
-      ];
-
-      const preprocessRes = await post(fastify, '/construction/preprocess', {
-        network_identifier: NETWORK_IDENTIFIER,
-        operations,
-        max_fee: [{ value: '50000', currency: { symbol: 'STX', decimals: 6 } }],
-      });
-      assert.equal(preprocessRes.statusCode, 200);
-      const preprocessBody = JSON.parse(preprocessRes.body);
-      assert.ok(preprocessBody.options);
-      assert.ok(preprocessBody.required_public_keys);
-
-      // 3. Metadata
-      const metadataRes = await post(fastify, '/construction/metadata', {
-        network_identifier: NETWORK_IDENTIFIER,
-        options: preprocessBody.options,
-        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
-      });
-      assert.equal(metadataRes.statusCode, 200);
-      const metadataBody = JSON.parse(metadataRes.body);
-      const fee = metadataBody.suggested_fee[0].value;
-      const senderNonce = metadataBody.metadata.account_info[sender]?.nonce ?? 0;
-
-      // 4. Payloads — include fee as an operation
-      const fullOperations = [
-        {
-          operation_identifier: { index: 0 },
-          type: 'fee',
-          account: { address: sender },
-          amount: { value: `-${fee}`, currency: { symbol: 'STX', decimals: 6 } },
-        },
-        ...operations.map((op, i) => ({
-          ...op,
-          operation_identifier: { index: i + 1 },
-        })),
-      ];
-
-      const payloadsRes = await post(fastify, '/construction/payloads', {
-        network_identifier: NETWORK_IDENTIFIER,
-        operations: fullOperations,
-        metadata: metadataBody.metadata,
-        public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
-      });
-      assert.equal(payloadsRes.statusCode, 200);
-      const payloadsBody = JSON.parse(payloadsRes.body);
-      assert.ok(payloadsBody.unsigned_transaction);
-      assert.equal(payloadsBody.payloads.length, 1);
-      assert.equal(payloadsBody.payloads[0].address, sender);
-
-      // 5. Parse the unsigned transaction to verify operations
-      const parseUnsignedRes = await post(fastify, '/construction/parse', {
-        network_identifier: NETWORK_IDENTIFIER,
-        signed: false,
-        transaction: payloadsBody.unsigned_transaction,
-      });
-      assert.equal(parseUnsignedRes.statusCode, 200);
-      const parsedUnsigned = JSON.parse(parseUnsignedRes.body);
-      const parsedTransferOps = parsedUnsigned.operations.filter(
-        (op: { type: string }) => op.type === 'token_transfer'
-      );
-      assert.equal(parsedTransferOps.length, 2);
-
-      // 6. Sign offline
-      const sighash = payloadsBody.payloads[0].hex_bytes;
-      const signature = signWithKey(E2E_SENDER_PRIVATE_KEY, sighash);
-
-      // 7. Combine
-      const combineRes = await post(fastify, '/construction/combine', {
-        network_identifier: NETWORK_IDENTIFIER,
-        unsigned_transaction: payloadsBody.unsigned_transaction,
-        signatures: [{
-          signing_payload: {
-            hex_bytes: sighash,
-            address: sender,
-            signature_type: 'ecdsa_recovery',
-          },
+    test(
+      'completes a full STX transfer and confirms it on chain',
+      { timeout: 120_000 },
+      async () => {
+        // 1. Derive sender and recipient addresses (uses separate E2E accounts to avoid nonce conflicts)
+        const deriveRes = await post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
           public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-          signature_type: 'ecdsa_recovery',
-          hex_bytes: signature,
-        }],
-      });
-      assert.equal(combineRes.statusCode, 200);
-      const signedTx = JSON.parse(combineRes.body).signed_transaction;
+        });
+        assert.equal(deriveRes.statusCode, 200);
+        const sender = JSON.parse(deriveRes.body).account_identifier.address;
 
-      // 8. Parse the signed transaction — should include signers
-      const parseSignedRes = await post(fastify, '/construction/parse', {
-        network_identifier: NETWORK_IDENTIFIER,
-        signed: true,
-        transaction: signedTx,
-      });
-      assert.equal(parseSignedRes.statusCode, 200);
-      const parsedSigned = JSON.parse(parseSignedRes.body);
-      assert.ok(parsedSigned.account_identifier_signers);
-      assert.equal(parsedSigned.account_identifier_signers[0].address, sender);
+        const deriveRecipientRes = await post(fastify, '/construction/derive', {
+          network_identifier: NETWORK_IDENTIFIER,
+          public_key: { hex_bytes: E2E_RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+        });
+        assert.equal(deriveRecipientRes.statusCode, 200);
+        const recipient = JSON.parse(deriveRecipientRes.body).account_identifier.address;
 
-      // 9. Hash
-      const hashRes = await post(fastify, '/construction/hash', {
-        network_identifier: NETWORK_IDENTIFIER,
-        signed_transaction: signedTx,
-      });
-      assert.equal(hashRes.statusCode, 200);
-      const txid = JSON.parse(hashRes.body).transaction_identifier.hash;
-      assert.match(txid, /^0x[0-9a-f]{64}$/);
+        const transferAmount = '500000'; // 0.5 STX
 
-      // 10. Submit
-      const submitRes = await post(fastify, '/construction/submit', {
-        network_identifier: NETWORK_IDENTIFIER,
-        signed_transaction: signedTx,
-      });
-      assert.equal(submitRes.statusCode, 200, `submit failed: ${submitRes.body}`);
-      const submitBody = JSON.parse(submitRes.body);
-      assert.equal(submitBody.transaction_identifier.hash, txid);
+        // 2. Preprocess
+        const operations = [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: sender },
+            amount: { value: `-${transferAmount}`, currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipient },
+            amount: { value: transferAmount, currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ];
 
-      // 11. Wait for confirmation — the regtest node mines every 0.1s
-      await waitForNonceAdvance(fastify, sender, senderNonce);
-    });
+        const preprocessRes = await post(fastify, '/construction/preprocess', {
+          network_identifier: NETWORK_IDENTIFIER,
+          operations,
+          max_fee: [{ value: '50000', currency: { symbol: 'STX', decimals: 6 } }],
+        });
+        assert.equal(preprocessRes.statusCode, 200);
+        const preprocessBody = JSON.parse(preprocessRes.body);
+        assert.ok(preprocessBody.options);
+        assert.ok(preprocessBody.required_public_keys);
+
+        // 3. Metadata
+        const metadataRes = await post(fastify, '/construction/metadata', {
+          network_identifier: NETWORK_IDENTIFIER,
+          options: preprocessBody.options,
+          public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        });
+        assert.equal(metadataRes.statusCode, 200);
+        const metadataBody = JSON.parse(metadataRes.body);
+        const fee = metadataBody.suggested_fee[0].value;
+        const senderNonce = metadataBody.metadata.account_info[sender]?.nonce ?? 0;
+
+        // 4. Payloads — include fee as an operation
+        const fullOperations = [
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: sender },
+            amount: { value: `-${fee}`, currency: { symbol: 'STX', decimals: 6 } },
+          },
+          ...operations.map((op, i) => ({
+            ...op,
+            operation_identifier: { index: i + 1 },
+          })),
+        ];
+
+        const payloadsRes = await post(fastify, '/construction/payloads', {
+          network_identifier: NETWORK_IDENTIFIER,
+          operations: fullOperations,
+          metadata: metadataBody.metadata,
+          public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        });
+        assert.equal(payloadsRes.statusCode, 200);
+        const payloadsBody = JSON.parse(payloadsRes.body);
+        assert.ok(payloadsBody.unsigned_transaction);
+        assert.equal(payloadsBody.payloads.length, 1);
+        assert.equal(payloadsBody.payloads[0].address, sender);
+
+        // 5. Parse the unsigned transaction to verify operations
+        const parseUnsignedRes = await post(fastify, '/construction/parse', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed: false,
+          transaction: payloadsBody.unsigned_transaction,
+        });
+        assert.equal(parseUnsignedRes.statusCode, 200);
+        const parsedUnsigned = JSON.parse(parseUnsignedRes.body);
+        const parsedTransferOps = parsedUnsigned.operations.filter(
+          (op: { type: string }) => op.type === 'token_transfer'
+        );
+        assert.equal(parsedTransferOps.length, 2);
+
+        // 6. Sign offline
+        const sighash = payloadsBody.payloads[0].hex_bytes;
+        const signature = signWithKey(E2E_SENDER_PRIVATE_KEY, sighash);
+
+        // 7. Combine
+        const combineRes = await post(fastify, '/construction/combine', {
+          network_identifier: NETWORK_IDENTIFIER,
+          unsigned_transaction: payloadsBody.unsigned_transaction,
+          signatures: [
+            {
+              signing_payload: {
+                hex_bytes: sighash,
+                address: sender,
+                signature_type: 'ecdsa_recovery',
+              },
+              public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+              signature_type: 'ecdsa_recovery',
+              hex_bytes: signature,
+            },
+          ],
+        });
+        assert.equal(combineRes.statusCode, 200);
+        const signedTx = JSON.parse(combineRes.body).signed_transaction;
+
+        // 8. Parse the signed transaction — should include signers
+        const parseSignedRes = await post(fastify, '/construction/parse', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed: true,
+          transaction: signedTx,
+        });
+        assert.equal(parseSignedRes.statusCode, 200);
+        const parsedSigned = JSON.parse(parseSignedRes.body);
+        assert.ok(parsedSigned.account_identifier_signers);
+        assert.equal(parsedSigned.account_identifier_signers[0].address, sender);
+
+        // 9. Hash
+        const hashRes = await post(fastify, '/construction/hash', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed_transaction: signedTx,
+        });
+        assert.equal(hashRes.statusCode, 200);
+        const txid = JSON.parse(hashRes.body).transaction_identifier.hash;
+        assert.match(txid, /^0x[0-9a-f]{64}$/);
+
+        // 10. Submit
+        const submitRes = await post(fastify, '/construction/submit', {
+          network_identifier: NETWORK_IDENTIFIER,
+          signed_transaction: signedTx,
+        });
+        assert.equal(submitRes.statusCode, 200, `submit failed: ${submitRes.body}`);
+        const submitBody = JSON.parse(submitRes.body);
+        assert.equal(submitBody.transaction_identifier.hash, txid);
+
+        // 11. Wait for confirmation — the regtest node mines every 0.1s
+        await waitForNonceAdvance(fastify, sender, senderNonce);
+      }
+    );
 
     test('rejects a duplicate broadcast of the same transaction', { timeout: 30_000 }, async () => {
       // Build and submit a transaction (uses E2E accounts to avoid nonce conflicts)
       const metaRes = await post(fastify, '/construction/metadata', {
         network_identifier: NETWORK_IDENTIFIER,
-        options: { sender_addresses: [e2eSenderAddress], recipient_addresses: [e2eRecipientAddress], operation_count: 3 },
+        options: {
+          sender_addresses: [e2eSenderAddress],
+          recipient_addresses: [e2eRecipientAddress],
+          operation_count: 3,
+        },
         public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
       });
       const metadata = JSON.parse(metaRes.body).metadata;
@@ -973,9 +1167,24 @@ describe('Construction API', () => {
       const payloadsRes = await post(fastify, '/construction/payloads', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
-          { operation_identifier: { index: 0 }, type: 'fee', account: { address: e2eSenderAddress }, amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 1 }, type: 'token_transfer', account: { address: e2eSenderAddress }, amount: { value: '-50000', currency: { symbol: 'STX', decimals: 6 } } },
-          { operation_identifier: { index: 2 }, type: 'token_transfer', account: { address: e2eRecipientAddress }, amount: { value: '50000', currency: { symbol: 'STX', decimals: 6 } } },
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: e2eSenderAddress },
+            amount: { value: '-10000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: e2eSenderAddress },
+            amount: { value: '-50000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: e2eRecipientAddress },
+            amount: { value: '50000', currency: { symbol: 'STX', decimals: 6 } },
+          },
         ],
         metadata,
         public_keys: [{ hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
@@ -985,12 +1194,18 @@ describe('Construction API', () => {
       const combineRes = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
         unsigned_transaction: payloadsBody.unsigned_transaction,
-        signatures: [{
-          signing_payload: { hex_bytes: payloadsBody.payloads[0].hex_bytes, address: e2eSenderAddress, signature_type: 'ecdsa_recovery' },
-          public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-          signature_type: 'ecdsa_recovery',
-          hex_bytes: signature,
-        }],
+        signatures: [
+          {
+            signing_payload: {
+              hex_bytes: payloadsBody.payloads[0].hex_bytes,
+              address: e2eSenderAddress,
+              signature_type: 'ecdsa_recovery',
+            },
+            public_key: { hex_bytes: E2E_SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+            signature_type: 'ecdsa_recovery',
+            hex_bytes: signature,
+          },
+        ],
       });
       const signedTx = JSON.parse(combineRes.body).signed_transaction;
 
@@ -1002,7 +1217,7 @@ describe('Construction API', () => {
       assert.equal(firstSubmit.statusCode, 200, `first submit failed: ${firstSubmit.body}`);
 
       // Wait a moment for the tx to be accepted into the mempool
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 2000));
 
       // Second submit of the same transaction should either:
       // - fail with 500 (ConflictingNonceInMempool) if still pending, or

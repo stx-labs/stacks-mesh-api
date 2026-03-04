@@ -28,7 +28,7 @@ export type Amount = Static<typeof AmountSchema>;
 
 const BaseOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
-  status: Type.Optional(StatusSchema),
+  status: StatusSchema,
 });
 
 const BaseAccountOperationSchema = Type.Composite([
@@ -61,11 +61,9 @@ const FeeOperationSchema = Type.Composite([
   BaseAmountOperationSchema,
   Type.Object({
     type: Type.Literal('fee'),
-    metadata: Type.Optional(
-      Type.Object({
-        sponsored: Type.Boolean(),
-      })
-    ),
+    metadata: Type.Object({
+      sponsored: Type.Boolean(),
+    }),
   }),
 ]);
 export type FeeOperation = Static<typeof FeeOperationSchema>;

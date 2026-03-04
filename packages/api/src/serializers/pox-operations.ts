@@ -1,8 +1,8 @@
 import { Operation } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
-import { DecodedStacksTransaction, makeStxCurrency } from './index.js';
 import { StacksBlockReplayTransactionContractEvent } from '../stacks-rpc/types.js';
 import { PoxContractIdentifiers } from '../utils/constants.js';
+import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
 
 export function isPoxPrintEvent(event: StacksBlockReplayTransactionContractEvent): boolean {
   if (event.contract_event.topic !== 'print') return false;

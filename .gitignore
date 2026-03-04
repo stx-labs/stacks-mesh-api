@@ -11,4 +11,4 @@ packages/*/dist/
 .git-info
 
 # Mesh CLI binary cache
-packages/api/tests/cli/.bin/
+packages/api/tests/**/.bin/

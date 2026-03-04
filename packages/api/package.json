@@ -12,7 +12,7 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "test:api": "NODE_ENV=test node --test --import tsx --test-timeout 300000 tests/api/**/*.test.ts",
-    "test:cli": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/cli/**/*.test.ts"
+    "test:construction": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/construction/**/*.test.ts"
   },
   "keywords": [
     "stacks",
