@@ -35,7 +35,6 @@ import {
 } from '@stacks/mesh-schemas';
 import type {
   ConstructionDeriveResponse,
-  ConstructionMetadataResponse,
   ConstructionPayloadsResponse,
   ConstructionCombineResponse,
   ConstructionParseResponse,
@@ -287,7 +286,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       }
 
       const senderInfo = await rpcClient.getAccount(options.sender_address);
-      const response: ConstructionMetadataResponse = {
+      return reply.send({
         metadata: {
           options,
           sender_account_info: {
@@ -301,15 +300,10 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
             currency: STX_CURRENCY,
           },
         ],
-      };
-
-      return reply.send(response);
+      });
     }
   );
 
-  // POST /construction/payloads
-  // Builds an unsigned transaction from operations and metadata, returning the transaction hex
-  // and the signing payload (sighash) that must be signed by the sender's private key.
   fastify.post(
     '/construction/payloads',
     {
@@ -377,10 +371,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
         }
 
         // Read nonce from metadata
-        const accountInfo = metadata?.account_info as
-          | Record<string, { nonce: number; balance: string }>
-          | undefined;
-        const nonce = accountInfo?.[senderAddress]?.nonce ?? 0;
+        const nonce = metadata.sender_account_info.nonce;
 
         // Determine fee: from operations, metadata suggested_fee, or default
         const fee = feeAmount ?? 0n;
