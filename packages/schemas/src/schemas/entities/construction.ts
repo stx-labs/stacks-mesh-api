@@ -9,8 +9,8 @@ export const PublicKeySchema = Type.Object({
 export type PublicKey = Static<typeof PublicKeySchema>;
 
 export const SigningPayloadSchema = Type.Object({
-  address: Type.Optional(Type.String()),
-  account_identifier: Type.Optional(AccountIndentifierSchema),
+  address: Type.String(),
+  account_identifier: AccountIndentifierSchema,
   hex_bytes: Type.String(),
   signature_type: Type.Optional(
     Type.Union([
@@ -99,6 +99,14 @@ export const ConstructionMetadataSchema = Type.Object({
 });
 export type ConstructionMetadata = Static<typeof ConstructionMetadataSchema>;
 
+export const ConstructionFeeOperationSchema = Type.Object({
+  operation_identifier: OperationIdentifierSchema,
+  type: Type.Literal('fee'),
+  account: AccountIndentifierSchema,
+  amount: AmountSchema,
+});
+export type ConstructionFeeOperation = Static<typeof ConstructionFeeOperationSchema>;
+
 export const ConstructionTokenTransferOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
   type: Type.Literal('token_transfer'),
@@ -142,5 +150,6 @@ export const ConstructionOperationSchema = Type.Union([
   ConstructionTokenTransferOperationSchema,
   ConstructionContractCallOperationSchema,
   ConstructionContractDeployOperationSchema,
+  ConstructionFeeOperationSchema,
 ]);
 export type ConstructionOperation = Static<typeof ConstructionOperationSchema>;

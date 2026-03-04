@@ -87,6 +87,37 @@ describe('/construction/preprocess', () => {
       assert.match(body.description, /require two operations/);
     });
 
+    test('rejects when a fee operation is provided', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'fee',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'hello' },
+          },
+          {
+            operation_identifier: { index: 2 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'hello' },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+      const body = JSON.parse(res.body);
+      assert.match(body.description, /Fee operation is not allowed/);
+    });
+
     test('rejects when more than two operations are provided', async () => {
       const res = await post(fastify, '/construction/preprocess', {
         network_identifier: NETWORK_IDENTIFIER,
@@ -236,7 +267,10 @@ describe('/construction/preprocess', () => {
       assert.ok(body.options);
       assert.equal(body.options.type, 'contract_call');
       assert.equal(body.options.sender_address, senderAddress);
-      assert.equal(body.options.contract_identifier, 'SP000000000000000000002Q6VF78.token_transfer');
+      assert.equal(
+        body.options.contract_identifier,
+        'SP000000000000000000002Q6VF78.token_transfer'
+      );
       assert.equal(body.options.function_name, 'transfer');
       assert.deepEqual(body.options.args, ['0x1000000']);
     });

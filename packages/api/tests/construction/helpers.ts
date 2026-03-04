@@ -40,6 +40,26 @@ export const RECIPIENT_ADDRESS = 'ST11NJTTKGVT6D1HY4NJRVQWMQM7TVAR091EJ8P2Y';
 
 export const NETWORK_IDENTIFIER = { blockchain: 'stacks', network: 'testnet' };
 
+export const COUNTER_CONTRACT_SOURCE_CODE = `
+  (define-data-var counter uint u0)
+  (define-read-only (get-counter)
+    (ok (var-get counter))
+  )
+  (define-public (increment)
+    (begin
+      (var-set counter (+ (var-get counter) u1))
+      (ok (var-get counter))
+    )
+  )
+  (define-public (decrement)
+    (begin
+      (asserts! (> (var-get counter) u0) (err u1))
+      (var-set counter (- (var-get counter) u1))
+      (ok (var-get counter))
+    )
+  )
+`;
+
 export type DockerResources = {
   stacksContainer: Docker.Container;
 };

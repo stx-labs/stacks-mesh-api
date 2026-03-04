@@ -13,6 +13,7 @@ import {
   makeUnsignedContractCall,
   hexToCV,
   makeUnsignedContractDeploy,
+  StacksTransactionWire,
 } from '@stacks/transactions';
 import codec from '@stacks/codec';
 import {
@@ -39,6 +40,8 @@ import type {
   ConstructionCombineResponse,
   ConstructionParseResponse,
   TransactionIdentifierResponse,
+  ConstructionOptions,
+  ConstructionOperation,
 } from '@stacks/mesh-schemas';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
@@ -48,6 +51,7 @@ import {
   serializeDecodedTransactionOperations,
 } from '../../serializers/index.js';
 import BigNumber from 'bignumber.js';
+import { isDeepStrictEqual } from 'node:util';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
@@ -90,124 +94,17 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       },
     },
     async (request, reply) => {
-      const { operations } = request.body;
-      const maxFee = request.body.max_fee?.[0]?.value
-        ? { max_fee: request.body.max_fee[0].value }
-        : undefined;
-      const suggestedFeeMultiplier = request.body.suggested_fee_multiplier
-        ? { suggested_fee_multiplier: request.body.suggested_fee_multiplier }
-        : undefined;
-
-      // `contract_call` and `contract_deploy` are the only valid single operation types.
-      // `token_transfer` requires two operations: one with a negative amount and one with a
-      // positive amount. Other operation types are not allowed.
-      switch (operations.length) {
-        case 1: {
-          const op = operations[0];
-          switch (op.type) {
-            case 'contract_call': {
-              return reply.send({
-                options: {
-                  type: 'contract_call',
-                  sender_address: op.account.address,
-                  contract_identifier: op.metadata.contract_identifier,
-                  function_name: op.metadata.function_name,
-                  args: op.metadata.args,
-                  ...maxFee,
-                  ...suggestedFeeMultiplier,
-                },
-                required_public_keys: [{ address: op.account.address }],
-              });
-            }
-            case 'contract_deploy': {
-              return reply.send({
-                options: {
-                  type: 'contract_deploy',
-                  sender_address: op.account.address,
-                  contract_name: op.metadata.contract_name,
-                  clarity_version: op.metadata.clarity_version,
-                  source_code: op.metadata.source_code,
-                  ...maxFee,
-                  ...suggestedFeeMultiplier,
-                },
-                required_public_keys: [{ address: op.account.address }],
-              });
-            }
-            default:
-              return reply
-                .status(500)
-                .send(MeshErrors.invalidTransaction('Token transfers require two operations'));
-          }
-        }
-        case 2: {
-          const [op1, op2] = operations;
-          if (op1.type !== 'token_transfer' || op2.type !== 'token_transfer') {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidTransaction(
-                  'Token transfer operations cannot be combined with other operations'
-                )
-              );
-          }
-          let senderAddress: string | undefined;
-          let recipientAddress: string | undefined;
-          const value1 = BigNumber(op1.amount.value);
-          const value2 = BigNumber(op2.amount.value);
-          if (!value1.abs().eq(value2.abs())) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidTransaction('Token transfer operations require the same amount')
-              );
-          }
-          if (
-            (value1.lt(0) && value2.lt(0)) ||
-            (value1.gt(0) && value2.gt(0)) ||
-            value1.eq(0) ||
-            value2.eq(0)
-          ) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidTransaction(
-                  'Token transfers require one negative and one positive amount'
-                )
-              );
-          }
-          const memo1 = op1.metadata?.memo ?? undefined;
-          const memo2 = op2.metadata?.memo ?? undefined;
-          if (memo1 !== memo2) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidTransaction('Token transfer operations require the same memo')
-              );
-          }
-          if (value1.lt(0)) {
-            senderAddress = op1.account.address;
-            recipientAddress = op2.account.address;
-          } else {
-            senderAddress = op2.account.address;
-            recipientAddress = op1.account.address;
-          }
-          return reply.send({
-            options: {
-              type: 'token_transfer',
-              sender_address: senderAddress,
-              recipient_address: recipientAddress,
-              amount: value1.abs().toString(),
-              memo: memo1,
-              ...maxFee,
-              ...suggestedFeeMultiplier,
-            },
-            required_public_keys: [{ address: senderAddress }],
-          });
-        }
-        default:
-          return reply
-            .status(500)
-            .send(MeshErrors.invalidTransaction('Invalid operation count: must be 1 or 2'));
+      const { operations, max_fee, suggested_fee_multiplier } = request.body;
+      try {
+        const options = buildConstructionOptionsFromOperations({
+          operations,
+          allowFeeOperation: false,
+          maxFee: max_fee?.[0]?.value,
+          suggestedFeeMultiplier: suggested_fee_multiplier,
+        });
+        return reply.send({ options, required_public_keys: [{ address: options.sender_address }] });
+      } catch (error) {
+        return reply.status(500).send(MeshErrors.invalidTransaction((error as Error).message));
       }
     }
   );
@@ -318,98 +215,114 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { operations, metadata, public_keys } = request.body;
 
+      // Build and validate construction options from operations.
+      let options: ConstructionOptions;
       try {
-        // Parse operations to extract transfer details
-        let senderAddress: string | undefined;
-        let recipientAddress: string | undefined;
-        let transferAmount: bigint | undefined;
-        let feeAmount: bigint | undefined;
-        let memo: string | undefined;
-
-        for (const op of operations) {
-          if (op.type === 'token_transfer' && 'amount' in op && 'account' in op) {
-            const value = BigInt(op.amount.value);
-            if (value < 0n) {
-              senderAddress = op.account.address;
-              transferAmount = -value;
-            } else if (value > 0n) {
-              recipientAddress = op.account.address;
-              if (!transferAmount) transferAmount = value;
-            }
-            if ('metadata' in op && op.metadata?.memo) {
-              memo = op.metadata.memo;
-            }
-          }
-        }
-
-        if (!senderAddress || !recipientAddress || !transferAmount) {
-          return reply
-            .status(500)
-            .send(
-              MeshErrors.invalidTransaction(
-                'Operations must include token_transfer operations with a sender (negative amount) and recipient (positive amount)'
-              )
-            );
-        }
-
-        // Find the sender's public key by deriving addresses from each provided key
-        const senderPubKey = public_keys?.find(pk => {
-          try {
-            const derivedAddress = getAddressFromPublicKey(removeHexPrefix(pk.hex_bytes), network);
-            return derivedAddress === senderAddress;
-          } catch {
-            return false;
-          }
-        });
-
-        if (!senderPubKey) {
-          return reply
-            .status(500)
-            .send(
-              MeshErrors.invalidPublicKey('No public key provided that matches the sender address')
-            );
-        }
-
-        // Read nonce from metadata
-        const nonce = metadata.sender_account_info.nonce;
-
-        // Determine fee: from operations, metadata suggested_fee, or default
-        const fee = feeAmount ?? 0n;
-
-        // Build the unsigned transaction
-        const unsignedTx = await makeUnsignedSTXTokenTransfer({
-          recipient: recipientAddress,
-          amount: transferAmount,
-          fee,
-          nonce,
-          publicKey: removeHexPrefix(senderPubKey.hex_bytes),
-          network,
-          memo,
-        });
-
-        const unsignedTxHex = serializeTransaction(unsignedTx);
-
-        // Compute the signing payload (the sighash the signer must sign)
-        const initialSighash = unsignedTx.signBegin();
-        const sigHash = sigHashPreSign(initialSighash, AuthType.Standard, fee, BigInt(nonce));
-
-        const response: ConstructionPayloadsResponse = {
-          unsigned_transaction: removeHexPrefix(unsignedTxHex),
-          payloads: [
-            {
-              account_identifier: { address: senderAddress },
-              address: senderAddress,
-              hex_bytes: removeHexPrefix(sigHash),
-              signature_type: 'ecdsa_recovery',
-            },
-          ],
-        };
-
-        return reply.send(response);
+        options = buildConstructionOptionsFromOperations({ operations, allowFeeOperation: true });
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return reply.status(500).send(MeshErrors.internalError(message));
+        return reply.status(500).send(MeshErrors.invalidTransaction((error as Error).message));
       }
+      if (!isDeepStrictEqual(options, metadata.options)) {
+        return reply
+          .status(500)
+          .send(
+            MeshErrors.invalidTransaction(
+              'Options derived from operations do not match provided metadata options'
+            )
+          );
+      }
+
+      // Validate the sender address matches the public key.
+      const derivedAddress = getAddressFromPublicKey(
+        removeHexPrefix(public_keys[0].hex_bytes),
+        network
+      );
+      if (derivedAddress !== options.sender_address) {
+        return reply
+          .status(500)
+          .send(
+            MeshErrors.invalidPublicKey('The provided public key does not match the sender address')
+          );
+      }
+
+      // Extract the fee amount from operations.
+      const feeOperation = operations.find(op => op.type === 'fee');
+      if (!feeOperation) {
+        return reply.status(500).send(MeshErrors.invalidTransaction('Fee operation is required'));
+      }
+      if (feeOperation.account.address !== options.sender_address) {
+        return reply
+          .status(500)
+          .send(
+            MeshErrors.invalidTransaction('Fee payer address does not match the sender address')
+          );
+      }
+      const feeAmount = BigNumber(feeOperation.amount.value);
+      if (feeAmount.gte(0)) {
+        return reply.status(500).send(MeshErrors.invalidTransaction('Fee amount must be negative'));
+      }
+      const fee = feeAmount.abs().toString();
+
+      // Construct the unsigned transaction.
+      let unsignedTx: StacksTransactionWire;
+      switch (options.type) {
+        case 'token_transfer': {
+          unsignedTx = await makeUnsignedSTXTokenTransfer({
+            recipient: options.recipient_address,
+            amount: options.amount,
+            fee,
+            nonce: metadata.sender_account_info.nonce,
+            publicKey: public_keys[0].hex_bytes,
+            network,
+            memo: options.memo,
+          });
+          break;
+        }
+        case 'contract_call': {
+          const [contractAddress, contractName] = options.contract_identifier.split('.');
+          unsignedTx = await makeUnsignedContractCall({
+            contractAddress,
+            contractName,
+            functionName: options.function_name,
+            functionArgs: options.args.map(arg => hexToCV(arg)),
+            publicKey: public_keys[0].hex_bytes,
+            fee,
+            network,
+          });
+          break;
+        }
+        case 'contract_deploy': {
+          unsignedTx = await makeUnsignedContractDeploy({
+            contractName: options.contract_name,
+            codeBody: options.source_code,
+            clarityVersion: options.clarity_version,
+            publicKey: public_keys[0].hex_bytes,
+            fee,
+            network,
+          });
+          break;
+        }
+      }
+
+      // Compute and return the signing payload.
+      const initialSighash = unsignedTx.signBegin();
+      const sigHash = sigHashPreSign(
+        initialSighash,
+        AuthType.Standard,
+        fee,
+        metadata.sender_account_info.nonce
+      );
+      return reply.send({
+        unsigned_transaction: addHexPrefix(serializeTransaction(unsignedTx)),
+        payloads: [
+          {
+            account_identifier: { address: options.sender_address },
+            address: options.sender_address,
+            hex_bytes: addHexPrefix(sigHash),
+            signature_type: 'ecdsa_recovery',
+          },
+        ],
+      });
     }
   );
 
@@ -604,3 +517,101 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 };
+
+function buildConstructionOptionsFromOperations(args: {
+  operations: ConstructionOperation[];
+  allowFeeOperation?: boolean;
+  maxFee?: string;
+  suggestedFeeMultiplier?: number;
+}): ConstructionOptions {
+  const { operations, allowFeeOperation = false, maxFee, suggestedFeeMultiplier } = args;
+  const maxFeeObject = maxFee ? { max_fee: maxFee } : undefined;
+  const suggestedFeeMultiplierObject = suggestedFeeMultiplier
+    ? { suggested_fee_multiplier: suggestedFeeMultiplier }
+    : undefined;
+
+  const feeOperation = operations.find(op => op.type === 'fee');
+  if (feeOperation && !allowFeeOperation) {
+    throw new Error('Fee operation is not allowed at this stage');
+  }
+  const filteredOperations = operations.filter(op => op.type !== 'fee');
+
+  // `contract_call` and `contract_deploy` are the only valid single operation types.
+  // `token_transfer` requires two operations: one with a negative amount and one with a
+  // positive amount. Other operation types are not allowed.
+  switch (filteredOperations.length) {
+    case 1: {
+      const op = filteredOperations[0];
+      switch (op.type) {
+        case 'contract_call': {
+          return {
+            type: 'contract_call',
+            sender_address: op.account.address,
+            contract_identifier: op.metadata.contract_identifier,
+            function_name: op.metadata.function_name,
+            args: op.metadata.args,
+            ...maxFeeObject,
+            ...suggestedFeeMultiplierObject,
+          };
+        }
+        case 'contract_deploy': {
+          return {
+            type: 'contract_deploy',
+            sender_address: op.account.address,
+            contract_name: op.metadata.contract_name,
+            clarity_version: op.metadata.clarity_version,
+            source_code: op.metadata.source_code,
+            ...maxFeeObject,
+            ...suggestedFeeMultiplierObject,
+          };
+        }
+        default:
+          throw new Error('Token transfers require two operations');
+      }
+    }
+    case 2: {
+      const [op1, op2] = filteredOperations;
+      if (op1.type !== 'token_transfer' || op2.type !== 'token_transfer') {
+        throw new Error('Token transfer operations cannot be combined with other operations');
+      }
+      let senderAddress: string | undefined;
+      let recipientAddress: string | undefined;
+      const value1 = BigNumber(op1.amount.value);
+      const value2 = BigNumber(op2.amount.value);
+      if (!value1.abs().eq(value2.abs())) {
+        throw new Error('Token transfer operations require the same amount');
+      }
+      if (
+        (value1.lt(0) && value2.lt(0)) ||
+        (value1.gt(0) && value2.gt(0)) ||
+        value1.eq(0) ||
+        value2.eq(0)
+      ) {
+        throw new Error('Token transfers require one negative and one positive amount');
+      }
+      const memo1 = op1.metadata?.memo ?? undefined;
+      const memo2 = op2.metadata?.memo ?? undefined;
+      if (memo1 !== memo2) {
+        throw new Error('Token transfer operations require the same memo');
+      }
+      if (value1.lt(0)) {
+        senderAddress = op1.account.address;
+        recipientAddress = op2.account.address;
+      } else {
+        senderAddress = op2.account.address;
+        recipientAddress = op1.account.address;
+      }
+      return {
+        type: 'token_transfer',
+        sender_address: senderAddress,
+        recipient_address: recipientAddress,
+        amount: value1.abs().toString(),
+        memo: memo1,
+        ...maxFeeObject,
+        ...suggestedFeeMultiplierObject,
+      };
+    }
+    default:
+      throw new Error('Invalid operation count: must be 1 or 2');
+  }
+}
