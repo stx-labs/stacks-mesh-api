@@ -25,7 +25,7 @@
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
-        // "--test-name-pattern", "test",
+        // "--test-name-pattern", "/network",
         "tests/api/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",
@@ -39,11 +39,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "cli: test",
+      "name": "construction: test",
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
-        "tests/cli/**/*.test.ts"
+        "--test-name-pattern", "preprocess",
+        "tests/construction/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",
       "outputCapture": "std",

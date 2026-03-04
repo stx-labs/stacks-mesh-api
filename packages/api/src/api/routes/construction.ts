@@ -128,6 +128,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
                   contract_name: op.metadata.contract_name,
                   clarity_version: op.metadata.clarity_version,
                   source_code: op.metadata.source_code,
+                  ...maxFee,
+                  ...suggestedFeeMultiplier,
                 },
                 required_public_keys: [{ address: op.account.address }],
               });
@@ -179,6 +181,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               type: 'token_transfer',
               sender_address: senderAddress,
               recipient_address: recipientAddress,
+              ...maxFee,
+              ...suggestedFeeMultiplier,
             },
             required_public_keys: [{ address: senderAddress }],
           });

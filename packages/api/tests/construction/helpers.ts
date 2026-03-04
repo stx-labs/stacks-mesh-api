@@ -12,6 +12,8 @@ import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
 import { getStacksNetworkName } from '../../src/utils/constants.js';
+import { FastifyInstance } from 'fastify';
+import { privateKeyToPublic } from '@stacks/transactions';
 
 const execFile = promisify(execFileCb);
 const docker = new Docker();
@@ -23,6 +25,20 @@ const STACKS_CONTAINER_NAME = 'mesh-test-stacks';
 const MESH_CLI_VERSION = '0.10.4';
 
 export const API_PORT = 3999;
+
+// Funded accounts from the Docker image's genesis allocation (see config.toml [[ustx_balance]])
+export const SENDER_PRIVATE_KEY =
+  'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
+export const SENDER_PUBLIC_KEY = privateKeyToPublic(SENDER_PRIVATE_KEY);
+export const SENDER_ADDRESS = 'STB44HYPYAT2BB2QE513NSP81HTMYWBJP02HPGK6';
+
+// A second funded account to use as recipient
+export const RECIPIENT_PRIVATE_KEY =
+  '21d43d2ae0da1d9d04cfcaac7d397a33733881081f0b2cd038062cf0ccbb752601';
+export const RECIPIENT_PUBLIC_KEY = privateKeyToPublic(RECIPIENT_PRIVATE_KEY);
+export const RECIPIENT_ADDRESS = 'ST11NJTTKGVT6D1HY4NJRVQWMQM7TVAR091EJ8P2Y';
+
+export const NETWORK_IDENTIFIER = { blockchain: 'stacks', network: 'testnet' };
 
 export type DockerResources = {
   stacksContainer: Docker.Container;
@@ -56,10 +72,7 @@ export async function ensureMeshCli(): Promise<string> {
   if (!response.ok || !response.body) {
     throw new Error(`Failed to download mesh-cli: ${response.status} ${response.statusText}`);
   }
-  await pipeline(
-    Readable.fromWeb(response.body as never),
-    createWriteStream(tarballPath),
-  );
+  await pipeline(Readable.fromWeb(response.body as never), createWriteStream(tarballPath));
 
   await execFile('tar', ['xzf', tarballPath, '-C', BIN_DIR]);
   await unlink(tarballPath);
@@ -78,7 +91,7 @@ export async function ensureMeshCli(): Promise<string> {
  */
 export async function execMeshCli(
   meshCliBin: string,
-  args: string[],
+  args: string[]
 ): Promise<{ stdout: string; stderr: string }> {
   const { stdout, stderr } = await execFile(meshCliBin, args);
   return { stdout, stderr };
@@ -102,8 +115,16 @@ async function pullImage(image: string): Promise<void> {
 async function removeStaleContainers(): Promise<void> {
   try {
     const container = docker.getContainer(STACKS_CONTAINER_NAME);
-    try { await container.stop(); } catch { /* not running */ }
-    try { await container.remove({ v: true }); } catch { /* already gone */ }
+    try {
+      await container.stop();
+    } catch {
+      /* not running */
+    }
+    try {
+      await container.remove({ v: true });
+    } catch {
+      /* already gone */
+    }
   } catch {
     // Container doesn't exist
   }
@@ -190,8 +211,25 @@ export async function buildTestServer() {
   return buildApiServer({
     rpcClient,
     network: getStacksNetworkName(nodeInfo.network_id),
+    apiVersion: '1.0.0',
     nodeVersion: nodeInfo.server_version,
     tokenMetadataCache,
     contractAbiCache,
+  });
+}
+
+/**
+ * POSTs to the Fastify server.
+ */
+export async function post(
+  fastify: FastifyInstance,
+  url: string,
+  payload: Record<string, unknown>
+) {
+  return fastify.inject({
+    method: 'POST',
+    url,
+    payload: JSON.stringify(payload),
+    headers: { 'content-type': 'application/json' },
   });
 }
