@@ -1,7 +1,10 @@
 import { Static, Type } from '@sinclair/typebox';
 import { AccountIndentifierSchema } from '../entities/common.js';
 import { AmountSchema, OperationSchema } from '../entities/operations.js';
-import { ConstructionPreprocessOptionsSchema, SigningPayloadSchema } from '../requests/construction.js';
+import {
+  ConstructionPreprocessOptionsSchema,
+  SigningPayloadSchema,
+} from '../requests/construction.js';
 import { TransactionIdentifierSchema } from '../entities/common.js';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -30,13 +33,13 @@ export type ConstructionPreprocessResponse = Static<typeof ConstructionPreproces
 // ────────────────────────────────────────────────────────────────────────────
 
 export const ConstructionMetadataResponseSchema = Type.Object({
-  metadata: Type.Composite([
-    ConstructionPreprocessOptionsSchema,
-    Type.Object({
-      sender_nonce: Type.Number(),
-      sender_balance: Type.String(),
+  metadata: Type.Object({
+    options: ConstructionPreprocessOptionsSchema,
+    sender_account_info: Type.Object({
+      nonce: Type.Number(),
+      balance: Type.String(),
     }),
-  ]),
+  }),
   suggested_fee: Type.Optional(Type.Array(AmountSchema)),
 });
 export type ConstructionMetadataResponse = Static<typeof ConstructionMetadataResponseSchema>;

@@ -75,7 +75,7 @@ export const ConstructionPreprocessContractCallOptionsSchema = Type.Composite([
     args: Type.Array(Type.String()),
   }),
 ]);
-export type ConstructionContractCallOptions = Static<
+export type ConstructionPreprocessContractCallOptions = Static<
   typeof ConstructionPreprocessContractCallOptionsSchema
 >;
 
@@ -84,6 +84,8 @@ export const ConstructionPreprocessTokenTransferOptionsSchema = Type.Composite([
   Type.Object({
     type: Type.Literal('token_transfer'),
     recipient_address: Type.String(),
+    amount: Type.String(),
+    memo: Type.Optional(Type.String()),
   }),
 ]);
 export type ConstructionPreprocessTokenTransferOptions = Static<

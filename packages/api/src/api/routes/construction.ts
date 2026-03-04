@@ -8,7 +8,6 @@ import {
   createMessageSignature,
   isSingleSig,
   sigHashPreSign,
-  serializePayload,
   AuthType,
   serializePayloadBytes,
   makeUnsignedContractCall,
@@ -49,6 +48,7 @@ import {
   removeHexPrefix,
   serializeDecodedTransactionOperations,
 } from '../../serializers/index.js';
+import BigNumber from 'bignumber.js';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network } = config;
@@ -153,13 +153,20 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           }
           let senderAddress: string | undefined;
           let recipientAddress: string | undefined;
-          const value1 = BigInt(op1.amount.value);
-          const value2 = BigInt(op2.amount.value);
+          const value1 = BigNumber(op1.amount.value);
+          const value2 = BigNumber(op2.amount.value);
+          if (!value1.abs().eq(value2.abs())) {
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidTransaction('Token transfer operations require the same amount')
+              );
+          }
           if (
-            (value1 < 0n && value2 < 0n) ||
-            (value1 > 0n && value2 > 0n) ||
-            value1 === 0n ||
-            value2 === 0n
+            (value1.lt(0) && value2.lt(0)) ||
+            (value1.gt(0) && value2.gt(0)) ||
+            value1.eq(0) ||
+            value2.eq(0)
           ) {
             return reply
               .status(500)
@@ -169,7 +176,16 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
                 )
               );
           }
-          if (value1 < 0n) {
+          const memo1 = op1.metadata?.memo ?? undefined;
+          const memo2 = op2.metadata?.memo ?? undefined;
+          if (memo1 !== memo2) {
+            return reply
+              .status(500)
+              .send(
+                MeshErrors.invalidTransaction('Token transfer operations require the same memo')
+              );
+          }
+          if (value1.lt(0)) {
             senderAddress = op1.account.address;
             recipientAddress = op2.account.address;
           } else {
@@ -181,6 +197,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               type: 'token_transfer',
               sender_address: senderAddress,
               recipient_address: recipientAddress,
+              amount: value1.abs().toString(),
+              memo: memo1,
               ...maxFee,
               ...suggestedFeeMultiplier,
             },
@@ -209,88 +227,73 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { options, public_keys } = request.body;
 
-      // Estimate fee using a representative STX transfer payload
+      // Estimate fee using a dummy transaction depending on the operation type specified in
+      // options.
+      //
+      // TODO: Fees are currently estimated by transaction byte size because the Stacks node's fee
+      // estimation endpoint does not yet return accurate values. We should switch back once that is
+      // fixed.
       let suggestedFee = 200; // Default fallback fee in uSTX
-      try {
-        const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
-        switch (options.type) {
-          case 'token_transfer': {
-            const dummyTx = await makeUnsignedSTXTokenTransfer({
-              recipient: options.recipient_address,
-              amount: 1,
-              fee: 0,
-              nonce: 0,
-              publicKey: dummyPubKey,
-              network,
-            });
-            const payloadHex = serializePayload(dummyTx.payload);
-            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
-            suggestedFee =
-              feeEstimate.estimations[1]?.fee ??
-              feeEstimate.estimations[0]?.fee ??
-              serializePayloadBytes(dummyTx.payload).length ??
-              suggestedFee;
-            break;
-          }
-          case 'contract_call': {
-            const [contractAddress, contractName] = options.contract_identifier.split('.');
-            const dummyTx = await makeUnsignedContractCall({
-              contractAddress,
-              contractName,
-              functionName: options.function_name,
-              functionArgs: options.args.map(arg => hexToCV(arg)),
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            const payloadHex = serializePayload(dummyTx.payload);
-            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
-            suggestedFee =
-              feeEstimate.estimations[1]?.fee ??
-              feeEstimate.estimations[0]?.fee ??
-              serializePayloadBytes(dummyTx.payload).length ??
-              suggestedFee;
-            break;
-          }
-          case 'contract_deploy': {
-            const dummyTx = await makeUnsignedContractDeploy({
-              contractName: options.contract_name,
-              codeBody: options.source_code,
-              clarityVersion: options.clarity_version,
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            const payloadHex = serializePayload(dummyTx.payload);
-            const feeEstimate = await rpcClient.estimateFee(removeHexPrefix(payloadHex));
-            suggestedFee =
-              feeEstimate.estimations[1]?.fee ??
-              feeEstimate.estimations[0]?.fee ??
-              serializePayloadBytes(dummyTx.payload).length ??
-              suggestedFee;
-            break;
-          }
+      const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
+      switch (options.type) {
+        case 'token_transfer': {
+          const dummyTx = await makeUnsignedSTXTokenTransfer({
+            recipient: options.recipient_address,
+            amount: 1,
+            fee: 0,
+            nonce: 0,
+            publicKey: dummyPubKey,
+            network,
+          });
+          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+          break;
         }
-        // Apply fee multiplier if specified
-        const feeMultiplier = options?.suggested_fee_multiplier
-          ? Number(options.suggested_fee_multiplier)
-          : undefined;
-        if (feeMultiplier !== undefined) {
-          suggestedFee = Math.round(suggestedFee * feeMultiplier);
+        case 'contract_call': {
+          const [contractAddress, contractName] = options.contract_identifier.split('.');
+          const dummyTx = await makeUnsignedContractCall({
+            contractAddress,
+            contractName,
+            functionName: options.function_name,
+            functionArgs: options.args.map(arg => hexToCV(arg)),
+            publicKey: dummyPubKey,
+            fee: 0,
+          });
+          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+          break;
         }
-        // Cap fee if max_fee was specified in options
-        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
-        if (maxFee !== undefined && suggestedFee > maxFee) {
-          suggestedFee = maxFee;
+        case 'contract_deploy': {
+          const dummyTx = await makeUnsignedContractDeploy({
+            contractName: options.contract_name,
+            codeBody: options.source_code,
+            clarityVersion: options.clarity_version,
+            publicKey: dummyPubKey,
+            fee: 0,
+          });
+          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+          break;
         }
-      } catch {
-        // Keep default fallback fee
+      }
+      // Apply fee multiplier if specified
+      const feeMultiplier = options?.suggested_fee_multiplier
+        ? Number(options.suggested_fee_multiplier)
+        : undefined;
+      if (feeMultiplier !== undefined) {
+        suggestedFee = Math.round(suggestedFee * feeMultiplier);
+      }
+      // Cap fee if max_fee was specified in options
+      const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
+      if (maxFee !== undefined && suggestedFee > maxFee) {
+        suggestedFee = maxFee;
       }
 
       const senderInfo = await rpcClient.getAccount(options.sender_address);
       const response: ConstructionMetadataResponse = {
         metadata: {
-          ...options,
-          sender_nonce: senderInfo.nonce,
-          sender_balance: BigInt(senderInfo.balance).toString(),
+          options,
+          sender_account_info: {
+            nonce: senderInfo.nonce,
+            balance: BigInt(senderInfo.balance).toString(),
+          },
         },
         suggested_fee: [
           {

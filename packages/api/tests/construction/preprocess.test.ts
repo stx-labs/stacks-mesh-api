@@ -46,12 +46,14 @@ describe('/construction/preprocess', () => {
             type: 'token_transfer',
             account: { address: senderAddress },
             amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'hello' },
           },
           {
             operation_identifier: { index: 1 },
             type: 'token_transfer',
             account: { address: recipientAddress },
             amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'hello' },
           },
         ],
       });
@@ -61,6 +63,8 @@ describe('/construction/preprocess', () => {
       assert.equal(body.options.type, 'token_transfer');
       assert.equal(body.options.sender_address, senderAddress);
       assert.equal(body.options.recipient_address, recipientAddress);
+      assert.equal(body.options.amount, '1000000');
+      assert.equal(body.options.memo, 'hello');
       assert.ok(body.required_public_keys);
       assert.equal(body.required_public_keys.length, 1);
       assert.equal(body.required_public_keys[0].address, senderAddress);
@@ -133,6 +137,54 @@ describe('/construction/preprocess', () => {
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
       assert.match(body.description, /one negative and one positive/);
+    });
+
+    test('rejects when the amounts are different', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-500000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+      const body = JSON.parse(res.body);
+      assert.match(body.description, /require the same amount/);
+    });
+
+    test('rejects when the memos are different', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-500000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'hello' },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '500000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'world' },
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 500);
+      const body = JSON.parse(res.body);
+      assert.match(body.description, /require the same memo/);
     });
 
     test('forwards max_fee and suggested_fee_multiplier', async () => {
