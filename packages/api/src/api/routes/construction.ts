@@ -36,8 +36,6 @@ import {
 } from '@stacks/mesh-schemas';
 import type {
   ConstructionDeriveResponse,
-  ConstructionPayloadsResponse,
-  ConstructionCombineResponse,
   ConstructionParseResponse,
   TransactionIdentifierResponse,
   ConstructionOptions,
@@ -326,9 +324,6 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 
-  // POST /construction/combine
-  // Combines an unsigned transaction with signatures to produce a signed transaction.
-  // The client signs the payload from /payloads offline and provides the signature here.
   fastify.post(
     '/construction/combine',
     {
@@ -343,63 +338,41 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { unsigned_transaction, signatures } = request.body;
 
-      try {
-        const tx = deserializeTransaction(removeHexPrefix(unsigned_transaction));
-
-        if (signatures.length === 0) {
-          return reply
-            .status(500)
-            .send(MeshErrors.invalidSignature('At least one signature is required'));
-        }
-
-        const spendingCondition = tx.auth.spendingCondition;
-
-        if (isSingleSig(spendingCondition)) {
-          if (signatures.length !== 1) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidSignature(
-                  `Expected exactly 1 signature for single-sig transaction, got ${signatures.length}`
-                )
-              );
-          }
-
-          const sig = signatures[0];
-          const signatureHex = removeHexPrefix(sig.hex_bytes);
-
-          // Recoverable ECDSA signatures are 65 bytes (130 hex characters)
-          if (signatureHex.length !== 130) {
-            return reply
-              .status(500)
-              .send(
-                MeshErrors.invalidSignature(
-                  `Invalid signature length: expected 130 hex characters (65 bytes), got ${signatureHex.length}`
-                )
-              );
-          }
-
-          spendingCondition.signature = createMessageSignature(signatureHex);
-        } else {
-          // TODO: Multi-sig transaction combining
+      const tx = deserializeTransaction(removeHexPrefix(unsigned_transaction));
+      if (isSingleSig(tx.auth.spendingCondition)) {
+        if (signatures.length !== 1) {
           return reply
             .status(500)
             .send(
-              MeshErrors.notImplemented('Multi-sig transaction combining is not yet supported')
+              MeshErrors.invalidSignature(
+                `Expected exactly 1 signature for single-sig transaction, got ${signatures.length}`
+              )
             );
         }
+        const sig = signatures[0];
+        const signatureHex = removeHexPrefix(sig.hex_bytes);
 
-        const signedTxHex = serializeTransaction(tx);
-
-        const response: ConstructionCombineResponse = {
-          signed_transaction: removeHexPrefix(signedTxHex),
-        };
-
-        return reply.send(response);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return reply.status(500).send(MeshErrors.invalidTransaction(message));
+        // Recoverable ECDSA signatures are 65 bytes (130 hex characters)
+        if (signatureHex.length !== 130) {
+          return reply
+            .status(500)
+            .send(
+              MeshErrors.invalidSignature(
+                `Invalid signature length: expected 130 hex characters (65 bytes), got ${signatureHex.length}`
+              )
+            );
+        }
+        tx.auth.spendingCondition.signature = createMessageSignature(signatureHex);
+      } else {
+        // TODO: Multi-sig transaction combining
+        return reply
+          .status(500)
+          .send(MeshErrors.notImplemented('Multi-sig transaction combining is not yet supported'));
       }
+
+      return reply.send({
+        signed_transaction: addHexPrefix(serializeTransaction(tx)),
+      });
     }
   );
 

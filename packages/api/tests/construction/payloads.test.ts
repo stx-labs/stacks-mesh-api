@@ -21,6 +21,8 @@ describe('/construction/payloads', () => {
   let dockerResources: DockerResources;
   let senderAddress = SENDER_ADDRESS;
   let recipientAddress = RECIPIENT_ADDRESS;
+  let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;
+  let recipientPublicKey = `0x${RECIPIENT_PUBLIC_KEY}`;
 
   before(
     async () => {
@@ -80,7 +82,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
@@ -132,7 +134,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
@@ -180,7 +182,7 @@ describe('/construction/payloads', () => {
         operations,
         metadata,
         // Provide a key that doesn't match senderAddress
-        public_keys: [{ hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: recipientPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
@@ -227,7 +229,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
@@ -274,7 +276,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 500);
       const body = JSON.parse(res.body);
@@ -320,7 +322,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
@@ -376,7 +378,7 @@ describe('/construction/payloads', () => {
         network_identifier: NETWORK_IDENTIFIER,
         operations,
         metadata,
-        public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
       });
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);

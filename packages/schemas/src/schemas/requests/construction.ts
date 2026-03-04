@@ -40,8 +40,8 @@ export type ConstructionPayloadsRequest = Static<typeof ConstructionPayloadsRequ
 
 export const ConstructionCombineRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  unsigned_transaction: Type.String(),
-  signatures: Type.Array(SignatureSchema),
+  unsigned_transaction: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
+  signatures: Type.Array(SignatureSchema, { minItems: 1 }),
 });
 export type ConstructionCombineRequest = Static<typeof ConstructionCombineRequestSchema>;
 

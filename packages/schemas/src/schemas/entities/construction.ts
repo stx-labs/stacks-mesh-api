@@ -3,7 +3,7 @@ import { AccountIndentifierSchema, AmountSchema } from '../index.js';
 import { Nullable, OperationIdentifierSchema } from './common.js';
 
 export const PublicKeySchema = Type.Object({
-  hex_bytes: Type.String(),
+  hex_bytes: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
   curve_type: Type.Literal('secp256k1'),
 });
 export type PublicKey = Static<typeof PublicKeySchema>;
@@ -11,7 +11,7 @@ export type PublicKey = Static<typeof PublicKeySchema>;
 export const SigningPayloadSchema = Type.Object({
   address: Type.String(),
   account_identifier: AccountIndentifierSchema,
-  hex_bytes: Type.String(),
+  hex_bytes: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
   signature_type: Type.Optional(
     Type.Union([
       Type.Literal('ecdsa'),
@@ -36,7 +36,7 @@ export const SignatureSchema = Type.Object({
     Type.Literal('schnorr_bip340'),
     Type.Literal('schnorr_poseidon'),
   ]),
-  hex_bytes: Type.String(),
+  hex_bytes: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
 });
 export type Signature = Static<typeof SignatureSchema>;
 

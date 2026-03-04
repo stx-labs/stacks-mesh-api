@@ -14,9 +14,9 @@ import {
   SENDER_PUBLIC_KEY,
 } from './helpers.js';
 import {
-  ConstructionPreprocessContractCallOptions,
-  ConstructionPreprocessContractDeployOptions,
-  ConstructionPreprocessTokenTransferOptions,
+  ConstructionContractCallOptions,
+  ConstructionContractDeployOptions,
+  ConstructionTokenTransferOptions,
 } from '@stacks/mesh-schemas';
 
 describe('/construction/metadata', () => {
@@ -43,7 +43,7 @@ describe('/construction/metadata', () => {
   );
 
   test('returns metadata for token_transfer', async () => {
-    const options: ConstructionPreprocessTokenTransferOptions = {
+    const options: ConstructionTokenTransferOptions = {
       sender_address: senderAddress,
       recipient_address: recipientAddress,
       type: 'token_transfer',
@@ -88,7 +88,7 @@ describe('/construction/metadata', () => {
   });
 
   test('returns metadata for contract_call', async () => {
-    const options: ConstructionPreprocessContractCallOptions = {
+    const options: ConstructionContractCallOptions = {
       sender_address: senderAddress,
       type: 'contract_call',
       contract_identifier: 'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.hello-world',
@@ -133,7 +133,7 @@ describe('/construction/metadata', () => {
   });
 
   test('returns metadata for contract_deploy', async () => {
-    const options: ConstructionPreprocessContractDeployOptions = {
+    const options: ConstructionContractDeployOptions = {
       sender_address: senderAddress,
       type: 'contract_deploy',
       contract_name: 'hello-world',
