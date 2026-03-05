@@ -14,6 +14,7 @@ import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
 import { getStacksNetworkName } from '../../src/utils/constants.js';
 import { FastifyInstance } from 'fastify';
 import { privateKeyToPublic } from '@stacks/transactions';
+import { timeout } from '@stacks/api-toolkit';
 
 const execFile = promisify(execFileCb);
 const docker = new Docker();
@@ -103,6 +104,11 @@ export async function ensureMeshCli(): Promise<string> {
   await rename(join(BIN_DIR, extractedName), binaryPath);
   await chmod(binaryPath, 0o755);
 
+  if (process.platform === 'darwin') {
+    await execFile('xattr', ['-rd', 'com.apple.quarantine', binaryPath]).catch(() => {});
+    await execFile('codesign', ['--force', '--sign', '-', binaryPath]).catch(() => {});
+  }
+
   return binaryPath;
 }
 
@@ -169,6 +175,7 @@ export async function setupDockerServices(): Promise<DockerResources> {
     },
     Env: [
       'MINE_INTERVAL=0.1s',
+      'STACKS_30_HEIGHT=131',
       // 'STACKS_EVENT_OBSERVER=host.docker.internal:3700',
     ],
     HostConfig: {
@@ -236,6 +243,29 @@ export async function buildTestServer() {
     tokenMetadataCache,
     contractAbiCache,
   });
+}
+
+/**
+ * Waits until the Stacks chain has produced at least one Nakamoto block.
+ * Pre-Nakamoto (epoch 2.x) blocks are not served by the v3 API, so this
+ * must resolve before the Mesh/Rosetta `/block` endpoint can work.
+ */
+export async function waitForNakamotoBlock(): Promise<void> {
+  const rpcClient = new StacksRpcClient({
+    hostname: 'localhost',
+    port: 20443,
+    authToken: '',
+  });
+  while (true) {
+    try {
+      const info = await rpcClient.getInfo();
+      console.log('Waiting for Nakamoto block...', info.stacks_tip_height);
+      await rpcClient.getNakamotoBlockByHeight(info.stacks_tip_height);
+      return;
+    } catch (error) {
+      await timeout(1000);
+    }
+  }
 }
 
 /**

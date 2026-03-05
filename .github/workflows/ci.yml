@@ -15,7 +15,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [api, construction]
+        suite:
+          - api
+          # - construction:mesh-cli
+          - construction:derive
+          - construction:hash
+          - construction:combine
+          - construction:parse
+          - construction:metadata
+          - construction:payloads
+          - construction:preprocess
+          - construction:submit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

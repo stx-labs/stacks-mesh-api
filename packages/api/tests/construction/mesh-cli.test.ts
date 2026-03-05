@@ -1,9 +1,8 @@
 import * as assert from 'node:assert/strict';
-import { execFile as execFileCb } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
 import { before, after, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 
@@ -12,15 +11,15 @@ import {
   teardownDockerServices,
   buildTestServer,
   ensureMeshCli,
+  waitForNakamotoBlock,
   API_PORT,
   type DockerResources,
   SENDER_ADDRESS,
   SENDER_PRIVATE_KEY,
 } from './helpers.js';
 
-const execFile = promisify(execFileCb);
-
-describe('Mesh CLI check:construction', () => {
+// TODO: Unskip once we update the `stacks-regtest-env` image.
+describe.skip('Mesh CLI check:construction', () => {
   let fastify: FastifyInstance;
   let dockerResources: DockerResources;
   let meshCliBin: string;
@@ -34,8 +33,9 @@ describe('Mesh CLI check:construction', () => {
     ]);
     fastify = await buildTestServer();
     await fastify.listen({ host: '0.0.0.0', port: API_PORT });
+    await waitForNakamotoBlock();
     configDir = await mkdtemp(join(tmpdir(), 'mesh-cli-'));
-  }, { timeout: 120_000 });
+  }, { timeout: 180_000 });
 
   after(async () => {
     await fastify?.close();
@@ -208,20 +208,15 @@ describe('Mesh CLI check:construction', () => {
 
     await writeFile(configPath, JSON.stringify(config, null, 2));
 
-    try {
-      await execFile(
+    const exitCode = await new Promise<number>((resolve, reject) => {
+      const proc = spawn(
         meshCliBin,
         ['check:construction', '--configuration-file', configPath],
-        { timeout: 230_000, maxBuffer: 10 * 1024 * 1024 }
+        { stdio: ['ignore', 2, 2], timeout: 230_000 }
       );
-      // check:construction exits 0 on success; if we reach here it passed
-      assert.ok(true, 'mesh CLI check:construction passed');
-    } catch (error: unknown) {
-      const execError = error as { stdout?: string; stderr?: string; code?: number };
-      const output = [execError.stdout, execError.stderr].filter(Boolean).join('\n');
-      assert.fail(
-        `mesh CLI check:construction failed (exit code ${execError.code}):\n${output}`
-      );
-    }
+      proc.on('close', (code) => resolve(code ?? 1));
+      proc.on('error', reject);
+    });
+    assert.equal(exitCode, 0, `mesh CLI check:construction failed (exit code ${exitCode})`);
   });
 });

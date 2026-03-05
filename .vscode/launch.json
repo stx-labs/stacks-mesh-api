@@ -43,7 +43,7 @@
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
-        "--test-name-pattern", "Mesh CLI",
+        // "--test-name-pattern", "Mesh CLI",
         "tests/construction/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",

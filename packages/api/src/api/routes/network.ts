@@ -68,7 +68,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       try {
         const currentBlock = await rpcClient.getNakamotoBlockByHeight(nodeInfo.stacks_tip_height);
         const decodedBlock = codec.decodeNakamotoBlock(currentBlock);
-        currentBlockTimestamp = Number(decodedBlock.header.timestamp);
+        currentBlockTimestamp = Number(decodedBlock.header.timestamp) * 1000;
       } catch (error) {
         // Ignore, perhaps not a Nakamoto block yet.
       }
