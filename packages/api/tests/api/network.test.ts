@@ -149,7 +149,7 @@ describe('/network', () => {
         current_index: mockNodeInfo.stacks_tip_height,
         synced: mockNodeInfo.is_fully_synced,
       });
-      assert.strictEqual(json.current_block_timestamp, 1766362680);
+      assert.strictEqual(json.current_block_timestamp, 1766362680000);
       assert.deepStrictEqual(json.peers, [
         {
           peer_id: 'peer-hash-1',
