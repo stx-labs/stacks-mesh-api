@@ -68,7 +68,7 @@ describe('Mesh CLI check:construction', () => {
         rebroadcast_all: false,
         prefunded_accounts: [
           {
-            privkey: SENDER_PRIVATE_KEY,
+            privkey: SENDER_PRIVATE_KEY.slice(0, 64),
             account_identifier: { address: senderAddress },
             curve_type: 'secp256k1',
             currency: { symbol: 'STX', decimals: 6 },
