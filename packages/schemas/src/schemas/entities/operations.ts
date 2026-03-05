@@ -1,6 +1,7 @@
 import { Static, Type } from '@sinclair/typebox';
 import {
   AccountIndentifierSchema,
+  DecodedClarityValueSchema,
   Nullable,
   OperationIdentifierSchema,
   StatusSchema,
@@ -100,12 +101,12 @@ const ContractCallOperationSchema = Type.Composite([
     metadata: Type.Object({
       args: Type.Union([
         Type.Array(
-          Type.Object({
-            hex: Type.String(),
-            repr: Type.String(),
-            name: Type.String(),
-            type: Type.String(),
-          })
+          Type.Composite([
+            DecodedClarityValueSchema,
+            Type.Object({
+              name: Type.String(),
+            })
+          ])
         ),
         Nullable(Type.String()),
       ]),
@@ -400,10 +401,7 @@ const ContractLogOperationSchema = Type.Composite([
       topic: Type.String(),
       value: Type.Union([
         Type.String(),
-        Type.Object({
-          hex: Type.String(),
-          repr: Type.String(),
-        }),
+        DecodedClarityValueSchema,
       ]),
     }),
   }),

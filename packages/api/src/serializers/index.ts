@@ -1,4 +1,4 @@
-import { Block, Transaction, Operation } from '@stacks/mesh-schemas';
+import { Block, Transaction, Operation, DecodedClarityValue } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
 import { StacksBlockReplay, StacksBlockReplayTransaction } from '../stacks-rpc/types.js';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
@@ -22,6 +22,15 @@ export function addHexPrefix(hex: string): string {
   }
   return hex;
 }
+
+export function decodeClarityValue(hex: string): DecodedClarityValue {
+  const decodedResult = codec.decodeClarityValue(hex);
+  return {
+    hex: decodedResult.hex,
+    repr: decodedResult.repr,
+    type: codec.decodeClarityValueToTypeName(hex),
+  };
+};
 
 /**
  * Serializes a fully replayed Nakamoto block into Mesh API Block format. These blocks are retrieved

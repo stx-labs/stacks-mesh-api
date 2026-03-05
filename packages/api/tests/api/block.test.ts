@@ -340,11 +340,11 @@ describe('/block', () => {
       // Contract call args serialized from ABI
       assert.strictEqual(contractCallOp.metadata.args.length, 4);
       assert.strictEqual(contractCallOp.metadata.args[0].name, 'survey-id');
-      assert.strictEqual(contractCallOp.metadata.args[0].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[0].type, '(string-utf8 256)');
       assert.strictEqual(contractCallOp.metadata.args[1].name, 'response-id');
-      assert.strictEqual(contractCallOp.metadata.args[1].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[1].type, '(string-utf8 256)');
       assert.strictEqual(contractCallOp.metadata.args[2].name, 'response-hash');
-      assert.strictEqual(contractCallOp.metadata.args[2].type, '(string-utf8 64)');
+      assert.strictEqual(contractCallOp.metadata.args[2].type, '(string-utf8 256)');
       assert.strictEqual(contractCallOp.metadata.args[3].name, 'gas-fee');
       assert.strictEqual(contractCallOp.metadata.args[3].type, 'uint');
       assert.strictEqual(contractCallOp.metadata.args[3].repr, 'u417');
@@ -378,7 +378,7 @@ describe('/block', () => {
       assert.strictEqual(tx2ContractCallOp.metadata.function_name, 'r1');
       assert.strictEqual(tx2ContractCallOp.metadata.args.length, 1);
       assert.strictEqual(tx2ContractCallOp.metadata.args[0].name, 'bu');
-      assert.strictEqual(tx2ContractCallOp.metadata.args[0].type, '(buff 8)');
+      assert.strictEqual(tx2ContractCallOp.metadata.args[0].type, '(buff 7)');
       assert.ok(tx2ContractCallOp.metadata.args[0].hex.startsWith('0x'));
 
       // Fourth tx: contract call with stx_transfer, contract_event, ft_transfer events
@@ -408,7 +408,6 @@ describe('/block', () => {
       // Verify contract_log operation from contract_event
       const contractLogOp = tx3.operations[4];
       assert.strictEqual(contractLogOp.type, 'contract_log');
-      assert.ok(contractLogOp.metadata.value.startsWith('0x'));
       assert.strictEqual(
         contractLogOp.metadata.contract_identifier,
         'SP1Z92MPDQEWZXW36VX71Q25HKF5K2EPCJ304F275.stackswap-swap-v5k'
@@ -662,12 +661,22 @@ describe('/block', () => {
       );
       assert.ok(contractLogOps.length > 0, 'Expected at least one contract_log operation');
 
-      for (const op of contractLogOps) {
-        assert.ok(op.metadata.value.startsWith('0x'), 'Contract log value should be hex');
-        assert.ok(op.metadata.contract_identifier, 'Should have contract_identifier');
-        assert.strictEqual(op.metadata.topic, 'print');
-        assert.strictEqual(op.status, 'success');
-      }
+      const op = contractLogOps[0];
+      assert.equal(
+        op.metadata.value.type,
+        '(tuple (action (string-ascii 8)) (caller principal) (data (tuple (amount uint) (memo (optional UnknownType)) (recipient principal) (sender principal))))'
+      );
+      assert.equal(
+        op.metadata.value.hex,
+        '0x0c0000000306616374696f6e0d000000087472616e736665720663616c6c65720516f4cac43d17b396167e71965a8ad9a97415e6d65e04646174610c0000000406616d6f756e74010000000000000000000000000000000a046d656d6f0909726563697069656e740516e8ca22699ba547d0d4a852196ea5628a1a3727550673656e6465720516f4cac43d17b396167e71965a8ad9a97415e6d65e'
+      );
+      assert.equal(
+        op.metadata.value.repr,
+        "(tuple (action \"transfer\") (caller 'SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9) (data (tuple (amount u10) (memo none) (recipient 'SP3MCM8K9KEJMFM6MN191JVN5CA51MDS7AM3SGYQ6) (sender 'SP3TCNH1X2YSSC5KYE6B5N2PSN5T1BSPPBS235ZP9))))"
+      );
+      assert.ok(op.metadata.contract_identifier, 'Should have contract_identifier');
+      assert.strictEqual(op.metadata.topic, 'print');
+      assert.strictEqual(op.status, 'success');
 
       // Verify FT transfer operations
       const ftTransferOps = tx.operations.filter(

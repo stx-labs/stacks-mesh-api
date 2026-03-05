@@ -21,7 +21,7 @@ import {
 import { getTypeString } from '@stacks/transactions';
 import { ApiConfig } from '../api/index.js';
 import { serializePostConditions } from './post-conditions.js';
-import { addHexPrefix } from './index.js';
+import { addHexPrefix, decodeClarityValue } from './index.js';
 import BigNumber from 'bignumber.js';
 
 /**
@@ -91,10 +91,7 @@ export async function serializeReplayedNakamotoTransaction(
 }
 
 function serializeTxResult(tx: StacksBlockReplayTransaction) {
-  return {
-    hex: addHexPrefix(tx.result_hex),
-    repr: codec.decodeClarityValueToRepr(tx.result_hex),
-  };
+  return decodeClarityValue(tx.result_hex);
 }
 
 function serializeTxStatus(replayedTx: StacksBlockReplayTransaction): Status {
@@ -255,9 +252,7 @@ async function makeContractCallOperation(
         hex: c.hex,
         repr: c.repr,
         name: functionArgAbi.name,
-        type: functionArgAbi.type
-          ? getTypeString(functionArgAbi.type)
-          : codec.decodeClarityValueToTypeName(c.hex),
+        type: codec.decodeClarityValueToTypeName(c.hex),
       };
     });
   }
@@ -605,13 +600,7 @@ function makeContractEventOperations(
     type: 'contract_log',
     status: tx.status,
     metadata: {
-      value: addHexPrefix(event.contract_event.raw_value),
-      // value: options.decodeClarityValues
-      //   ? {
-      //       hex: event.value,
-      //       repr: decodeClarityValueToRepr(event.value),
-      //     }
-      //   : event.value,
+      value: decodeClarityValue(event.contract_event.raw_value),
       contract_identifier: event.contract_event.contract_identifier,
       topic: event.contract_event.topic,
     },

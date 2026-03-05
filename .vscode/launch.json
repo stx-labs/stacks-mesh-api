@@ -25,7 +25,7 @@
       "runtimeArgs": ["--import", "tsx"],
       "args": [
         "--test",
-        // "--test-name-pattern", "/network",
+        // "--test-name-pattern", "/call",
         "tests/api/**/*.test.ts"
       ],
       "cwd": "${workspaceFolder}/packages/api",
