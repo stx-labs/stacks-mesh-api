@@ -72,6 +72,13 @@ export const PeerSchema = Type.Object({
   metadata: Type.Object({
     ip: Type.String(),
     port: Type.Number(),
+    peer_version: Type.Number(),
+    type: Type.Array(Type.Union([
+      Type.Literal('bootstrap'),
+      Type.Literal('sample'),
+      Type.Literal('inbound'),
+      Type.Literal('outbound'),
+    ])),
   }),
 });
 export type Peer = Static<typeof PeerSchema>;

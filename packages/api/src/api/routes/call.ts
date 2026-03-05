@@ -6,7 +6,7 @@ import {
   ErrorResponseSchema,
 } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
-import { StacksRpcSmartContractError } from '../../stacks-rpc/errors.js';
+import { decodeClarityValue } from '../../serializers/index.js';
 
 export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -25,34 +25,20 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
     async (request, reply) => {
       const { method, parameters } = request.body;
 
-      // TODO: Decode clarity values
       switch (method) {
         case 'contract_call_read_only': {
-          try {
-            const callResult = await rpcClient.callReadOnlyFunction(
-              parameters.deployer_address,
-              parameters.contract_name,
-              parameters.function_name,
-              parameters.arguments,
-              parameters.sender,
-              parameters.sponsor
-            );
-            return reply.send({
-              idempotent: false,
-              result: callResult,
-            });
-          } catch (error) {
-            if (error instanceof StacksRpcSmartContractError) {
-              return reply.send({
-                idempotent: false,
-                result: {
-                  okay: false,
-                  cause: error.message,
-                },
-              });
-            }
-            throw error;
-          }
+          const callResult = await rpcClient.callReadOnlyFunction(
+            parameters.deployer_address,
+            parameters.contract_name,
+            parameters.function_name,
+            parameters.arguments,
+            parameters.sender,
+            parameters.sponsor
+          );
+          return reply.send({
+            idempotent: false,
+            result: decodeClarityValue(callResult.result),
+          });
         }
 
         case 'contract_get_interface': {
@@ -85,10 +71,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
           );
           return reply.send({
             idempotent: true,
-            result: {
-              okay: true,
-              result: constantValResult,
-            },
+            result: decodeClarityValue(constantValResult.data),
           });
         }
 
@@ -100,10 +83,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
           );
           return reply.send({
             idempotent: false,
-            result: {
-              okay: true,
-              result: varData,
-            },
+            result: decodeClarityValue(varData.data),
           });
         }
 
@@ -116,10 +96,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
           );
           return reply.send({
             idempotent: false,
-            result: {
-              okay: true,
-              result: mapEntry,
-            },
+            result: decodeClarityValue(mapEntry.data),
           });
         }
 

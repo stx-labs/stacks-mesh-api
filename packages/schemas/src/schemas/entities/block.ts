@@ -1,6 +1,6 @@
 import { Static, Type } from '@sinclair/typebox';
 import { BlockIdentifierSchema, Nullable, ExecutionCostSchema } from './common.js';
-import { TransactionSchema } from './transaction.js';
+import { TransactionSchema } from './transactions.js';
 
 export const BlockMetadataSchema = Type.Object({
   canonical: Type.Boolean(),

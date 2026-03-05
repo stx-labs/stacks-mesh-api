@@ -1,0 +1,298 @@
+{
+  "block_id": "1e5cb039d8f44f16b24f2e897253686c45efab340801ba1ab811379968799108",
+  "block_hash": "b2909f6aacdee979a3a0d6b34edab9672762c9247b1ef094a747b3cc78f4d3ec",
+  "block_height": 410801,
+  "parent_block_id": "e6ab3b66436013702a777f106578f7d62df31fef5a27d2a4a134c6eb12821887",
+  "consensus_hash": "0456f56477361c76a0f53236ab0096f73b21df0c",
+  "fees": 1667,
+  "tx_merkle_root": "327aee6376daaa89adcf14bb13e024bd2f6f9cc6f63efdc169fa3ea2aed5ec61",
+  "state_index_root": "c5606143c40c1d36dfce339b60a217370326c8d63b729a3760df2649bbe9acde",
+  "timestamp": 1735743582,
+  "miner_signature": "0040a2cba85a6869e793b2f56974dca79390de61b400ba2f79ede46d4fa7af2d547bfd37330a72a4b32259b432d9d5a11c6030e867efab15c1ef8d5c6541f7dafb",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "64197d24b38d112052b788c3d886898d41f3e1fb0a0212aa83dc55ea108b3fdb",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "97ad80b6e97b5678aca4ec48a86cc4d010c2b950",
+              "nonce": 9,
+              "tx_fee": 1667,
+              "key_encoding": "Compressed",
+              "signature": "010667b21a76c75af1bdec3819991c7a71a94b19402c71ee1faf2c521e69ca1d41709bcca41111ac5d07d2aab24225b75fd7b7761ccf51ce7e7764d19af42c93b2"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "stack-aggregation-commit",
+            "function_args": [
+              {
+                "Tuple": {
+                  "type_signature": {
+                    "type_map": {
+                      "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                      "version": { "SequenceType": { "BufferType": 1 } }
+                    }
+                  },
+                  "data_map": {
+                    "hashbytes": {
+                      "Sequence": {
+                        "Buffer": {
+                          "data": [
+                            123, 140, 244, 9, 236, 89, 26, 137, 22, 211, 23, 30, 100, 143, 16, 35,
+                            129, 136, 224, 215
+                          ]
+                        }
+                      }
+                    },
+                    "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                  }
+                }
+              },
+              { "UInt": 101 },
+              {
+                "Optional": {
+                  "data": {
+                    "Sequence": {
+                      "Buffer": {
+                        "data": [
+                          241, 108, 235, 21, 47, 152, 213, 169, 206, 43, 110, 94, 208, 246, 113,
+                          252, 245, 160, 45, 66, 19, 44, 3, 214, 34, 81, 34, 87, 174, 224, 88, 8,
+                          88, 48, 146, 146, 49, 28, 239, 129, 236, 22, 172, 237, 154, 247, 19, 136,
+                          33, 39, 109, 48, 14, 153, 158, 142, 115, 248, 128, 4, 227, 127, 207, 216,
+                          1
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      2, 23, 186, 33, 102, 59, 199, 234, 27, 234, 150, 28, 42, 49, 69, 67, 183, 228,
+                      235, 83, 190, 42, 0, 72, 115, 2, 167, 83, 64, 213, 95, 246, 46
+                    ]
+                  }
+                }
+              },
+              { "UInt": 1000000000000 },
+              { "UInt": 577395 }
+            ]
+          }
+        }
+      },
+      "hex": "0000000001040097ad80b6e97b5678aca4ec48a86cc4d010c2b9500000000000000009000000000000068300010667b21a76c75af1bdec3819991c7a71a94b19402c71ee1faf2c521e69ca1d41709bcca41111ac5d07d2aab24225b75fd7b7761ccf51ce7e7764d19af42c93b20302000000000216000000000000000000000000000000000000000005706f782d3418737461636b2d6167677265676174696f6e2d636f6d6d6974000000060c000000020968617368627974657302000000147b8cf409ec591a8916d3171e648f10238188e0d70776657273696f6e02000000010401000000000000000000000000000000650a0200000041f16ceb152f98d5a9ce2b6e5ed0f671fcf5a02d42132c03d622512257aee0580858309292311cef81ec16aced9af7138821276d300e999e8e73f88004e37fcfd80102000000210217ba21663bc7ea1bea961c2a314543b7e4eb53be2a00487302a75340d55ff62e010000000000000000000000e8d4a51000010000000000000000000000000008cf73",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 886,
+        "write_count": 6,
+        "read_length": 77521,
+        "read_count": 14,
+        "runtime": 244941
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e636501000000000000000000000000016396f0176275726e636861696e2d756e6c6f636b2d686569676874010000000000000000000000000000000004646174610c0000000a0b616d6f756e742d757374780100000000000000000000001bf0dafb4007617574682d6964010000000000000000000000000008cf730964656c656761746f72051697ad80b6e97b5678aca4ec48a86cc4d010c2b9500c656e642d6379636c652d69640a01000000000000000000000000000000660a6d61782d616d6f756e74010000000000000000000000e8d4a5100008706f782d616464720c000000020968617368627974657302000000147b8cf409ec591a8916d3171e648f10238188e0d70776657273696f6e0200000001040c7265776172642d6379636c6501000000000000000000000000000000650a7369676e65722d6b657902000000210217ba21663bc7ea1bea961c2a314543b7e4eb53be2a00487302a75340d55ff62e0a7369676e65722d7369670a0200000041f16ceb152f98d5a9ce2b6e5ed0f671fcf5a02d42132c03d622512257aee0580858309292311cef81ec16aced9af7138821276d300e999e8e73f88004e37fcfd8010e73746172742d6379636c652d69640100000000000000000000000000000065066c6f636b65640100000000000000000000000000000000046e616d650d00000018737461636b2d6167677265676174696f6e2d636f6d6d697407737461636b6572051697ad80b6e97b5678aca4ec48a86cc4d010c2b950",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 23303920 },
+                      "burnchain-unlock-height": { "UInt": 0 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "amount-ustx": { "UInt": 120005000000 },
+                            "auth-id": { "UInt": 577395 },
+                            "delegator": {
+                              "Principal": {
+                                "Standard": [
+                                  22,
+                                  [
+                                    151, 173, 128, 182, 233, 123, 86, 120, 172, 164, 236, 72, 168,
+                                    108, 196, 208, 16, 194, 185, 80
+                                  ]
+                                ]
+                              }
+                            },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 102 } } },
+                            "max-amount": { "UInt": 1000000000000 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          123, 140, 244, 9, 236, 89, 26, 137, 22, 211, 23, 30, 100,
+                                          143, 16, 35, 129, 136, 224, 215
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "reward-cycle": { "UInt": 101 },
+                            "signer-key": {
+                              "Sequence": {
+                                "Buffer": {
+                                  "data": [
+                                    2, 23, 186, 33, 102, 59, 199, 234, 27, 234, 150, 28, 42, 49, 69,
+                                    67, 183, 228, 235, 83, 190, 42, 0, 72, 115, 2, 167, 83, 64, 213,
+                                    95, 246, 46
+                                  ]
+                                }
+                              }
+                            },
+                            "signer-sig": {
+                              "Optional": {
+                                "data": {
+                                  "Sequence": {
+                                    "Buffer": {
+                                      "data": [
+                                        241, 108, 235, 21, 47, 152, 213, 169, 206, 43, 110, 94, 208,
+                                        246, 113, 252, 245, 160, 45, 66, 19, 44, 3, 214, 34, 81, 34,
+                                        87, 174, 224, 88, 8, 88, 48, 146, 146, 49, 28, 239, 129,
+                                        236, 22, 172, 237, 154, 247, 19, 136, 33, 39, 109, 48, 14,
+                                        153, 158, 142, 115, 248, 128, 4, 227, 127, 207, 216, 1
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 101 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "auth-id": "UIntType",
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "reward-cycle": "UIntType",
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 0 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                115, 116, 97, 99, 107, 45, 97, 103, 103, 114, 101, 103, 97, 116,
+                                105, 111, 110, 45, 99, 111, 109, 109, 105, 116
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              151, 173, 128, 182, 233, 123, 86, 120, 172, 164, 236, 72, 168, 108,
+                              196, 208, 16, 194, 185, 80
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "amount-ustx": "UIntType",
+                              "auth-id": "UIntType",
+                              "delegator": "PrincipalType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "reward-cycle": "UIntType",
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 24 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0x64197d24b38d112052b788c3d886898d41f3e1fb0a0212aa83dc55ea108b3fdb",
+          "type": "contract_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

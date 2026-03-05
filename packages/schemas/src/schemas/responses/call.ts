@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
+import { DecodedClarityValueSchema } from "../entities/common.js";
 
 const BaseCallResponseSchema = Type.Object({
   idempotent: Type.Boolean(),
@@ -7,16 +8,7 @@ const BaseCallResponseSchema = Type.Object({
 export const ContractCallReadOnlyResponseSchema = Type.Composite([
   BaseCallResponseSchema,
   Type.Object({
-    result: Type.Union([
-      Type.Object({
-        okay: Type.Literal(true),
-        result: Type.String(),
-      }),
-      Type.Object({
-        okay: Type.Literal(false),
-        cause: Type.String(),
-      }),
-    ]),
+    result: DecodedClarityValueSchema,
   }),
 ]);
 export type ContractCallReadOnlyResponse = Static<typeof ContractCallReadOnlyResponseSchema>;
@@ -44,12 +36,7 @@ export type ContractGetSourceResponse = Static<typeof ContractGetSourceResponseS
 export const ContractGetConstantValResponseSchema = Type.Composite([
   BaseCallResponseSchema,
   Type.Object({
-    result: Type.Object({
-      okay: Type.Literal(true),
-      result: Type.Object({
-        data: Type.String(),
-      }),
-    }),
+    result: DecodedClarityValueSchema,
   }),
 ]);
 export type ContractGetConstantValResponse = Static<typeof ContractGetConstantValResponseSchema>;

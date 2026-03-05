@@ -1,0 +1,155 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    tags-ignore:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          [
+            'api',
+            'construction:derive',
+            'construction:hash',
+            'construction:combine',
+            'construction:parse',
+            'construction:metadata',
+            'construction:payloads',
+            'construction:preprocess',
+            'construction:submit',
+          ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: |
+            ~/.npm
+            **/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install deps
+        run: npm ci --audit=false
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npx c8 --reporter=lcov npm run test:${{ matrix.suite }} --prefix ./packages/api
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  version:
+    runs-on: ubuntu-latest
+    needs: [test]
+    outputs:
+      next_version: ${{ steps.calc.outputs.next_version }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install version tools
+        run: npm install -g conventional-recommended-bump conventional-changelog-conventionalcommits semver
+
+      - name: Calculate next version
+        id: calc
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          LATEST_VERSION=${LATEST_TAG#v}
+
+          if [ "$BRANCH" = "master" ]; then
+            BUMP=$(npx conventional-recommended-bump -p conventionalcommits)
+            NEXT_VERSION=$(npx semver "$LATEST_VERSION" -i "$BUMP")
+          elif [ "$BRANCH" = "alpha" ] || [ "$BRANCH" = "beta" ]; then
+            CHANNEL="$BRANCH"
+            if echo "$LATEST_VERSION" | grep -qE "\-${CHANNEL}\.[0-9]+$"; then
+              NEXT_VERSION=$(npx semver "$LATEST_VERSION" -i prerelease --preid "$CHANNEL")
+            else
+              BUMP=$(npx conventional-recommended-bump -p conventionalcommits)
+              BASE=$(npx semver "$LATEST_VERSION" -i "$BUMP")
+              NEXT_VERSION="${BASE}-${CHANNEL}.0"
+            fi
+          else
+            echo "Skipping version calculation for branch '$BRANCH'"
+            echo "next_version=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "next_version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "## Next Version: \`$NEXT_VERSION\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Based on branch \`$BRANCH\`, latest tag \`$LATEST_TAG\`" >> "$GITHUB_STEP_SUMMARY"
+
+  build-publish:
+    runs-on: ubuntu-latest
+    needs: [test]
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker Meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build/Tag/Push Image
+        id: docker_push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          # Only push on non-PR events, or PRs that aren't from forks
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}

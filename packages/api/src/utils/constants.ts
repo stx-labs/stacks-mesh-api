@@ -92,3 +92,41 @@ export const STX_CURRENCY = {
   symbol: 'STX',
   decimals: 6,
 };
+
+const BOOT_ADDR_MAINNET = 'SP000000000000000000002Q6VF78';
+const BOOT_ADDR_TESTNET = 'ST000000000000000000002AMW42H';
+
+const POX_1_CONTRACT_NAME = 'pox';
+const POX_2_CONTRACT_NAME = 'pox-2';
+const POX_3_CONTRACT_NAME = 'pox-3';
+const POX_4_CONTRACT_NAME = 'pox-4';
+
+export const PoxContractIdentifier = {
+  pox1: {
+    mainnet: `${BOOT_ADDR_MAINNET}.${POX_1_CONTRACT_NAME}`,
+    testnet: `${BOOT_ADDR_TESTNET}.${POX_1_CONTRACT_NAME}`,
+  },
+  pox2: {
+    mainnet: `${BOOT_ADDR_MAINNET}.${POX_2_CONTRACT_NAME}`,
+    testnet: `${BOOT_ADDR_TESTNET}.${POX_2_CONTRACT_NAME}`,
+  },
+  pox3: {
+    mainnet: `${BOOT_ADDR_MAINNET}.${POX_3_CONTRACT_NAME}`,
+    testnet: `${BOOT_ADDR_TESTNET}.${POX_3_CONTRACT_NAME}`,
+  },
+  pox4: {
+    mainnet: `${BOOT_ADDR_MAINNET}.${POX_4_CONTRACT_NAME}`,
+    testnet: `${BOOT_ADDR_TESTNET}.${POX_4_CONTRACT_NAME}`,
+  },
+} as const;
+
+export const PoxContractIdentifiers = Object.values(PoxContractIdentifier).flatMap(
+  Object.values
+) as string[];
+
+export const GENESIS_BLOCK_HASH = {
+  mainnet: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
+  testnet: '0x0000000000000000000000000000000000000000000000000000000000000000',
+} as const;
+
+export const GENESIS_BLOCK_TIMESTAMP = 1610645304000;

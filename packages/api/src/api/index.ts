@@ -13,6 +13,7 @@ export type ApiConfig = {
   contractAbiCache: ContractAbiCache;
   network: 'mainnet' | 'testnet';
   nodeVersion: string;
+  apiVersion: string;
 };
 
 export async function buildApiServer(config: ApiConfig) {

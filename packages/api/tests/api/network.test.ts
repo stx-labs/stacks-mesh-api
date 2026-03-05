@@ -2,8 +2,10 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer } from '../../src/api/index.js';
-import { makeTestApiConfig } from './helpers.js';
+import { FIXTURES_DIR, makeTestApiConfig } from './helpers.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
+import path from 'node:path';
+import fs from 'node:fs';
 
 describe('/network', () => {
   let fastify: FastifyInstance;
@@ -55,7 +57,7 @@ describe('/network', () => {
         server_version: 'stacks-node 3.0.0',
         network_id: 1,
         parent_network_id: 1,
-        stacks_tip_height: 150000,
+        stacks_tip_height: 5437107,
         stacks_tip: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
         stacks_tip_consensus_hash: 'aaa111',
         genesis_chainstate_hash: '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -83,7 +85,6 @@ describe('/network', () => {
             public_key_hash: 'peer-hash-1',
             authenticated: true,
             stackerdbs: [],
-            age: 100,
           },
         ],
         inbound: [
@@ -95,7 +96,6 @@ describe('/network', () => {
             public_key_hash: 'peer-hash-2',
             authenticated: true,
             stackerdbs: [],
-            age: 200,
           },
         ],
         outbound: [],
@@ -112,8 +112,15 @@ describe('/network', () => {
         .reply(200, mockNeighbors, {
           headers: { 'content-type': 'application/json' },
         });
+      const blockHeaderFixture = fs.readFileSync(
+        path.join(FIXTURES_DIR, 'blocks/coinbase.header.bin')
+      );
+      mockPool
+        .intercept({ path: `/v3/blocks/height/5437107`, method: 'GET' })
+        .reply(200, blockHeaderFixture, {
+          headers: { 'content-type': 'application/octet-stream' },
+        });
 
-      const now = Date.now();
       const response = await fastify.inject({
         url: '/network/status',
         method: 'POST',
@@ -135,27 +142,22 @@ describe('/network', () => {
         hash: mockNodeInfo.stacks_tip,
       });
       assert.deepStrictEqual(json.genesis_block_identifier, {
-        index: 0,
-        hash: mockNodeInfo.genesis_chainstate_hash,
+        index: 1,
+        hash: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
       });
       assert.deepStrictEqual(json.sync_status, {
         current_index: mockNodeInfo.stacks_tip_height,
         synced: mockNodeInfo.is_fully_synced,
       });
-      // Timestamp should be close to `now` (within 1 second)
-      assert.ok(
-        json.current_block_timestamp >= now &&
-          json.current_block_timestamp <= now + 1000,
-        `Expected timestamp close to ${now}, got ${json.current_block_timestamp}`
-      );
+      assert.strictEqual(json.current_block_timestamp, 1766362680000);
       assert.deepStrictEqual(json.peers, [
         {
           peer_id: 'peer-hash-1',
-          metadata: { ip: '1.2.3.4', port: 20444 },
+          metadata: { ip: '1.2.3.4', port: 20444, peer_version: 402653189, type: ['sample'] },
         },
         {
           peer_id: 'peer-hash-2',
-          metadata: { ip: '5.6.7.8', port: 20444 },
+          metadata: { ip: '5.6.7.8', port: 20444, peer_version: 402653189, type: ['inbound'] },
         },
       ]);
     });

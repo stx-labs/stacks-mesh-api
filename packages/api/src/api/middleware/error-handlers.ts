@@ -2,6 +2,7 @@ import { FastifyError, FastifyReply, FastifyRequest, RouteGenericInterface } fro
 import { MeshErrors } from '../../utils/errors.js';
 import {
   StacksRpcBlockNotFoundError,
+  StacksRpcSmartContractError,
   StacksRpcTransactionNotFoundError,
 } from '../../stacks-rpc/errors.js';
 
@@ -15,6 +16,9 @@ export const handleMeshError = (
   }
   if (error instanceof StacksRpcTransactionNotFoundError) {
     return reply.status(500).send(MeshErrors.transactionNotFound(error.message));
+  }
+  if (error instanceof StacksRpcSmartContractError) {
+    return reply.status(500).send(MeshErrors.rpcError(error.message));
   }
   if (error.validation) {
     return reply

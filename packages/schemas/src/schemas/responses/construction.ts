@@ -1,36 +1,39 @@
 import { Static, Type } from '@sinclair/typebox';
-import { AccountIndentifierSchema } from '../entities/common.js';
+import { AccountIndentifierSchema, HexStringSchema } from '../entities/common.js';
 import { AmountSchema, OperationSchema } from '../entities/operations.js';
-import { SigningPayloadSchema } from '../requests/construction.js';
 import { TransactionIdentifierSchema } from '../entities/common.js';
+import {
+  ConstructionMetadataSchema,
+  ConstructionOptionsSchema,
+  SigningPayloadSchema,
+} from '../entities/construction.js';
 
 export const ConstructionDeriveResponseSchema = Type.Object({
   address: Type.Optional(Type.String()),
   account_identifier: Type.Optional(AccountIndentifierSchema),
-  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
 export type ConstructionDeriveResponse = Static<typeof ConstructionDeriveResponseSchema>;
 
 export const ConstructionPreprocessResponseSchema = Type.Object({
-  options: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+  options: Type.Optional(ConstructionOptionsSchema),
   required_public_keys: Type.Optional(Type.Array(AccountIndentifierSchema)),
 });
 export type ConstructionPreprocessResponse = Static<typeof ConstructionPreprocessResponseSchema>;
 
 export const ConstructionMetadataResponseSchema = Type.Object({
-  metadata: Type.Record(Type.String(), Type.Unknown()),
+  metadata: ConstructionMetadataSchema,
   suggested_fee: Type.Optional(Type.Array(AmountSchema)),
 });
 export type ConstructionMetadataResponse = Static<typeof ConstructionMetadataResponseSchema>;
 
 export const ConstructionPayloadsResponseSchema = Type.Object({
-  unsigned_transaction: Type.String(),
+  unsigned_transaction: HexStringSchema,
   payloads: Type.Array(SigningPayloadSchema),
 });
 export type ConstructionPayloadsResponse = Static<typeof ConstructionPayloadsResponseSchema>;
 
 export const ConstructionCombineResponseSchema = Type.Object({
-  signed_transaction: Type.String(),
+  signed_transaction: HexStringSchema,
 });
 export type ConstructionCombineResponse = Static<typeof ConstructionCombineResponseSchema>;
 

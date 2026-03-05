@@ -1,7 +1,7 @@
 import { StacksRpcClient } from './stacks-rpc/stacks-rpc-client.js';
 import { ENV } from './env.js';
-import { logger, registerShutdownConfig } from '@stacks/api-toolkit';
-import { buildApiServer } from './api/index.js';
+import { logger, registerShutdownConfig, SERVER_VERSION } from '@stacks/api-toolkit';
+import { ApiConfig, buildApiServer } from './api/index.js';
 import { getStacksNetworkName } from './utils/constants.js';
 import { TokenMetadataCache } from './cache/token-metadata-cache.js';
 import { ContractAbiCache } from './cache/contract-abi-cache.js';
@@ -26,13 +26,15 @@ export async function initApp() {
     ttl: ENV.CONTRACT_ABI_CACHE_TTL_MS,
   });
 
-  const apiServer = await buildApiServer({
+  const apiConfig: ApiConfig = {
     rpcClient,
     network: getStacksNetworkName(nodeInfo.network_id),
     nodeVersion: nodeInfo.server_version,
+    apiVersion: `stacks-mesh-api ${SERVER_VERSION.tag} (${SERVER_VERSION.branch}:${SERVER_VERSION.commit})`,
     tokenMetadataCache,
     contractAbiCache,
-  });
+  };
+  const apiServer = await buildApiServer(apiConfig);
   registerShutdownConfig({
     name: 'API Server',
     forceKillable: false,

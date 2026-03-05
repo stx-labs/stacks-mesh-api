@@ -46,24 +46,29 @@ describe('/call', () => {
           path: `/v2/contracts/call-read/${DEPLOYER}/${CONTRACT}/get-balance`,
           method: 'POST',
         })
-        .reply(200, { okay: true, result: '0x0100000000000000000000000000000064' }, {
-          headers: { 'content-type': 'application/json' },
-        });
+        .reply(
+          200,
+          { okay: true, result: '0x0100000000000000000000000000000064' },
+          {
+            headers: { 'content-type': 'application/json' },
+          }
+        );
 
       const response = await postCall(fastify, 'contract_call_read_only', {
         deployer_address: DEPLOYER,
         contract_name: CONTRACT,
         function_name: 'get-balance',
         sender: SENDER,
-        arguments: ['0x0516a26392d8d7f66f70a6981f4c1e0d87dc4fb0b1a7'],
+        arguments: [],
       });
 
       assert.strictEqual(response.statusCode, 200);
       const json = JSON.parse(response.body);
       assert.strictEqual(json.idempotent, false);
       assert.deepStrictEqual(json.result, {
-        okay: true,
-        result: '0x0100000000000000000000000000000064',
+        hex: '0x0100000000000000000000000000000064',
+        repr: 'u100',
+        type: 'uint',
       });
     });
 
@@ -74,9 +79,13 @@ describe('/call', () => {
           path: `/v2/contracts/call-read/${DEPLOYER}/${CONTRACT}/transfer`,
           method: 'POST',
         })
-        .reply(200, { okay: false, cause: 'Unchecked(NoSuchPublicFunction)' }, {
-          headers: { 'content-type': 'application/json' },
-        });
+        .reply(
+          200,
+          { okay: false, cause: 'Unchecked(NoSuchPublicFunction)' },
+          {
+            headers: { 'content-type': 'application/json' },
+          }
+        );
 
       const response = await postCall(fastify, 'contract_call_read_only', {
         deployer_address: DEPLOYER,
@@ -86,13 +95,9 @@ describe('/call', () => {
         arguments: [],
       });
 
-      assert.strictEqual(response.statusCode, 200);
+      assert.strictEqual(response.statusCode, 500);
       const json = JSON.parse(response.body);
-      assert.strictEqual(json.idempotent, false);
-      assert.deepStrictEqual(json.result, {
-        okay: false,
-        cause: 'Unchecked(NoSuchPublicFunction)',
-      });
+      assert.match(json.description, /NoSuchPublicFunction/);
     });
   });
 
@@ -185,8 +190,9 @@ describe('/call', () => {
       const json = JSON.parse(response.body);
       assert.strictEqual(json.idempotent, true);
       assert.deepStrictEqual(json.result, {
-        okay: true,
-        result: mockConstant,
+        hex: '0x0100000000000000000000000000989680',
+        repr: 'u10000000',
+        type: 'uint',
       });
     });
   });
@@ -215,15 +221,16 @@ describe('/call', () => {
       const json = JSON.parse(response.body);
       assert.strictEqual(json.idempotent, false);
       assert.deepStrictEqual(json.result, {
-        okay: true,
-        result: mockVar,
+        hex: '0x0100000000000000000000000000000001',
+        repr: 'u1',
+        type: 'uint',
       });
     });
   });
 
   describe('contract_get_map_entry', () => {
     test('should return contract map entry', async () => {
-      const mockEntry = { data: '0x0a0c00000002046e616d650200000003666f6f' };
+      const mockEntry = { data: '0x0100000000000000000000000000000001' };
 
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockPool
@@ -246,8 +253,9 @@ describe('/call', () => {
       const json = JSON.parse(response.body);
       assert.strictEqual(json.idempotent, false);
       assert.deepStrictEqual(json.result, {
-        okay: true,
-        result: mockEntry,
+        hex: '0x0100000000000000000000000000000001',
+        repr: 'u1',
+        type: 'uint',
       });
     });
   });

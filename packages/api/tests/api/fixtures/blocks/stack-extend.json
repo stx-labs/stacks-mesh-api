@@ -1,0 +1,388 @@
+{
+  "block_id": "5a1d8a3b8b259acdac57689361ba1e55f0d398e45f034f05192ae23c2c437272",
+  "block_hash": "34336a237851473b48eae0586e43ab4658c60f3249cf555b6fed8c9a38a05bff",
+  "block_height": 6547449,
+  "parent_block_id": "6d205120740007e7eb074d4ab9b79dd5508c00066e96d6dc1a8815b7b0a0b1c9",
+  "consensus_hash": "56cd9f5c2e7682223d3c4638872abb772dba93b7",
+  "fees": 10180,
+  "tx_merkle_root": "1489af8b439b0618a79c565a4ce55da197179b9c5da827feb3bbad683a373119",
+  "state_index_root": "bf08dc3bebd933aeb6ecc26f14ec360a99c98d38e5c333c52a1294ac2fa257de",
+  "timestamp": 1771072102,
+  "miner_signature": "0019a4d690a24e33c583a6074f3269973f7305253f3a17ad9399805434bb9d65601e78a02213f8bceedc01087fc3c874f31355abc253c3158db2445d5e42724147",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "404aea0891689815b9577ac266b3e67e0fbbbea1a14b018dcc3ef61851e29100",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "5a8084704b3ae4ed3b2443e6c20768f67fe315a9",
+              "nonce": 43,
+              "tx_fee": 10000,
+              "key_encoding": "Compressed",
+              "signature": "019a8b25e2f24e2cdc46c68eb89e02070a6cb789aaa0676dd8c7e6cc9ddeec56967c676d7d145ba1029ab1ab39a8c739877f968b3d47643966dcf3d764605ba1b2"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "stack-extend",
+            "function_args": [
+              { "UInt": 1 },
+              {
+                "Tuple": {
+                  "type_signature": {
+                    "type_map": {
+                      "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                      "version": { "SequenceType": { "BufferType": 1 } }
+                    }
+                  },
+                  "data_map": {
+                    "hashbytes": {
+                      "Sequence": {
+                        "Buffer": {
+                          "data": [
+                            95, 100, 166, 88, 60, 5, 163, 137, 153, 253, 200, 211, 191, 105, 49,
+                            177, 90, 212, 158, 12
+                          ]
+                        }
+                      }
+                    },
+                    "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                  }
+                }
+              },
+              {
+                "Optional": {
+                  "data": {
+                    "Sequence": {
+                      "Buffer": {
+                        "data": [
+                          105, 161, 14, 131, 149, 158, 239, 13, 172, 169, 188, 112, 2, 89, 233, 162,
+                          19, 138, 110, 130, 241, 104, 10, 81, 243, 26, 179, 34, 100, 129, 142, 159,
+                          32, 146, 248, 120, 149, 182, 87, 86, 238, 192, 62, 140, 71, 128, 98, 113,
+                          228, 7, 125, 183, 125, 8, 133, 188, 212, 247, 176, 108, 142, 24, 168, 89,
+                          1
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      2, 40, 165, 102, 219, 154, 123, 50, 18, 214, 18, 170, 6, 227, 79, 169, 129,
+                      53, 26, 67, 114, 115, 120, 73, 191, 202, 161, 162, 142, 138, 4, 78, 93
+                    ]
+                  }
+                }
+              },
+              { "UInt": 340282366920938463463374607431768211455 },
+              { "UInt": 9945294 }
+            ]
+          }
+        }
+      },
+      "hex": "000000000104005a8084704b3ae4ed3b2443e6c20768f67fe315a9000000000000002b000000000000271000019a8b25e2f24e2cdc46c68eb89e02070a6cb789aaa0676dd8c7e6cc9ddeec56967c676d7d145ba1029ab1ab39a8c739877f968b3d47643966dcf3d764605ba1b20302000000000216000000000000000000000000000000000000000005706f782d340c737461636b2d657874656e640000000601000000000000000000000000000000010c000000020968617368627974657302000000145f64a6583c05a38999fdc8d3bf6931b15ad49e0c0776657273696f6e0200000001040a020000004169a10e83959eef0daca9bc700259e9a2138a6e82f1680a51f31ab32264818e9f2092f87895b65756eec03e8c47806271e4077db77d0885bcd4f7b06c8e18a8590102000000210228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d01ffffffffffffffffffffffffffffffff010000000000000000000000000097c0ce",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Tuple": {
+              "type_signature": {
+                "type_map": { "stacker": "PrincipalType", "unlock-burn-height": "UIntType" }
+              },
+              "data_map": {
+                "stacker": {
+                  "Principal": {
+                    "Standard": [
+                      22,
+                      [
+                        90, 128, 132, 112, 75, 58, 228, 237, 59, 36, 67, 230, 194, 7, 104, 246, 127,
+                        227, 21, 169
+                      ]
+                    ]
+                  }
+                },
+                "unlock-burn-height": { "UInt": 939050 }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070c0000000207737461636b657205165a8084704b3ae4ed3b2443e6c20768f67fe315a912756e6c6f636b2d6275726e2d68656967687401000000000000000000000000000e542a",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 858,
+        "write_count": 6,
+        "read_length": 77786,
+        "read_count": 26,
+        "runtime": 748980
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e6365010000000000000000000000051fa8a61f176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e4bf604646174610c0000000907617574682d6964010000000000000000000000000097c0ce0c656e642d6379636c652d69640a01000000000000000000000000000000820c657874656e642d636f756e7401000000000000000000000000000000010a6d61782d616d6f756e7401ffffffffffffffffffffffffffffffff08706f782d616464720c000000020968617368627974657302000000145f64a6583c05a38999fdc8d3bf6931b15ad49e0c0776657273696f6e0200000001040a7369676e65722d6b657902000000210228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d0a7369676e65722d7369670a020000004169a10e83959eef0daca9bc700259e9a2138a6e82f1680a51f31ab32264818e9f2092f87895b65756eec03e8c47806271e4077db77d0885bcd4f7b06c8e18a859010e73746172742d6379636c652d6964010000000000000000000000000000008112756e6c6f636b2d6275726e2d68656967687401000000000000000000000000000e542a066c6f636b6564010000000000000000000000f478e08400046e616d650d0000000c737461636b2d657874656e6407737461636b657205165a8084704b3ae4ed3b2443e6c20768f67fe315a9",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 22005982751 },
+                      "burnchain-unlock-height": { "UInt": 936950 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "auth-id": { "UInt": 9945294 },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 130 } } },
+                            "extend-count": { "UInt": 1 },
+                            "max-amount": { "UInt": 340282366920938463463374607431768211455 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          95, 100, 166, 88, 60, 5, 163, 137, 153, 253, 200, 211,
+                                          191, 105, 49, 177, 90, 212, 158, 12
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [4] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "signer-key": {
+                              "Sequence": {
+                                "Buffer": {
+                                  "data": [
+                                    2, 40, 165, 102, 219, 154, 123, 50, 18, 214, 18, 170, 6, 227,
+                                    79, 169, 129, 53, 26, 67, 114, 115, 120, 73, 191, 202, 161, 162,
+                                    142, 138, 4, 78, 93
+                                  ]
+                                }
+                              }
+                            },
+                            "signer-sig": {
+                              "Optional": {
+                                "data": {
+                                  "Sequence": {
+                                    "Buffer": {
+                                      "data": [
+                                        105, 161, 14, 131, 149, 158, 239, 13, 172, 169, 188, 112, 2,
+                                        89, 233, 162, 19, 138, 110, 130, 241, 104, 10, 81, 243, 26,
+                                        179, 34, 100, 129, 142, 159, 32, 146, 248, 120, 149, 182,
+                                        87, 86, 238, 192, 62, 140, 71, 128, 98, 113, 228, 7, 125,
+                                        183, 125, 8, 133, 188, 212, 247, 176, 108, 142, 24, 168, 89,
+                                        1
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 129 },
+                            "unlock-burn-height": { "UInt": 939050 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "auth-id": "UIntType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "extend-count": "UIntType",
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 1050000000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [115, 116, 97, 99, 107, 45, 101, 120, 116, 101, 110, 100]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              90, 128, 132, 112, 75, 58, 228, 237, 59, 36, 67, 230, 194, 7, 104,
+                              246, 127, 227, 21, 169
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "auth-id": "UIntType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "extend-count": "UIntType",
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 20 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType",
+                              "unlock-burn-height": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 12 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0x404aea0891689815b9577ac266b3e67e0fbbbea1a14b018dcc3ef61851e29100",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 1,
+          "stx_lock_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "locked_address": "SP1D8113G9CXE9V9V4H1YDGG7D3V7ZRRNN5RK8ZBP",
+            "locked_amount": "1050000000000",
+            "unlock_height": "939050"
+          },
+          "txid": "0x404aea0891689815b9577ac266b3e67e0fbbbea1a14b018dcc3ef61851e29100",
+          "type": "stx_lock_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    },
+    {
+      "txid": "61cdba7ca1b2eb88830e8f4af47310795b87bc5aa4c6e00719bef2290cae25e9",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "f2bba6df751755ab9ac1df8b387d981cfe265cdf",
+              "nonce": 2501141,
+              "tx_fee": 180,
+              "key_encoding": "Compressed",
+              "signature": "01b303237f0c4d052661175db298c569f29d285e7b0ad6bc812ba667dca73c5de04b6cbb81fe7dd608cf4734abc66c3fd6ca830d684846ae7f2a563184eed89972"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "TokenTransfer": [
+            {
+              "Standard": [
+                22,
+                [
+                  251, 217, 161, 112, 47, 78, 204, 68, 252, 1, 241, 137, 76, 114, 252, 187, 35, 165,
+                  60, 232
+                ]
+              ]
+            },
+            1,
+            "00000000000000000000000000000000000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "hex": "00000000010400f2bba6df751755ab9ac1df8b387d981cfe265cdf0000000000262a1500000000000000b40001b303237f0c4d052661175db298c569f29d285e7b0ad6bc812ba667dca73c5de04b6cbb81fe7dd608cf4734abc66c3fd6ca830d684846ae7f2a563184eed89972030200000000000516fbd9a1702f4ecc44fc01f1894c72fcbb23a53ce8000000000000000100000000000000000000000000000000000000000000000000000000000000000000",
+      "result": { "Response": { "committed": true, "data": { "Bool": true } } },
+      "result_hex": "0x0703",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 0,
+        "write_count": 0,
+        "read_length": 0,
+        "read_count": 0,
+        "runtime": 0
+      },
+      "events": [
+        {
+          "committed": true,
+          "event_index": 0,
+          "stx_transfer_event": {
+            "amount": "1",
+            "memo": "00000000000000000000000000000000000000000000000000000000000000000000",
+            "recipient": "SP3XXK8BG5X7CRH7W07RRJK3JZJXJ799WX3Y0SMCR",
+            "sender": "SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2"
+          },
+          "txid": "0x61cdba7ca1b2eb88830e8f4af47310795b87bc5aa4c6e00719bef2290cae25e9",
+          "type": "stx_transfer_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

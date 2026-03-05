@@ -1,0 +1,298 @@
+{
+  "block_id": "8a1a67f0cf08970d53ade64c6d6131dc73420aced562ea10501fb355d25bfad7",
+  "block_hash": "0860d578dceef9b89924ffe137c8c23119e369ced415c56adafcf8436ab6c346",
+  "block_height": 4096562,
+  "parent_block_id": "9b1435ef317c4aa13bc27a253c8c58a55481ca6c6c722c01eda3718ebf6cf3c3",
+  "consensus_hash": "b6ed0b4774a83247124cc6aff7424decfaf91f60",
+  "fees": 10000,
+  "tx_merkle_root": "9f09d2f4d797ab9310ae2fef3c2feabc32289296a47e02502f8924d60ca2311d",
+  "state_index_root": "2580913f07e3b4ed904b677006b572466199b2b8a93b64f7c6cde91872ba6d83",
+  "timestamp": 1760115576,
+  "miner_signature": "00d8f767bab1b9a2955784dc45a66d5aa0d4d0e2a7b22dff2311f08af9ba8c096a3c6ea7a4c5a7256942922796d8ba1c1e7d9506d1d512f6d587cfcfc712497ff1",
+  "signer_signature": [],
+  "transactions": [
+    {
+      "txid": "52ab5c1473768e37a53956421763aea0e47c52dc72de896af80ec13ae643c177",
+      "tx_index": 0,
+      "data": {
+        "version": "Mainnet",
+        "chain_id": 1,
+        "auth": {
+          "Standard": {
+            "Singlesig": {
+              "hash_mode": "P2PKH",
+              "signer": "46ca26f53484359b46204b96034895fe3f29b668",
+              "nonce": 72,
+              "tx_fee": 10000,
+              "key_encoding": "Compressed",
+              "signature": "019a36776e56c2b7a95c666f426c6bf3291b03a094cc6a150c8e7208e01f14d429763578b80c658adc21a273cdac453cd1ff7ad4d256f7bcdffe2b8de7f5a638e1"
+            }
+          }
+        },
+        "anchor_mode": "Any",
+        "post_condition_mode": "Deny",
+        "post_conditions": [],
+        "payload": {
+          "ContractCall": {
+            "address": { "version": 22, "bytes": "0000000000000000000000000000000000000000" },
+            "contract_name": "pox-4",
+            "function_name": "stack-increase",
+            "function_args": [
+              { "UInt": 50000000000 },
+              {
+                "Optional": {
+                  "data": {
+                    "Sequence": {
+                      "Buffer": {
+                        "data": [
+                          67, 19, 187, 9, 251, 155, 154, 202, 4, 142, 142, 14, 238, 103, 85, 206,
+                          199, 248, 204, 108, 84, 29, 49, 137, 92, 209, 233, 9, 224, 235, 101, 74,
+                          110, 220, 165, 70, 66, 164, 254, 131, 228, 100, 102, 111, 123, 149, 24,
+                          204, 226, 229, 127, 3, 100, 14, 221, 151, 124, 75, 98, 132, 149, 88, 235,
+                          46, 0
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Sequence": {
+                  "Buffer": {
+                    "data": [
+                      3, 205, 70, 251, 189, 199, 111, 133, 118, 193, 47, 138, 7, 131, 42, 212, 141,
+                      212, 96, 250, 242, 122, 155, 124, 39, 124, 210, 210, 254, 65, 30, 153, 141
+                    ]
+                  }
+                }
+              },
+              { "UInt": 181000000000 },
+              { "UInt": 640842 }
+            ]
+          }
+        }
+      },
+      "hex": "0000000001040046ca26f53484359b46204b96034895fe3f29b6680000000000000048000000000000271000019a36776e56c2b7a95c666f426c6bf3291b03a094cc6a150c8e7208e01f14d429763578b80c658adc21a273cdac453cd1ff7ad4d256f7bcdffe2b8de7f5a638e10302000000000216000000000000000000000000000000000000000005706f782d340e737461636b2d696e637265617365000000050100000000000000000000000ba43b74000a02000000414313bb09fb9b9aca048e8e0eee6755cec7f8cc6c541d31895cd1e909e0eb654a6edca54642a4fe83e464666f7b9518cce2e57f03640edd977c4b62849558eb2e00020000002103cd46fbbdc76f8576c12f8a07832ad48dd460faf27a9b7c277cd2d2fe411e998d0100000000000000000000002a2470d200010000000000000000000000000009c74a",
+      "result": {
+        "Response": {
+          "committed": true,
+          "data": {
+            "Tuple": {
+              "type_signature": {
+                "type_map": { "stacker": "PrincipalType", "total-locked": "UIntType" }
+              },
+              "data_map": {
+                "stacker": {
+                  "Principal": {
+                    "Standard": [
+                      22,
+                      [
+                        70, 202, 38, 245, 52, 132, 53, 155, 70, 32, 75, 150, 3, 72, 149, 254, 63,
+                        41, 182, 104
+                      ]
+                    ]
+                  }
+                },
+                "total-locked": { "UInt": 180000000000 }
+              }
+            }
+          }
+        }
+      },
+      "result_hex": "0x070c0000000207737461636b6572051646ca26f53484359b46204b96034895fe3f29b6680c746f74616c2d6c6f636b656401000000000000000000000029e8d60800",
+      "stx_burned": 0,
+      "execution_cost": {
+        "write_length": 857,
+        "write_count": 6,
+        "read_length": 78144,
+        "read_count": 19,
+        "runtime": 333966
+      },
+      "events": [
+        {
+          "committed": true,
+          "contract_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "raw_value": "0x070c000000060762616c616e63650100000000000000000000001623b943d6176275726e636861696e2d756e6c6f636b2d68656967687401000000000000000000000000000e1abe04646174610c0000000907617574682d6964010000000000000000000000000009c74a0c656e642d6379636c652d69640a010000000000000000000000000000007b0b696e6372656173652d62790100000000000000000000000ba43b74000a6d61782d616d6f756e740100000000000000000000002a2470d20008706f782d616464720c00000002096861736862797465730200000014f632e6f9d29bfb07bc8948ca6e0dd09358f003ac0776657273696f6e0200000001000a7369676e65722d6b6579020000002103cd46fbbdc76f8576c12f8a07832ad48dd460faf27a9b7c277cd2d2fe411e998d0a7369676e65722d7369670a02000000414313bb09fb9b9aca048e8e0eee6755cec7f8cc6c541d31895cd1e909e0eb654a6edca54642a4fe83e464666f7b9518cce2e57f03640edd977c4b62849558eb2e000e73746172742d6379636c652d696401000000000000000000000000000000790c746f74616c2d6c6f636b656401000000000000000000000029e8d60800066c6f636b65640100000000000000000000001e449a9400046e616d650d0000000e737461636b2d696e63726561736507737461636b6572051646ca26f53484359b46204b96034895fe3f29b668",
+            "topic": "print",
+            "value": {
+              "Response": {
+                "committed": true,
+                "data": {
+                  "Tuple": {
+                    "data_map": {
+                      "balance": { "UInt": 95088624598 },
+                      "burnchain-unlock-height": { "UInt": 924350 },
+                      "data": {
+                        "Tuple": {
+                          "data_map": {
+                            "auth-id": { "UInt": 640842 },
+                            "end-cycle-id": { "Optional": { "data": { "UInt": 123 } } },
+                            "increase-by": { "UInt": 50000000000 },
+                            "max-amount": { "UInt": 181000000000 },
+                            "pox-addr": {
+                              "Tuple": {
+                                "data_map": {
+                                  "hashbytes": {
+                                    "Sequence": {
+                                      "Buffer": {
+                                        "data": [
+                                          246, 50, 230, 249, 210, 155, 251, 7, 188, 137, 72, 202,
+                                          110, 13, 208, 147, 88, 240, 3, 172
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "version": { "Sequence": { "Buffer": { "data": [0] } } }
+                                },
+                                "type_signature": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 32 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              }
+                            },
+                            "signer-key": {
+                              "Sequence": {
+                                "Buffer": {
+                                  "data": [
+                                    3, 205, 70, 251, 189, 199, 111, 133, 118, 193, 47, 138, 7, 131,
+                                    42, 212, 141, 212, 96, 250, 242, 122, 155, 124, 39, 124, 210,
+                                    210, 254, 65, 30, 153, 141
+                                  ]
+                                }
+                              }
+                            },
+                            "signer-sig": {
+                              "Optional": {
+                                "data": {
+                                  "Sequence": {
+                                    "Buffer": {
+                                      "data": [
+                                        67, 19, 187, 9, 251, 155, 154, 202, 4, 142, 142, 14, 238,
+                                        103, 85, 206, 199, 248, 204, 108, 84, 29, 49, 137, 92, 209,
+                                        233, 9, 224, 235, 101, 74, 110, 220, 165, 70, 66, 164, 254,
+                                        131, 228, 100, 102, 111, 123, 149, 24, 204, 226, 229, 127,
+                                        3, 100, 14, 221, 151, 124, 75, 98, 132, 149, 88, 235, 46, 0
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "start-cycle-id": { "UInt": 121 },
+                            "total-locked": { "UInt": 180000000000 }
+                          },
+                          "type_signature": {
+                            "type_map": {
+                              "auth-id": "UIntType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 32 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        }
+                      },
+                      "locked": { "UInt": 130000000000 },
+                      "name": {
+                        "Sequence": {
+                          "String": {
+                            "ASCII": {
+                              "data": [
+                                115, 116, 97, 99, 107, 45, 105, 110, 99, 114, 101, 97, 115, 101
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "stacker": {
+                        "Principal": {
+                          "Standard": [
+                            22,
+                            [
+                              70, 202, 38, 245, 52, 132, 53, 155, 70, 32, 75, 150, 3, 72, 149, 254,
+                              63, 41, 182, 104
+                            ]
+                          ]
+                        }
+                      }
+                    },
+                    "type_signature": {
+                      "type_map": {
+                        "balance": "UIntType",
+                        "burnchain-unlock-height": "UIntType",
+                        "data": {
+                          "TupleType": {
+                            "type_map": {
+                              "auth-id": "UIntType",
+                              "end-cycle-id": { "OptionalType": "UIntType" },
+                              "increase-by": "UIntType",
+                              "max-amount": "UIntType",
+                              "pox-addr": {
+                                "TupleType": {
+                                  "type_map": {
+                                    "hashbytes": { "SequenceType": { "BufferType": 32 } },
+                                    "version": { "SequenceType": { "BufferType": 1 } }
+                                  }
+                                }
+                              },
+                              "signer-key": { "SequenceType": { "BufferType": 33 } },
+                              "signer-sig": {
+                                "OptionalType": { "SequenceType": { "BufferType": 65 } }
+                              },
+                              "start-cycle-id": "UIntType",
+                              "total-locked": "UIntType"
+                            }
+                          }
+                        },
+                        "locked": "UIntType",
+                        "name": { "SequenceType": { "StringType": { "ASCII": 14 } } },
+                        "stacker": "PrincipalType"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "event_index": 0,
+          "txid": "0x52ab5c1473768e37a53956421763aea0e47c52dc72de896af80ec13ae643c177",
+          "type": "contract_event"
+        },
+        {
+          "committed": true,
+          "event_index": 1,
+          "stx_lock_event": {
+            "contract_identifier": "SP000000000000000000002Q6VF78.pox-4",
+            "locked_address": "SP13CM9QN6J23B6T6415SC0T8JQZ3YADPD1TJ27WZ",
+            "locked_amount": "180000000000",
+            "unlock_height": "924350"
+          },
+          "txid": "0x52ab5c1473768e37a53956421763aea0e47c52dc72de896af80ec13ae643c177",
+          "type": "stx_lock_event"
+        }
+      ],
+      "post_condition_aborted": false,
+      "vm_error": null,
+      "cpu_instructions": null,
+      "cpu_cycles": null,
+      "cpu_ref_cycles": null
+    }
+  ],
+  "valid_merkle_root": true
+}

@@ -1,5 +1,15 @@
 import { Static, TSchema, Type } from '@sinclair/typebox';
 
+export const HexStringSchema = Type.String({ pattern: '^0x[0-9a-fA-F]+$' });
+export type HexString = Static<typeof HexStringSchema>;
+
+export const DecodedClarityValueSchema = Type.Object({
+  hex: Type.String(),
+  repr: Type.String(),
+  type: Type.String(),
+});
+export type DecodedClarityValue = Static<typeof DecodedClarityValueSchema>;
+
 export const StacksContractIdentifierSchema = Type.String({
   pattern:
     '^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$',
@@ -33,12 +43,12 @@ export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
 
 export const BlockIdentifierSchema = Type.Object({
   index: Type.Integer(),
-  hash: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
+  hash: HexStringSchema,
 });
 export type BlockIdentifier = Static<typeof BlockIdentifierSchema>;
 
 export const TransactionIdentifierSchema = Type.Object({
-  hash: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
+  hash: HexStringSchema,
 });
 export type TransactionIdentifier = Static<typeof TransactionIdentifierSchema>;
 
