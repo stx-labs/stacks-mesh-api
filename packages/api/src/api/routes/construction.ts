@@ -143,6 +143,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           break;
         }
         case 'contract_call': {
+          // TODO: Should we check if the contract exists?
           const [contractAddress, contractName] = options.contract_identifier.split('.');
           const dummyTx = await makeUnsignedContractCall({
             contractAddress,
@@ -376,9 +377,6 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 
-  // POST /construction/parse
-  // Parses a transaction (signed or unsigned) and extracts its operations.
-  // Used to verify a transaction matches the intended operations before signing or broadcasting.
   fastify.post(
     '/construction/parse',
     {
@@ -412,8 +410,6 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 
-  // POST /construction/hash
-  // Computes the transaction hash (txid) from a signed transaction.
   fastify.post(
     '/construction/hash',
     {
@@ -427,28 +423,15 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     },
     async (request, reply) => {
       const { signed_transaction } = request.body;
-
-      try {
-        const tx = deserializeTransaction(removeHexPrefix(signed_transaction));
-        const txid = tx.txid();
-
-        const response: TransactionIdentifierResponse = {
-          transaction_identifier: {
-            hash: addHexPrefix(txid),
-          },
-        };
-
-        return reply.send(response);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return reply.status(500).send(MeshErrors.invalidTransaction(message));
-      }
+      const tx = deserializeTransaction(removeHexPrefix(signed_transaction));
+      return reply.send({
+        transaction_identifier: {
+          hash: addHexPrefix(tx.txid()),
+        },
+      });
     }
   );
 
-  // POST /construction/submit
-  // Broadcasts a signed transaction to the Stacks network.
-  // This is one of two ONLINE endpoints (along with /metadata).
   fastify.post(
     '/construction/submit',
     {
@@ -462,10 +445,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     },
     async (request, reply) => {
       const { signed_transaction } = request.body;
-
       try {
         const result = await rpcClient.broadcastTransaction(signed_transaction);
-
         if (result.error) {
           return reply
             .status(500)
@@ -475,14 +456,11 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               )
             );
         }
-
-        const response: TransactionIdentifierResponse = {
+        return reply.send({
           transaction_identifier: {
             hash: addHexPrefix(result.txid),
           },
-        };
-
-        return reply.send(response);
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         return reply.status(500).send(MeshErrors.transactionBroadcastError(message));

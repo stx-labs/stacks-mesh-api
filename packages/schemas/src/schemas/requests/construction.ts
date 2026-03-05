@@ -8,6 +8,7 @@ import {
   PublicKeySchema,
   SignatureSchema,
 } from '../entities/construction.js';
+import { HexStringSchema } from '../entities/common.js';
 
 export const ConstructionDeriveRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
@@ -40,7 +41,7 @@ export type ConstructionPayloadsRequest = Static<typeof ConstructionPayloadsRequ
 
 export const ConstructionCombineRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  unsigned_transaction: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
+  unsigned_transaction: HexStringSchema,
   signatures: Type.Array(SignatureSchema, { minItems: 1 }),
 });
 export type ConstructionCombineRequest = Static<typeof ConstructionCombineRequestSchema>;
@@ -48,18 +49,18 @@ export type ConstructionCombineRequest = Static<typeof ConstructionCombineReques
 export const ConstructionParseRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
   signed: Type.Boolean(),
-  transaction: Type.String(),
+  transaction: HexStringSchema,
 });
 export type ConstructionParseRequest = Static<typeof ConstructionParseRequestSchema>;
 
 export const ConstructionHashRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  signed_transaction: Type.String(),
+  signed_transaction: HexStringSchema,
 });
 export type ConstructionHashRequest = Static<typeof ConstructionHashRequestSchema>;
 
 export const ConstructionSubmitRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
-  signed_transaction: Type.String(),
+  signed_transaction: HexStringSchema,
 });
 export type ConstructionSubmitRequest = Static<typeof ConstructionSubmitRequestSchema>;

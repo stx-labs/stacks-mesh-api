@@ -16,12 +16,12 @@ import {
   StacksBlockReplayTransactionPayload,
   StacksBlockReplayTransactionStxBurnEvent,
   StacksBlockReplayTransactionStxLockEvent,
-  StacksBlockReplayTransactionStxTransferEvent,
 } from '../stacks-rpc/types.js';
 import { getTypeString } from '@stacks/transactions';
 import { ApiConfig } from '../api/index.js';
 import { serializePostConditions } from './post-conditions.js';
 import { addHexPrefix } from './index.js';
+import BigNumber from 'bignumber.js';
 
 /**
  * A decoded Stacks Nakamoto transaction.
@@ -150,7 +150,7 @@ function makeFeeOperation(tx: DecodedStacksTransaction, index: number = 0): Oper
     },
     amount: {
       currency: makeStxCurrency(),
-      value: (0n - BigInt(tx.fee)).toString(),
+      value: BigNumber(tx.fee).negated().toString(),
     },
     metadata: {
       sponsored: tx.sponsored,
@@ -160,19 +160,22 @@ function makeFeeOperation(tx: DecodedStacksTransaction, index: number = 0): Oper
 
 function makeStxTransferOperations(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionStxTransferEvent,
   index: number
 ): Operation[] {
-  const memo = parseTransactionMemo(addHexPrefix(event.stx_transfer_event.memo));
+  if (tx.decodedTx.payload.type_id !== codec.TxPayloadTypeID.TokenTransfer) {
+    throw new Error('Transaction payload is not a token transfer');
+  }
+  const payload = tx.decodedTx.payload as codec.TxPayloadTokenTransfer;
+  const memo = parseTransactionMemo(addHexPrefix(payload.memo_hex));
   const send: Operation = {
     operation_identifier: { index },
     type: 'token_transfer',
     status: tx.status,
     account: {
-      address: event.stx_transfer_event.sender,
+      address: tx.senderAddress,
     },
     amount: {
-      value: (0n - BigInt(event.stx_transfer_event.amount)).toString(),
+      value: BigNumber(payload.amount).negated().toString(),
       currency: makeStxCurrency(),
     },
     metadata: {
@@ -184,10 +187,10 @@ function makeStxTransferOperations(
     type: 'token_transfer',
     status: tx.status,
     account: {
-      address: event.stx_transfer_event.recipient,
+      address: payload.recipient.address,
     },
     amount: {
-      value: event.stx_transfer_event.amount,
+      value: BigNumber(payload.amount).toString(),
       currency: makeStxCurrency(),
     },
     metadata: {
@@ -333,7 +336,7 @@ function makeStxBurnOperation(
       address: event.stx_burn_event.sender,
     },
     amount: {
-      value: (0n - BigInt(event.stx_burn_event.amount)).toString(),
+      value: BigNumber(event.stx_burn_event.amount).negated().toString(),
       currency: makeStxCurrency(),
     },
   };
@@ -352,7 +355,7 @@ function makeStxLockOperation(
       address: event.stx_lock_event.locked_address,
     },
     amount: {
-      value: (0n - BigInt(event.stx_lock_event.locked_amount)).toString(10),
+      value: BigNumber(event.stx_lock_event.locked_amount).negated().toString(),
       currency: makeStxCurrency(),
     },
     metadata: {
@@ -419,7 +422,7 @@ async function makeFtTransferOperations(
       address: event.ft_transfer_event.sender,
     },
     amount: {
-      value: (0n - BigInt(event.ft_transfer_event.amount)).toString(),
+      value: BigNumber(event.ft_transfer_event.amount).negated().toString(),
       currency,
     },
   };
@@ -472,7 +475,7 @@ async function makeFtBurnOperation(
       address: event.ft_burn_event.sender,
     },
     amount: {
-      value: (0n - BigInt(event.ft_burn_event.amount)).toString(),
+      value: BigNumber(event.ft_burn_event.amount).negated().toString(),
       currency: await makeFtCurrency(event, config),
     },
   };
@@ -623,7 +626,7 @@ export async function serializeStacksTransactionOperations(
       ops.push(makeTenureChangeOperation(tx, ops.length));
       break;
     case codec.TxPayloadTypeID.TokenTransfer:
-      // Transfers will be added in the events phase below.
+      ops.push(...makeStxTransferOperations(tx, ops.length));
       break;
     case codec.TxPayloadTypeID.SmartContract:
     case codec.TxPayloadTypeID.VersionedSmartContract:
@@ -646,7 +649,7 @@ export async function serializeStacksTransactionOperations(
   for (const event of tx.replayedTx.events) {
     switch (event.type) {
       case 'stx_transfer_event':
-        ops.push(...makeStxTransferOperations(tx, event, ops.length));
+        // Operations were already added in the transaction phase above.
         break;
       case 'stx_burn_event':
         ops.push(makeStxBurnOperation(tx, event, ops.length));

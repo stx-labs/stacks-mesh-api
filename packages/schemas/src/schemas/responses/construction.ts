@@ -1,8 +1,12 @@
 import { Static, Type } from '@sinclair/typebox';
-import { AccountIndentifierSchema } from '../entities/common.js';
+import { AccountIndentifierSchema, HexStringSchema } from '../entities/common.js';
 import { AmountSchema, OperationSchema } from '../entities/operations.js';
 import { TransactionIdentifierSchema } from '../entities/common.js';
-import { ConstructionMetadataSchema, ConstructionOptionsSchema, SigningPayloadSchema } from '../entities/construction.js';
+import {
+  ConstructionMetadataSchema,
+  ConstructionOptionsSchema,
+  SigningPayloadSchema,
+} from '../entities/construction.js';
 
 export const ConstructionDeriveResponseSchema = Type.Object({
   address: Type.Optional(Type.String()),
@@ -23,13 +27,13 @@ export const ConstructionMetadataResponseSchema = Type.Object({
 export type ConstructionMetadataResponse = Static<typeof ConstructionMetadataResponseSchema>;
 
 export const ConstructionPayloadsResponseSchema = Type.Object({
-  unsigned_transaction: Type.String(),
+  unsigned_transaction: HexStringSchema,
   payloads: Type.Array(SigningPayloadSchema),
 });
 export type ConstructionPayloadsResponse = Static<typeof ConstructionPayloadsResponseSchema>;
 
 export const ConstructionCombineResponseSchema = Type.Object({
-  signed_transaction: Type.String(),
+  signed_transaction: HexStringSchema,
 });
 export type ConstructionCombineResponse = Static<typeof ConstructionCombineResponseSchema>;
 
