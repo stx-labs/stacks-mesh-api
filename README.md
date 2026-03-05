@@ -26,18 +26,6 @@ directly with a Stacks node.
 - A running [Stacks node](https://github.com/stacks-network/stacks-core) with the RPC endpoint
   accessible
 
-## Project structure
-
-```
-stacks-mesh-api/
-├── packages/
-│   ├── api/          # Fastify server, routes, serializers, RPC client
-│   └── schemas/      # Shared TypeBox request/response schemas
-├── Dockerfile
-├── package.json      # Monorepo root (npm workspaces)
-└── tsconfig.json
-```
-
 ## Configuration
 
 The API is configured via environment variables (a `.env` file is also supported):
