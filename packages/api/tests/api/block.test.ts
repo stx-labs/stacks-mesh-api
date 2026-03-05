@@ -309,7 +309,7 @@ describe('/block', () => {
       mockReplay(mockPool, fixture.block_id, fixture);
 
       const response = await postBlock(fastify, fixture.block_id);
-      assert.strictEqual(response.statusCode, 200);
+      assert.strictEqual(response.statusCode, 200, response.body);
       const json = JSON.parse(response.body);
       const block = json.block;
 
