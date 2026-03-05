@@ -11,6 +11,7 @@
     "dev": "tsx watch src/index.ts",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
+    "generate:git-info": "rimraf .git-info && ../../node_modules/.bin/api-toolkit-git-info",
     "test:api": "NODE_ENV=test node --test --import tsx --test-timeout 300000 tests/api/**/*.test.ts",
     "test:construction": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/construction/**/*.test.ts",
     "test:construction:mesh-cli": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/construction/mesh-cli.test.ts",
