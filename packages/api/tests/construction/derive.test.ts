@@ -16,6 +16,8 @@ import {
 describe('/construction/derive', () => {
   let fastify: FastifyInstance;
   let dockerResources: DockerResources;
+  let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;
+  let recipientPublicKey = `0x${RECIPIENT_PUBLIC_KEY}`;
 
   before(
     async () => {
@@ -38,7 +40,7 @@ describe('/construction/derive', () => {
     const res = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
       public_key: {
-        hex_bytes: SENDER_PUBLIC_KEY,
+        hex_bytes: senderPublicKey,
         curve_type: 'secp256k1',
       },
     });
@@ -52,11 +54,11 @@ describe('/construction/derive', () => {
   test('derives a consistent address for the same public key', async () => {
     const res1 = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+      public_key: { hex_bytes: senderPublicKey, curve_type: 'secp256k1' },
     });
     const res2 = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+      public_key: { hex_bytes: senderPublicKey, curve_type: 'secp256k1' },
     });
     const addr1 = JSON.parse(res1.body).account_identifier.address;
     const addr2 = JSON.parse(res2.body).account_identifier.address;
@@ -66,11 +68,11 @@ describe('/construction/derive', () => {
   test('derives different addresses for different public keys', async () => {
     const res1 = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
+      public_key: { hex_bytes: senderPublicKey, curve_type: 'secp256k1' },
     });
     const res2 = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: RECIPIENT_PUBLIC_KEY, curve_type: 'secp256k1' },
+      public_key: { hex_bytes: recipientPublicKey, curve_type: 'secp256k1' },
     });
     const addr1 = JSON.parse(res1.body).account_identifier.address;
     const addr2 = JSON.parse(res2.body).account_identifier.address;
@@ -81,11 +83,10 @@ describe('/construction/derive', () => {
     const res = await post(fastify, '/construction/derive', {
       network_identifier: NETWORK_IDENTIFIER,
       public_key: {
-        hex_bytes: SENDER_PUBLIC_KEY,
+        hex_bytes: senderPublicKey,
         curve_type: 'edwards25519',
       },
     });
     assert.equal(res.statusCode, 500);
-    const body = JSON.parse(res.body);
   });
 });

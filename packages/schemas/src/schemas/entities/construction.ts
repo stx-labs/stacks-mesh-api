@@ -12,30 +12,14 @@ export const SigningPayloadSchema = Type.Object({
   address: Type.String(),
   account_identifier: AccountIndentifierSchema,
   hex_bytes: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
-  signature_type: Type.Optional(
-    Type.Union([
-      Type.Literal('ecdsa'),
-      Type.Literal('ecdsa_recovery'),
-      Type.Literal('ed25519'),
-      Type.Literal('schnorr_1'),
-      Type.Literal('schnorr_bip340'),
-      Type.Literal('schnorr_poseidon'),
-    ])
-  ),
+  signature_type: Type.Literal('ecdsa_recovery'),
 });
 export type SigningPayload = Static<typeof SigningPayloadSchema>;
 
 export const SignatureSchema = Type.Object({
   signing_payload: SigningPayloadSchema,
   public_key: PublicKeySchema,
-  signature_type: Type.Union([
-    Type.Literal('ecdsa'),
-    Type.Literal('ecdsa_recovery'),
-    Type.Literal('ed25519'),
-    Type.Literal('schnorr_1'),
-    Type.Literal('schnorr_bip340'),
-    Type.Literal('schnorr_poseidon'),
-  ]),
+  signature_type: Type.Literal('ecdsa_recovery'),
   hex_bytes: Type.String({ pattern: '^0x[0-9a-fA-F]+$' }),
 });
 export type Signature = Static<typeof SignatureSchema>;

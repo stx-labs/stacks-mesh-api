@@ -6,7 +6,6 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { before, after, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-import { privateKeyToPublic } from '@stacks/transactions';
 
 import {
   setupDockerServices,
@@ -15,32 +14,17 @@ import {
   ensureMeshCli,
   API_PORT,
   type DockerResources,
+  SENDER_ADDRESS,
+  SENDER_PRIVATE_KEY,
 } from './helpers.js';
 
 const execFile = promisify(execFileCb);
-
-// Funded account from the Docker image's genesis allocation (see config.toml [[ustx_balance]])
-const SENDER_PRIVATE_KEY =
-  'cb3df38053d132895220b9ce471f6b676db5b9bf0b4adefb55f2118ece2478df01';
-const SENDER_PUBLIC_KEY = privateKeyToPublic(SENDER_PRIVATE_KEY);
-
-const NETWORK_IDENTIFIER = { blockchain: 'stacks', network: 'testnet' };
-
-/** POST helper for Mesh endpoints. */
-async function post(fastify: FastifyInstance, url: string, payload: Record<string, unknown>) {
-  return fastify.inject({
-    method: 'POST',
-    url,
-    payload: JSON.stringify(payload),
-    headers: { 'content-type': 'application/json' },
-  });
-}
 
 describe('Mesh CLI check:construction', () => {
   let fastify: FastifyInstance;
   let dockerResources: DockerResources;
   let meshCliBin: string;
-  let senderAddress: string;
+  let senderAddress: string = SENDER_ADDRESS;
   let configDir: string;
 
   before(async () => {
@@ -50,13 +34,6 @@ describe('Mesh CLI check:construction', () => {
     ]);
     fastify = await buildTestServer();
     await fastify.listen({ host: '0.0.0.0', port: API_PORT });
-
-    const deriveRes = await post(fastify, '/construction/derive', {
-      network_identifier: NETWORK_IDENTIFIER,
-      public_key: { hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' },
-    });
-    senderAddress = JSON.parse(deriveRes.body).account_identifier.address;
-
     configDir = await mkdtemp(join(tmpdir(), 'mesh-cli-'));
   }, { timeout: 120_000 });
 

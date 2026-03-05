@@ -24,6 +24,7 @@ describe('/construction/metadata', () => {
   let dockerResources: DockerResources;
   let senderAddress = SENDER_ADDRESS;
   let recipientAddress = RECIPIENT_ADDRESS;
+  let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;
 
   before(
     async () => {
@@ -55,9 +56,9 @@ describe('/construction/metadata', () => {
     const res = await post(fastify, '/construction/metadata', {
       network_identifier: NETWORK_IDENTIFIER,
       options,
-      public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+      public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
     });
-    assert.equal(res.statusCode, 200);
+    assert.equal(res.statusCode, 200, res.body);
     const body = JSON.parse(res.body);
     assert.deepEqual(body, {
       metadata: {
@@ -100,7 +101,7 @@ describe('/construction/metadata', () => {
     const res = await post(fastify, '/construction/metadata', {
       network_identifier: NETWORK_IDENTIFIER,
       options,
-      public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+      public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
     });
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
@@ -145,7 +146,7 @@ describe('/construction/metadata', () => {
     const res = await post(fastify, '/construction/metadata', {
       network_identifier: NETWORK_IDENTIFIER,
       options,
-      public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+      public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
     });
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
