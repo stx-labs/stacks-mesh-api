@@ -43,6 +43,20 @@ The API is configured via environment variables (a `.env` file is also supported
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
 | `CONTRACT_ABI_CACHE_TTL_MS` | `86400000` | Contract ABI cache TTL (default 24 h) |
 
+### Stacks node requirements
+
+The Stacks node does not need any special configuration -- a regular chain follower is
+sufficient. However, the node **must** have an `auth_token` configured under
+`[connection_options]` in its `Stacks.toml` config file:
+
+```toml
+[connection_options]
+auth_token = "some-secret-token"
+```
+
+This token must match the `STACKS_CORE_RPC_AUTH_TOKEN` environment variable passed to the Mesh
+API.
+
 ## Running locally
 
 ```bash
