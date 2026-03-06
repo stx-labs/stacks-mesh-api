@@ -1,6 +1,6 @@
 {
   "name": "stacks-mesh-api",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Mesh API implementation for Stacks blockchain - monorepo",
   "workspaces": [
