@@ -48,7 +48,7 @@ export const AccountIndentifierSchema = Type.Object({
 export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
 
 export const BlockIdentifierSchema = Type.Object({
-  index: Type.Integer(),
+  index: Type.Integer({ minimum: 1 }),
   hash: HexStringSchema,
 });
 export type BlockIdentifier = Static<typeof BlockIdentifierSchema>;

@@ -32,13 +32,13 @@ export async function getNakamotoBlockFromPartialBlockIdentifier(
   rpcClient: StacksRpcClient,
   blockIdentifier: Partial<BlockIdentifier>
 ): Promise<codec.DecodedNakamotoBlockResult | null> {
-  if (blockIdentifier.hash) {
-    return codec.decodeNakamotoBlock(await rpcClient.getNakamotoBlock(blockIdentifier.hash));
-  }
   if (blockIdentifier.index) {
     return codec.decodeNakamotoBlock(
       await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index)
     );
+  }
+  if (blockIdentifier.hash) {
+    return codec.decodeNakamotoBlock(await rpcClient.getNakamotoBlock(blockIdentifier.hash));
   }
   return null;
 }

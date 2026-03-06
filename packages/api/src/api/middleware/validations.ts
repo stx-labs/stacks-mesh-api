@@ -1,4 +1,8 @@
-import { ErrorResponse, NetworkIdentifier } from '../../../../schemas/dist/index.js';
+import {
+  BlockIdentifier,
+  ErrorResponse,
+  NetworkIdentifier,
+} from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ApiConfig } from '../index.js';
@@ -34,6 +38,12 @@ export const validateMeshRequest = (config: ApiConfig) => {
       );
       if (networkError) {
         return reply.status(500).send(networkError);
+      }
+    }
+    if ('block_identifier' in body) {
+      const blockIdentifier = body.block_identifier as Partial<BlockIdentifier>;
+      if (!blockIdentifier.index && !blockIdentifier.hash) {
+        return reply.status(500).send(MeshErrors.blockIdentifierRequired());
       }
     }
   };
