@@ -11,7 +11,7 @@ import { buildApiServer } from '../../src/api/index.js';
 import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
-import { getStacksNetworkName } from '../../src/utils/constants.js';
+import { getStacksNetworkName } from '../../src/utils/helpers.js';
 import { FastifyInstance } from 'fastify';
 import { privateKeyToPublic } from '@stacks/transactions';
 import { timeout } from '@stacks/api-toolkit';

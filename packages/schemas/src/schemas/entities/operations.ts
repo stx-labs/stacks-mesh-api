@@ -8,8 +8,8 @@ import {
 } from './common.js';
 
 export const CurrencySchema = Type.Object({
-  decimals: Type.Integer(),
   symbol: Type.String(),
+  decimals: Type.Integer(),
   metadata: Type.Optional(
     Type.Object({
       asset_identifier: Nullable(Type.String()),
@@ -22,8 +22,8 @@ export const CurrencySchema = Type.Object({
 export type Currency = Static<typeof CurrencySchema>;
 
 export const AmountSchema = Type.Object({
-  currency: CurrencySchema,
   value: Type.String(),
+  currency: CurrencySchema,
 });
 export type Amount = Static<typeof AmountSchema>;
 

@@ -5,10 +5,17 @@ import {
   AccountBalanceResponse,
   AccountBalanceResponseSchema,
   AccountCoinsRequestSchema,
+  BlockIdentifier,
   ErrorResponseSchema,
 } from '../../../../schemas/dist/index.js';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
+import BigNumber from 'bignumber.js';
+import {
+  getChainTipNakamotoBlock,
+  getNakamotoBlockFromPartialBlockIdentifier,
+} from '../../utils/helpers.js';
+import { addHexPrefix } from '../../serializers/index.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -27,57 +34,56 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     async (request, reply) => {
       const { account_identifier, block_identifier } = request.body;
 
-      // Build tip parameter for historical queries
-      const tip = block_identifier?.hash;
-
-      // Fetch account data from Stacks RPC
-      const [accountInfo, nodeInfo] = await Promise.all([
-        rpcClient.getAccount(account_identifier.address, { tip }),
-        rpcClient.getInfo(),
-      ]);
-
-      // Parse balance - Stacks returns balance as hex string
-      const balance = BigInt(accountInfo.balance).toString();
-      const locked = BigInt(accountInfo.locked).toString();
-
-      // Determine current block identifier
-      const currentBlockIdentifier = block_identifier?.hash
-        ? {
-            index: block_identifier.index ?? nodeInfo.stacks_tip_height,
-            hash: block_identifier.hash,
-          }
-        : {
-            index: nodeInfo.stacks_tip_height,
-            hash: nodeInfo.stacks_tip,
+      // If the caller provides a block identifier, use it. Otherwise, use the chain tip.
+      let tipIdentifier: BlockIdentifier | undefined;
+      if (block_identifier) {
+        const decodedBlock = await getNakamotoBlockFromPartialBlockIdentifier(
+          rpcClient,
+          block_identifier
+        );
+        if (decodedBlock) {
+          tipIdentifier = {
+            index: Number(decodedBlock.header.chain_length),
+            hash: addHexPrefix(decodedBlock.header.index_block_hash),
           };
+        }
+      }
+      if (!tipIdentifier) {
+        const { decodedBlock } = await getChainTipNakamotoBlock(rpcClient);
+        tipIdentifier = {
+          index: Number(decodedBlock.header.chain_length),
+          hash: addHexPrefix(decodedBlock.header.index_block_hash),
+        };
+      }
+
+      // Get the account balance at the calculated block identifier.
+      const accountInfo = await rpcClient.getAccount(account_identifier.address, {
+        tip: tipIdentifier.hash,
+        proof: false,
+      });
+
+      // Stacks core reports `balance` as the liquid balance, excluding locked balance.
+      const balance = BigNumber(accountInfo.balance);
+      // `locked` is the locked balance.
+      const locked = BigNumber(accountInfo.locked);
+
+      const isLockedSubAccount = account_identifier.sub_account?.address === 'locked';
+      const reportedBalance = isLockedSubAccount ? locked : balance;
 
       const response: AccountBalanceResponse = {
-        block_identifier: currentBlockIdentifier,
+        block_identifier: tipIdentifier,
         balances: [
           {
-            value: balance,
+            value: reportedBalance.toString(),
             currency: STX_CURRENCY,
           },
         ],
         metadata: {
           nonce: accountInfo.nonce,
-          locked_balance: locked,
+          locked_balance: locked.toString(),
           unlock_height: accountInfo.unlock_height,
         },
       };
-
-      // // Add locked balance as sub-account if there is any
-      // if (BigInt(locked) > 0n) {
-      //   if (account_identifier.sub_account?.address === 'locked') {
-      //     response.balances = [
-      //       {
-      //         value: locked,
-      //         currency: STX_CURRENCY,
-      //       },
-      //     ];
-      //   }
-      // }
-
       return reply.send(response);
     }
   );

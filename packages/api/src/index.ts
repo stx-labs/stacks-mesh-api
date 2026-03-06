@@ -2,7 +2,7 @@ import { StacksRpcClient } from './stacks-rpc/stacks-rpc-client.js';
 import { ENV } from './env.js';
 import { logger, registerShutdownConfig, SERVER_VERSION } from '@stacks/api-toolkit';
 import { ApiConfig, buildApiServer } from './api/index.js';
-import { getStacksNetworkName } from './utils/constants.js';
+import { getStacksNetworkName } from './utils/helpers.js';
 import { TokenMetadataCache } from './cache/token-metadata-cache.js';
 import { ContractAbiCache } from './cache/contract-abi-cache.js';
 
