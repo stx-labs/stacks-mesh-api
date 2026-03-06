@@ -5,10 +5,15 @@ import {
   AccountBalanceResponse,
   AccountBalanceResponseSchema,
   AccountCoinsRequestSchema,
+  BlockIdentifier,
   ErrorResponseSchema,
 } from '../../../../schemas/dist/index.js';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
+import codec from '@stacks/codec';
+import BigNumber from 'bignumber.js';
+import { getChainTipNakamotoBlock } from '../../utils/helpers.js';
+import { addHexPrefix } from '../../serializers/index.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -27,57 +32,53 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     async (request, reply) => {
       const { account_identifier, block_identifier } = request.body;
 
-      // Build tip parameter for historical queries
-      const tip = block_identifier?.hash;
+      // If the caller provides a block identifier, use it. Otherwise, use the chain tip.
+      let blockIdentifier: BlockIdentifier;
+      if (block_identifier?.index || block_identifier?.hash) {
+        const blockBytes = block_identifier.index
+          ? await rpcClient.getNakamotoBlockByHeight(block_identifier.index)
+          : await rpcClient.getNakamotoBlock(block_identifier.hash!);
+        const decodedBlock = codec.decodeNakamotoBlock(blockBytes);
+        blockIdentifier = {
+          index: Number(decodedBlock.header.chain_length),
+          hash: addHexPrefix(decodedBlock.header.index_block_hash),
+        };
+      } else {
+        const { decodedBlock: chainTipNakamotoBlock } = await getChainTipNakamotoBlock(rpcClient);
+        blockIdentifier = {
+          index: Number(chainTipNakamotoBlock.header.chain_length),
+          hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
+        };
+      }
 
-      // Fetch account data from Stacks RPC
-      const [accountInfo, nodeInfo] = await Promise.all([
-        rpcClient.getAccount(account_identifier.address, { tip }),
-        rpcClient.getInfo(),
-      ]);
+      // Get the account balance at the calculated block identifier.
+      const accountInfo = await rpcClient.getAccount(account_identifier.address, {
+        tip: blockIdentifier.hash,
+        proof: false,
+      });
 
-      // Parse balance - Stacks returns balance as hex string
-      const balance = BigInt(accountInfo.balance).toString();
-      const locked = BigInt(accountInfo.locked).toString();
+      // Stacks core reports `balance` as the liquid balance, excluding locked balance.
+      const balance = BigNumber(accountInfo.balance);
+      // `locked` is the locked balance.
+      const locked = BigNumber(accountInfo.locked);
 
-      // Determine current block identifier
-      const currentBlockIdentifier = block_identifier?.hash
-        ? {
-            index: block_identifier.index ?? nodeInfo.stacks_tip_height,
-            hash: block_identifier.hash,
-          }
-        : {
-            index: nodeInfo.stacks_tip_height,
-            hash: nodeInfo.stacks_tip,
-          };
+      const isLockedSubAccount = account_identifier.sub_account?.address === 'locked';
+      const reportedBalance = isLockedSubAccount ? locked : balance;
 
       const response: AccountBalanceResponse = {
-        block_identifier: currentBlockIdentifier,
+        block_identifier: blockIdentifier,
         balances: [
           {
-            value: balance,
+            value: reportedBalance.toString(),
             currency: STX_CURRENCY,
           },
         ],
         metadata: {
           nonce: accountInfo.nonce,
-          locked_balance: locked,
+          locked_balance: locked.toString(),
           unlock_height: accountInfo.unlock_height,
         },
       };
-
-      // // Add locked balance as sub-account if there is any
-      // if (BigInt(locked) > 0n) {
-      //   if (account_identifier.sub_account?.address === 'locked') {
-      //     response.balances = [
-      //       {
-      //         value: locked,
-      //         currency: STX_CURRENCY,
-      //       },
-      //     ];
-      //   }
-      // }
-
       return reply.send(response);
     }
   );

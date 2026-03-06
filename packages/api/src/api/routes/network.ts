@@ -24,6 +24,7 @@ import {
 } from '../../utils/constants.js';
 import codec from '@stacks/codec';
 import { addHexPrefix } from '../../serializers/index.js';
+import { getChainTipNakamotoBlock } from '../../utils/helpers.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network, nodeVersion, apiVersion } = config;
@@ -58,20 +59,11 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       },
     },
     async (request, reply) => {
-      const [nodeInfo, neighbors] = await Promise.all([
-        rpcClient.getInfo(),
+      const [chainTip, neighbors] = await Promise.all([
+        getChainTipNakamotoBlock(rpcClient),
         rpcClient.getNeighbors(),
       ]);
-
-      // Get the current block timestamp. Only available on Nakamoto blocks.
-      let currentBlockTimestamp = GENESIS_BLOCK_TIMESTAMP;
-      try {
-        const currentBlock = await rpcClient.getNakamotoBlockByHeight(nodeInfo.stacks_tip_height);
-        const decodedBlock = codec.decodeNakamotoBlock(currentBlock);
-        currentBlockTimestamp = Number(decodedBlock.header.timestamp) * 1000;
-      } catch (error) {
-        // Ignore, perhaps not a Nakamoto block yet.
-      }
+      const { decodedBlock: chainTipNakamotoBlock, nodeInfo } = chainTip;
 
       // Create a map of public key hash to peer for deduplication.
       const peerMap = new Map<string, Peer>();
@@ -100,18 +92,19 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
         }
       }
 
+      const blockIndex = Number(chainTipNakamotoBlock.header.chain_length);
       const response: NetworkStatusResponse = {
         current_block_identifier: {
-          index: nodeInfo.stacks_tip_height,
-          hash: addHexPrefix(nodeInfo.stacks_tip),
+          index: blockIndex,
+          hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
         },
-        current_block_timestamp: currentBlockTimestamp,
+        current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
         genesis_block_identifier: {
           index: 1,
           hash: GENESIS_BLOCK_HASH[network],
         },
         sync_status: {
-          current_index: nodeInfo.stacks_tip_height,
+          current_index: blockIndex,
           synced: nodeInfo.is_fully_synced,
         },
         peers: Array.from(peerMap.values()),

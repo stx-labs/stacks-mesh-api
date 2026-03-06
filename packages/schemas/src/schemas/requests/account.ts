@@ -6,7 +6,7 @@ import { CurrencySchema } from "../entities/operations.js";
 export const AccountBalanceRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
   account_identifier: AccountIndentifierSchema,
-  block_identifier: Type.Optional(BlockIdentifierSchema),
+  block_identifier: Type.Optional(Type.Partial(BlockIdentifierSchema)),
   currencies: Type.Optional(Type.Array(CurrencySchema)),
 });
 export type AccountBalanceRequest = Static<typeof AccountBalanceRequestSchema>;

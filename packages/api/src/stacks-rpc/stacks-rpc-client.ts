@@ -152,10 +152,21 @@ export class StacksRpcClient {
 
   async getNakamotoBlockByHeight(height: number): Promise<Buffer> {
     try {
-      return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
+      return this.requestRaw('GET', `/v3/blocks/height/${height}`);
     } catch (error) {
       if (error instanceof StacksRpcError && error.statusCode === 404) {
         throw new StacksRpcBlockNotFoundError(height.toString());
+      }
+      throw error;
+    }
+  }
+
+  async getNakamotoBlock(hash: string): Promise<Buffer> {
+    try {
+      return this.requestRaw('GET', `/v3/blocks/${hash}`);
+    } catch (error) {
+      if (error instanceof StacksRpcError && error.statusCode === 404) {
+        throw new StacksRpcBlockNotFoundError(hash);
       }
       throw error;
     }

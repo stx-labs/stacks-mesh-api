@@ -35,9 +35,15 @@ export const OperationIdentifierSchema = Type.Object({
 });
 export type OperationIdentifier = Static<typeof OperationIdentifierSchema>;
 
+export const SubAccountIdentifierSchema = Type.Object({
+  address: Type.String(),
+  metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+});
+export type SubAccountIdentifier = Static<typeof SubAccountIdentifierSchema>;
+
 export const AccountIndentifierSchema = Type.Object({
   address: StacksPrincipalSchema,
-  sub_account: Type.Optional(StacksAddressSchema),
+  sub_account: Type.Optional(SubAccountIdentifierSchema),
 });
 export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
 
