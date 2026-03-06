@@ -10,9 +10,11 @@ import {
 } from '../../../../schemas/dist/index.js';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
-import codec from '@stacks/codec';
 import BigNumber from 'bignumber.js';
-import { getChainTipNakamotoBlock } from '../../utils/helpers.js';
+import {
+  getChainTipNakamotoBlock,
+  getNakamotoBlockFromPartialBlockIdentifier,
+} from '../../utils/helpers.js';
 import { addHexPrefix } from '../../serializers/index.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
@@ -33,27 +35,30 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       const { account_identifier, block_identifier } = request.body;
 
       // If the caller provides a block identifier, use it. Otherwise, use the chain tip.
-      let blockIdentifier: BlockIdentifier;
-      if (block_identifier?.index || block_identifier?.hash) {
-        const blockBytes = block_identifier.index
-          ? await rpcClient.getNakamotoBlockByHeight(block_identifier.index)
-          : await rpcClient.getNakamotoBlock(block_identifier.hash!);
-        const decodedBlock = codec.decodeNakamotoBlock(blockBytes);
-        blockIdentifier = {
+      let tipIdentifier: BlockIdentifier | undefined;
+      if (block_identifier) {
+        const decodedBlock = await getNakamotoBlockFromPartialBlockIdentifier(
+          rpcClient,
+          block_identifier
+        );
+        if (decodedBlock) {
+          tipIdentifier = {
+            index: Number(decodedBlock.header.chain_length),
+            hash: addHexPrefix(decodedBlock.header.index_block_hash),
+          };
+        }
+      }
+      if (!tipIdentifier) {
+        const { decodedBlock } = await getChainTipNakamotoBlock(rpcClient);
+        tipIdentifier = {
           index: Number(decodedBlock.header.chain_length),
           hash: addHexPrefix(decodedBlock.header.index_block_hash),
-        };
-      } else {
-        const { decodedBlock: chainTipNakamotoBlock } = await getChainTipNakamotoBlock(rpcClient);
-        blockIdentifier = {
-          index: Number(chainTipNakamotoBlock.header.chain_length),
-          hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
         };
       }
 
       // Get the account balance at the calculated block identifier.
       const accountInfo = await rpcClient.getAccount(account_identifier.address, {
-        tip: blockIdentifier.hash,
+        tip: tipIdentifier.hash,
         proof: false,
       });
 
@@ -66,7 +71,7 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       const reportedBalance = isLockedSubAccount ? locked : balance;
 
       const response: AccountBalanceResponse = {
-        block_identifier: blockIdentifier,
+        block_identifier: tipIdentifier,
         balances: [
           {
             value: reportedBalance.toString(),

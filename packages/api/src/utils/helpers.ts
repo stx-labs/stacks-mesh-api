@@ -2,6 +2,7 @@ import codec from '@stacks/codec';
 import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
 import { StacksNetworkId } from './constants.js';
 import { StacksNodeInfo } from '../stacks-rpc/types.js';
+import { BlockIdentifier } from '@stacks/mesh-schemas';
 
 /**
  * Get the chain tip Nakamoto block from the RPC client.
@@ -19,6 +20,27 @@ export async function getChainTipNakamotoBlock(
     decodedBlock: codec.decodeNakamotoBlock(blockBytes),
     nodeInfo,
   };
+}
+
+/**
+ * Get a decoded Nakamoto block from a partial block identifier.
+ * @param rpcClient - The RPC client.
+ * @param blockIdentifier - The block identifier.
+ * @returns The decoded Nakamoto block.
+ */
+export async function getNakamotoBlockFromPartialBlockIdentifier(
+  rpcClient: StacksRpcClient,
+  blockIdentifier: Partial<BlockIdentifier>
+): Promise<codec.DecodedNakamotoBlockResult | null> {
+  if (blockIdentifier.hash) {
+    return codec.decodeNakamotoBlock(await rpcClient.getNakamotoBlock(blockIdentifier.hash));
+  }
+  if (blockIdentifier.index) {
+    return codec.decodeNakamotoBlock(
+      await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index)
+    );
+  }
+  return null;
 }
 
 /**
