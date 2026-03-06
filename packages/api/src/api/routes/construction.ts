@@ -187,7 +187,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           options,
           sender_account_info: {
             nonce: senderInfo.nonce,
-            balance: BigInt(senderInfo.balance).toString(),
+            balance: BigNumber(senderInfo.balance).toString(),
           },
         },
         suggested_fee: [

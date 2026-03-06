@@ -22,6 +22,7 @@ import {
   StacksRpcSmartContractError,
 } from './errors.js';
 import codec from '@stacks/codec';
+import BigNumber from 'bignumber.js';
 
 /**
  * Configuration for the Stacks RPC client.
@@ -323,7 +324,7 @@ export class StacksRpcClient {
     functionName: string,
     sender: string,
     functionArgs: string[] = [],
-  ): Promise<bigint> {
+  ): Promise<number> {
     const result = await this.callReadOnlyFunction(
       contractAddress,
       contractName,
@@ -333,7 +334,7 @@ export class StacksRpcClient {
     );
     const uintVal = checkAndParseUintCV(result.result);
     try {
-      return BigInt(uintVal.value.toString());
+      return BigNumber(uintVal.value).toNumber();
     } catch (error) {
       throw new StacksRpcSmartContractError(`Invalid uint value '${uintVal.value}'`);
     }

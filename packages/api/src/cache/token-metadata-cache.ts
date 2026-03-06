@@ -66,7 +66,7 @@ export class TokenMetadataCache {
     return {
       name,
       symbol,
-      decimals: Number(decimals),
+      decimals,
     };
   }
 }

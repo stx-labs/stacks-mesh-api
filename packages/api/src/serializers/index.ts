@@ -8,6 +8,7 @@ import {
   serializeReplayedNakamotoTransaction,
   serializeStacksTransactionOperations,
 } from './transactions.js';
+import BigNumber from 'bignumber.js';
 
 export function removeHexPrefix(hex: string): string {
   if (hex.startsWith('0x')) {
@@ -117,7 +118,7 @@ export async function serializeDecodedTransactionOperations(
   config: ApiConfig
 ): Promise<Operation[]> {
   const senderAddress = decodedTx.auth.origin_condition.signer.address;
-  const fee = Number(BigInt(decodedTx.auth.origin_condition.tx_fee));
+  const fee = BigNumber(decodedTx.auth.origin_condition.tx_fee).toNumber();
   const sponsored = decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored;
   const sponsorAddress = sponsored
     ? (decodedTx.auth as codec.TxAuthSponsored).sponsor_condition.signer.address
