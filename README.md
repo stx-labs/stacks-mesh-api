@@ -34,7 +34,7 @@ directly with a Stacks node.
 
 ### Stacks node requirements
 
-The Stacks node does not need any special configuration -- a regular chain follower is
+The Stacks node does not need any special configuration. A regular chain follower is
 sufficient. However, the node **must** have an `auth_token` configured under
 `[connection_options]` in its `Stacks.toml` config file:
 
@@ -44,7 +44,7 @@ auth_token = "some-secret-token"
 ```
 
 This token must match the `STACKS_CORE_RPC_AUTH_TOKEN` environment variable passed to the Mesh
-API.
+API (see below).
 
 ## Configuration
 
