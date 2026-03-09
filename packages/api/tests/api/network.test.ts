@@ -2,10 +2,8 @@ import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer } from '../../src/api/index.js';
-import { FIXTURES_DIR, makeTestApiConfig } from './helpers.js';
+import { loadBinaryFixture, makeTestApiConfig } from './helpers.js';
 import { MockAgent, setGlobalDispatcher } from 'undici';
-import path from 'node:path';
-import fs from 'node:fs';
 
 describe('/network', () => {
   let fastify: FastifyInstance;
@@ -112,9 +110,7 @@ describe('/network', () => {
         .reply(200, mockNeighbors, {
           headers: { 'content-type': 'application/json' },
         });
-      const blockHeaderFixture = fs.readFileSync(
-        path.join(FIXTURES_DIR, 'blocks/coinbase.header.bin')
-      );
+      const blockHeaderFixture = loadBinaryFixture('blocks/coinbase.header.bin');
       mockPool
         .intercept({ path: `/v3/blocks/height/5437107`, method: 'GET' })
         .reply(200, blockHeaderFixture, {
@@ -138,15 +134,15 @@ describe('/network', () => {
       assert.strictEqual(response.statusCode, 200);
       const json = JSON.parse(response.body);
       assert.deepStrictEqual(json.current_block_identifier, {
-        index: mockNodeInfo.stacks_tip_height,
-        hash: mockNodeInfo.stacks_tip,
+        index: 5437107,
+        hash: '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124',
       });
       assert.deepStrictEqual(json.genesis_block_identifier, {
         index: 1,
         hash: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
       });
       assert.deepStrictEqual(json.sync_status, {
-        current_index: mockNodeInfo.stacks_tip_height,
+        current_index: 5437107,
         synced: mockNodeInfo.is_fully_synced,
       });
       assert.strictEqual(json.current_block_timestamp, 1766362680000);

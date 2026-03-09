@@ -22,6 +22,7 @@ import {
   StacksRpcSmartContractError,
 } from './errors.js';
 import codec from '@stacks/codec';
+import BigNumber from 'bignumber.js';
 
 /**
  * Configuration for the Stacks RPC client.
@@ -152,10 +153,21 @@ export class StacksRpcClient {
 
   async getNakamotoBlockByHeight(height: number): Promise<Buffer> {
     try {
-      return this.requestRaw('GET', `/v3/blocks/height/${height}`, undefined, undefined);
+      return this.requestRaw('GET', `/v3/blocks/height/${height}`);
     } catch (error) {
       if (error instanceof StacksRpcError && error.statusCode === 404) {
         throw new StacksRpcBlockNotFoundError(height.toString());
+      }
+      throw error;
+    }
+  }
+
+  async getNakamotoBlock(hash: string): Promise<Buffer> {
+    try {
+      return this.requestRaw('GET', `/v3/blocks/${hash}`);
+    } catch (error) {
+      if (error instanceof StacksRpcError && error.statusCode === 404) {
+        throw new StacksRpcBlockNotFoundError(hash);
       }
       throw error;
     }
@@ -312,7 +324,7 @@ export class StacksRpcClient {
     functionName: string,
     sender: string,
     functionArgs: string[] = [],
-  ): Promise<bigint> {
+  ): Promise<number> {
     const result = await this.callReadOnlyFunction(
       contractAddress,
       contractName,
@@ -322,7 +334,7 @@ export class StacksRpcClient {
     );
     const uintVal = checkAndParseUintCV(result.result);
     try {
-      return BigInt(uintVal.value.toString());
+      return BigNumber(uintVal.value).toNumber();
     } catch (error) {
       throw new StacksRpcSmartContractError(`Invalid uint value '${uintVal.value}'`);
     }

@@ -2,20 +2,9 @@ import { OperationStatus } from '../../../schemas/dist/index.js';
 
 export const MESH_SPECIFICATION_VERSION = '1.5.1';
 
-const enum StacksNetworkId {
+export const enum StacksNetworkId {
   mainnet = 0x00000001,
   testnet = 0x80000000,
-}
-
-export function getStacksNetworkName(networkId: number): 'mainnet' | 'testnet' {
-  switch (networkId) {
-    case StacksNetworkId.mainnet:
-      return 'mainnet';
-    case StacksNetworkId.testnet:
-      return 'testnet';
-    default:
-      throw new Error(`Unknown network ID: ${networkId}`);
-  }
 }
 
 export const OPERATION_STATUSES: OperationStatus[] = [
