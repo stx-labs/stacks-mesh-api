@@ -22,8 +22,6 @@ directly with a Stacks node.
 
 ## Limitations
 
-- **No fungible token (FT) balances in account endpoints.** The Stacks node RPC does not
-  currently expose FT balance information, so account balance responses only include STX holdings.
 - **Only Nakamoto blocks (Stacks 3.x+) are supported.** This API targets the Nakamoto
   consensus rules and does not handle legacy pre-Nakamoto block formats. Running it against a
   node that has not activated Nakamoto will produce errors or incomplete data.
