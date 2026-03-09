@@ -16,6 +16,7 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
     {
       schema: {
         body: CallRequestSchema,
+        tags: ['Call'],
         response: {
           200: CallResponseSchema,
           500: ErrorResponseSchema,

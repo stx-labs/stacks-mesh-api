@@ -25,6 +25,7 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     {
       schema: {
         body: AccountBalanceRequestSchema,
+        tags: ['Account'],
         response: {
           200: AccountBalanceResponseSchema,
           500: ErrorResponseSchema,
@@ -93,6 +94,7 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     {
       schema: {
         body: AccountCoinsRequestSchema,
+        tags: ['Account'],
         response: {
           500: ErrorResponseSchema,
         },

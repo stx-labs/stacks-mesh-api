@@ -16,6 +16,7 @@ export const MempoolRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
     {
       schema: {
         body: MempoolRequestSchema,
+        tags: ['Mempool'],
         response: {
           500: ErrorResponseSchema,
         },
@@ -37,6 +38,7 @@ export const MempoolRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
     {
       schema: {
         body: MempoolTransactionRequestSchema,
+        tags: ['Mempool'],
         response: {
           500: ErrorResponseSchema,
         },

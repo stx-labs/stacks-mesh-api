@@ -25,6 +25,7 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify,
     {
       schema: {
         body: BlockRequestSchema,
+        tags: ['Block'],
         response: {
           200: BlockResponseSchema,
           500: ErrorResponseSchema,
@@ -45,6 +46,7 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify,
     {
       schema: {
         body: BlockTransactionRequestSchema,
+        tags: ['Block'],
         response: {
           200: BlockTransactionResponseSchema,
           500: ErrorResponseSchema,

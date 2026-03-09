@@ -12,6 +12,7 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "generate:git-info": "rimraf .git-info && ../../node_modules/.bin/api-toolkit-git-info",
+    "generate:openapi": "rimraf ./openapi.yaml && tsx src/openapi-generator.ts",
     "test:api": "NODE_ENV=test node --test --import tsx --test-timeout 300000 tests/api/**/*.test.ts",
     "test:construction": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/construction/**/*.test.ts",
     "test:construction:mesh-cli": "NODE_ENV=test node --test --test-concurrency 1 --import tsx --test-timeout 300000 tests/construction/mesh-cli.test.ts",
@@ -53,6 +54,7 @@
     "undici": "^7.20.0"
   },
   "devDependencies": {
+    "@fastify/swagger": "^9.7.0",
     "@stacks/prettier-config": "^0.0.10",
     "@types/dockerode": "^4.0.1",
     "@types/node": "^22.12.0",

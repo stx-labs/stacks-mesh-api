@@ -41,6 +41,16 @@ echo ""
 echo "Updating root package.json..."
 npm version "$VERSION" --no-git-tag-version
 
+# Update sub-package versions
+echo "Updating packages/api/package.json..."
+npm version "$VERSION" --no-git-tag-version --workspace=packages/api
+echo "Updating packages/schemas/package.json..."
+npm version "$VERSION" --no-git-tag-version --workspace=packages/schemas
+
+# Regenerate OpenAPI spec with new version
+echo "Regenerating OpenAPI spec..."
+npm run generate:openapi --prefix packages/api
+
 echo ""
 echo "Done! Version ${VERSION} updated in all package files."
 echo "Next steps:"
