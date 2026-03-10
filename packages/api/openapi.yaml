@@ -12151,6 +12151,9 @@ paths:
                   details:
                     type: object
                     additionalProperties: {}
+servers:
+  - url: http://localhost:3000
+    description: Local
 tags:
   - name: Network
     description: Network endpoints

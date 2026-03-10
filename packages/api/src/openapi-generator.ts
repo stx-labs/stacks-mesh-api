@@ -20,6 +20,12 @@ export const OpenApiSchemaOptions: SwaggerOptions = {
       url: 'https://github.com/stx-labs/stacks-mesh-api',
       description: 'Source Repository',
     },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Local',
+      },
+    ],
     tags: [
       {
         name: 'Network',
