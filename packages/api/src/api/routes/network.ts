@@ -34,6 +34,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     {
       schema: {
         body: MetadataRequestSchema,
+        tags: ['Network'],
         response: {
           200: NetworkListResponseSchema,
         },
@@ -52,6 +53,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     {
       schema: {
         body: NetworkStatusRequestSchema,
+        tags: ['Network'],
         response: {
           200: NetworkStatusResponseSchema,
           500: ErrorResponseSchema,
@@ -119,6 +121,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     {
       schema: {
         body: NetworkOptionsRequestSchema,
+        tags: ['Network'],
         response: {
           200: NetworkOptionsResponseSchema,
           500: ErrorResponseSchema,

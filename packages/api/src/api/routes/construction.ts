@@ -59,6 +59,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionDeriveRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionDeriveResponseSchema,
           500: ErrorResponseSchema,
@@ -85,6 +86,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionPreprocessRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionPreprocessResponseSchema,
           500: ErrorResponseSchema,
@@ -112,6 +114,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionMetadataRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionMetadataResponseSchema,
           500: ErrorResponseSchema,
@@ -205,6 +208,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionPayloadsRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionPayloadsResponseSchema,
           500: ErrorResponseSchema,
@@ -330,6 +334,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionCombineRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionCombineResponseSchema,
           500: ErrorResponseSchema,
@@ -382,6 +387,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionParseRequestSchema,
+        tags: ['Construction'],
         response: {
           200: ConstructionParseResponseSchema,
           500: ErrorResponseSchema,
@@ -415,6 +421,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionHashRequestSchema,
+        tags: ['Construction'],
         response: {
           200: TransactionIdentifierResponseSchema,
           500: ErrorResponseSchema,
@@ -437,6 +444,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     {
       schema: {
         body: ConstructionSubmitRequestSchema,
+        tags: ['Construction'],
         response: {
           200: TransactionIdentifierResponseSchema,
           500: ErrorResponseSchema,

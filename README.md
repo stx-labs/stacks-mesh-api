@@ -22,8 +22,6 @@ directly with a Stacks node.
 
 ## Limitations
 
-- **No fungible token (FT) balances in account endpoints.** The Stacks node RPC does not
-  currently expose FT balance information, so account balance responses only include STX holdings.
 - **Only Nakamoto blocks (Stacks 3.x+) are supported.** This API targets the Nakamoto
   consensus rules and does not handle legacy pre-Nakamoto block formats. Running it against a
   node that has not activated Nakamoto will produce errors or incomplete data.
@@ -33,6 +31,20 @@ directly with a Stacks node.
 - Node.js >= 24
 - A running [Stacks node](https://github.com/stacks-network/stacks-core) with the RPC endpoint
   accessible
+
+### Stacks node requirements
+
+The Stacks node does not need any special configuration. A regular chain follower is
+sufficient. However, the node **must** have an `auth_token` configured under
+`[connection_options]` in its `Stacks.toml` config file:
+
+```toml
+[connection_options]
+auth_token = "some-secret-token"
+```
+
+This token must match the `STACKS_CORE_RPC_AUTH_TOKEN` environment variable passed to the Mesh
+API (see below).
 
 ## Configuration
 
@@ -50,20 +62,6 @@ The API is configured via environment variables (a `.env` file is also supported
 | `TOKEN_METADATA_CACHE_TTL_MS` | `86400000` | Token metadata cache TTL (default 24 h) |
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
 | `CONTRACT_ABI_CACHE_TTL_MS` | `86400000` | Contract ABI cache TTL (default 24 h) |
-
-### Stacks node requirements
-
-The Stacks node does not need any special configuration -- a regular chain follower is
-sufficient. However, the node **must** have an `auth_token` configured under
-`[connection_options]` in its `Stacks.toml` config file:
-
-```toml
-[connection_options]
-auth_token = "some-secret-token"
-```
-
-This token must match the `STACKS_CORE_RPC_AUTH_TOKEN` environment variable passed to the Mesh
-API.
 
 ## Running locally
 
