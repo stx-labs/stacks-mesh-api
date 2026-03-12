@@ -61,14 +61,15 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
         };
     }
   };
-  const serializePostConditionMode = (byte: number): PostConditionMode => {
-    switch (byte) {
-      case 1:
+  const serializePostConditionMode = (mode: codec.PostConditionModeID): PostConditionMode => {
+    switch (mode) {
+      case codec.PostConditionModeID.Allow:
         return 'allow';
-      case 2:
+      case codec.PostConditionModeID.Deny:
         return 'deny';
+      case codec.PostConditionModeID.Originator:
+        return 'originator';
     }
-    throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
   };
   const decodedPostConditions = tx.decodedTx.post_conditions;
   const normalizedPostConditions = decodedPostConditions.map(pc => serializePostCondition(pc));
