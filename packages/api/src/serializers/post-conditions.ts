@@ -1,4 +1,4 @@
-import codec from '@stacks/codec';
+import codec, { PostConditionModeID } from '@stacks/codec';
 import { PostCondition, PostConditionMode, PostConditionPrincipal } from '@stacks/mesh-schemas';
 import { DecodedStacksTransaction } from './transactions.js';
 
@@ -61,14 +61,15 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
         };
     }
   };
-  const serializePostConditionMode = (byte: number): PostConditionMode => {
-    switch (byte) {
-      case 1:
+  const serializePostConditionMode = (mode: PostConditionModeID): PostConditionMode => {
+    switch (mode) {
+      case PostConditionModeID.Allow:
         return 'allow';
-      case 2:
+      case PostConditionModeID.Deny:
         return 'deny';
+      case PostConditionModeID.Originator:
+        return 'originator';
     }
-    throw new Error(`PostConditionMode byte must be either 1 or 2 but was ${byte}`);
   };
   const decodedPostConditions = tx.decodedTx.post_conditions;
   const normalizedPostConditions = decodedPostConditions.map(pc => serializePostCondition(pc));

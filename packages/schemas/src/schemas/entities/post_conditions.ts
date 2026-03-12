@@ -1,6 +1,10 @@
 import { Static, Type } from '@sinclair/typebox';
 
-export const PostConditionModeSchema = Type.Union([Type.Literal('allow'), Type.Literal('deny')]);
+export const PostConditionModeSchema = Type.Union([
+  Type.Literal('allow'),
+  Type.Literal('deny'),
+  Type.Literal('originator'),
+]);
 export type PostConditionMode = Static<typeof PostConditionModeSchema>;
 
 const FungiblePostConditionCodeSchema = Type.Union([
@@ -15,6 +19,7 @@ export type FungiblePostConditionCode = Static<typeof FungiblePostConditionCodeS
 const NonFungiblePostConditionCodeSchema = Type.Union([
   Type.Literal('sent'),
   Type.Literal('not_sent'),
+  Type.Literal('maybe_sent'),
 ]);
 export type NonFungiblePostConditionCode = Static<typeof NonFungiblePostConditionCodeSchema>;
 
