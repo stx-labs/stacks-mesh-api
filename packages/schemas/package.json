@@ -1,6 +1,6 @@
 {
   "name": "@stacks/mesh-schemas",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Mesh API schemas for Stacks blockchain transactions and blocks",
   "type": "module",
   "main": "dist/index.js",
