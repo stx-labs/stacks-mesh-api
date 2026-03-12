@@ -1,4 +1,4 @@
-import codec, { PostConditionModeID } from '@stacks/codec';
+import codec from '@stacks/codec';
 import { PostCondition, PostConditionMode, PostConditionPrincipal } from '@stacks/mesh-schemas';
 import { DecodedStacksTransaction } from './transactions.js';
 
@@ -61,13 +61,13 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
         };
     }
   };
-  const serializePostConditionMode = (mode: PostConditionModeID): PostConditionMode => {
+  const serializePostConditionMode = (mode: codec.PostConditionModeID): PostConditionMode => {
     switch (mode) {
-      case PostConditionModeID.Allow:
+      case codec.PostConditionModeID.Allow:
         return 'allow';
-      case PostConditionModeID.Deny:
+      case codec.PostConditionModeID.Deny:
         return 'deny';
-      case PostConditionModeID.Originator:
+      case codec.PostConditionModeID.Originator:
         return 'originator';
     }
   };
