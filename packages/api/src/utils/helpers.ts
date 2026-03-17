@@ -3,6 +3,7 @@ import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
 import { StacksNetworkId } from './constants.js';
 import { StacksNodeInfo } from '../stacks-rpc/types.js';
 import { BlockIdentifier } from '@stacks/mesh-schemas';
+import { removeHexPrefix } from '../serializers/index.js';
 
 /**
  * Get the chain tip Nakamoto block from the RPC client.
@@ -38,7 +39,9 @@ export async function getNakamotoBlockFromPartialBlockIdentifier(
     );
   }
   if (blockIdentifier.hash) {
-    return codec.decodeNakamotoBlock(await rpcClient.getNakamotoBlock(blockIdentifier.hash));
+    return codec.decodeNakamotoBlock(
+      await rpcClient.getNakamotoBlock(removeHexPrefix(blockIdentifier.hash))
+    );
   }
   return null;
 }

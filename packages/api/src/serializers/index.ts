@@ -11,25 +11,26 @@ import {
 import BigNumber from 'bignumber.js';
 
 export function removeHexPrefix(hex: string): string {
-  if (hex.startsWith('0x')) {
+  if (/^0x/i.test(hex)) {
     return hex.slice(2);
   }
   return hex;
 }
 
 export function addHexPrefix(hex: string): string {
-  if (!hex.startsWith('0x')) {
+  if (!/^0x/i.test(hex)) {
     return `0x${hex}`;
   }
-  return hex;
+  return `0x${hex.slice(2)}`;
 }
 
 export function decodeClarityValue(hex: string): DecodedClarityValue {
-  const decodedResult = codec.decodeClarityValue(hex);
+  const normalizedHex = removeHexPrefix(hex);
+  const decodedResult = codec.decodeClarityValue(normalizedHex);
   return {
-    hex: decodedResult.hex,
+    hex: addHexPrefix(decodedResult.hex),
     repr: decodedResult.repr,
-    type: codec.decodeClarityValueToTypeName(hex),
+    type: codec.decodeClarityValueToTypeName(normalizedHex),
   };
 };
 
@@ -95,11 +96,12 @@ export async function serializeTransactionFromReplayedNakamotoBlock(
   txId: string,
   config: ApiConfig
 ): Promise<Transaction> {
+  const normalizedTxId = addHexPrefix(txId);
   // TODO: `tx_index` does not work from Stacks core (it's always 0). We need to traverse the entire
   // array to determine the index.
   let index = 0;
   for (const tx of replay.transactions) {
-    if (`0x${tx.txid}` === txId) {
+    if (addHexPrefix(tx.txid) === normalizedTxId) {
       return serializeReplayedNakamotoTransaction(tx, replay.fees, index, config);
     }
     index++;
