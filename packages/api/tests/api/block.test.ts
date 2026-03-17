@@ -242,6 +242,28 @@ describe('/block', () => {
   describe('token transfer block', () => {
     const fixture = loadFixture('blocks/token-transfer.json');
 
+    test('should accept block_identifier hash without 0x prefix', async () => {
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const response = await fastify.inject({
+        url: '/block',
+        method: 'POST',
+        payload: JSON.stringify({
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
+          block_identifier: { hash: fixture.block_id },
+        }),
+        headers: { 'content-type': 'application/json' },
+      });
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const block = json.block;
+      assert.deepStrictEqual(block.block_identifier, {
+        index: 5437488,
+        hash: `0x${fixture.block_id}`,
+      });
+    });
+
     test('should return block with STX transfer and correct operations', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       mockReplay(mockPool, fixture.block_id, fixture);
@@ -686,6 +708,29 @@ describe('/block', () => {
   });
 
   describe('/block/transaction', () => {
+    test('should accept unprefixed block and transaction identifiers', async () => {
+      const fixture = loadFixture('blocks/token-transfer.json');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const txHash = fixture.transactions[0].txid;
+      const response = await fastify.inject({
+        url: '/block/transaction',
+        method: 'POST',
+        payload: JSON.stringify({
+          network_identifier: { blockchain: 'stacks', network: 'mainnet' },
+          block_identifier: { hash: fixture.block_id },
+          transaction_identifier: { hash: txHash },
+        }),
+        headers: { 'content-type': 'application/json' },
+      });
+
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const tx = json.transaction;
+      assert.strictEqual(tx.transaction_identifier.hash, `0x${txHash}`);
+    });
+
     test('should return a specific transaction from a block', async () => {
       const fixture = loadFixture('blocks/token-transfer.json');
       const mockPool = mockAgent.get('http://test.stacks.node:20444');

@@ -88,6 +88,28 @@ describe('/construction/metadata', () => {
     });
   });
 
+  test('accepts unprefixed public key hex_bytes', async () => {
+    const options: ConstructionTokenTransferOptions = {
+      sender_address: senderAddress,
+      recipient_address: recipientAddress,
+      type: 'token_transfer',
+      max_fee: '10000',
+      suggested_fee_multiplier: 1.5,
+      amount: '1000000',
+      memo: 'hello',
+    };
+    const res = await post(fastify, '/construction/metadata', {
+      network_identifier: NETWORK_IDENTIFIER,
+      options,
+      public_keys: [{ hex_bytes: SENDER_PUBLIC_KEY, curve_type: 'secp256k1' }],
+    });
+    assert.equal(res.statusCode, 200, res.body);
+    const body = JSON.parse(res.body);
+    assert.equal(body.metadata.options.sender_address, senderAddress);
+    assert.equal(body.metadata.options.type, 'token_transfer');
+    assert.equal(body.suggested_fee[0].currency.symbol, 'STX');
+  });
+
   test('returns metadata for contract_call', async () => {
     const options: ConstructionContractCallOptions = {
       sender_address: senderAddress,
