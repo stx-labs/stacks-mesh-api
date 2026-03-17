@@ -28,6 +28,7 @@ import BigNumber from 'bignumber.js';
  * Configuration for the Stacks RPC client.
  */
 export interface StacksRpcConfig {
+  scheme: string;
   hostname: string;
   port: number;
   authToken: string;
@@ -44,7 +45,7 @@ export class StacksRpcClient {
 
   constructor(config: StacksRpcConfig) {
     this.config = config;
-    this.baseUrl = `http://${this.config.hostname}:${this.config.port}`;
+    this.baseUrl = `${this.config.scheme}://${this.config.hostname}:${this.config.port}`;
   }
 
   private async request<T>(

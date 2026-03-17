@@ -7,6 +7,7 @@ import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client';
 
 export function makeTestApiConfig(): ApiConfig {
   const rpcClient = new StacksRpcClient({
+    scheme: 'http',
     hostname: 'test.stacks.node',
     port: 20444,
     authToken: 'test-token',

@@ -218,6 +218,7 @@ export async function teardownDockerServices(resources: DockerResources): Promis
  */
 export async function buildTestServer() {
   const rpcClient = new StacksRpcClient({
+    scheme: 'http',
     hostname: 'localhost',
     port: 20443,
     authToken: '',
@@ -252,6 +253,7 @@ export async function buildTestServer() {
  */
 export async function waitForNakamotoBlock(): Promise<void> {
   const rpcClient = new StacksRpcClient({
+    scheme: 'http',
     hostname: 'localhost',
     port: 20443,
     authToken: '',
