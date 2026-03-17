@@ -249,7 +249,7 @@ async function makeContractCallOperation(
         ? functionAbi.args[fnArgIndex++]
         : { name: '', type: undefined };
       return {
-        hex: c.hex,
+        hex: addHexPrefix(c.hex),
         repr: c.repr,
         name: functionArgAbi.name,
         type: codec.decodeClarityValueToTypeName(c.hex),

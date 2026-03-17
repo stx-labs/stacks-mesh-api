@@ -152,7 +152,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
             contractAddress,
             contractName,
             functionName: options.function_name,
-            functionArgs: options.args.map(arg => hexToCV(arg)),
+            functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
             publicKey: dummyPubKey,
             fee: 0,
           });
@@ -217,6 +217,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     },
     async (request, reply) => {
       const { operations, metadata, public_keys } = request.body;
+      const normalizedPublicKey = removeHexPrefix(public_keys[0].hex_bytes);
 
       // Build and validate construction options from operations.
       let options: ConstructionOptions;
@@ -237,7 +238,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
 
       // Validate the sender address matches the public key.
       const derivedAddress = getAddressFromPublicKey(
-        removeHexPrefix(public_keys[0].hex_bytes),
+        normalizedPublicKey,
         network
       );
       if (derivedAddress !== options.sender_address) {
@@ -275,7 +276,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
             amount: options.amount,
             fee,
             nonce: metadata.sender_account_info.nonce,
-            publicKey: public_keys[0].hex_bytes,
+            publicKey: normalizedPublicKey,
             network,
             memo: options.memo,
           });
@@ -287,8 +288,8 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
             contractAddress,
             contractName,
             functionName: options.function_name,
-            functionArgs: options.args.map(arg => hexToCV(arg)),
-            publicKey: public_keys[0].hex_bytes,
+            functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
+            publicKey: normalizedPublicKey,
             fee,
             network,
           });
@@ -299,7 +300,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
             contractName: options.contract_name,
             codeBody: options.source_code,
             clarityVersion: options.clarity_version,
-            publicKey: public_keys[0].hex_bytes,
+            publicKey: normalizedPublicKey,
             fee,
             network,
           });

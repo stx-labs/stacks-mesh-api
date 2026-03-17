@@ -1,6 +1,7 @@
 import codec from '@stacks/codec';
 import { PostCondition, PostConditionMode, PostConditionPrincipal } from '@stacks/mesh-schemas';
 import { DecodedStacksTransaction } from './transactions.js';
+import { addHexPrefix } from './index.js';
 
 export function serializePostConditions(tx: DecodedStacksTransaction) {
   const serializePostConditionPrincipal = (
@@ -55,7 +56,7 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
             contract_address: pc.asset.contract_address,
           },
           asset_value: {
-            hex: pc.asset_value.hex,
+            hex: addHexPrefix(pc.asset_value.hex),
             repr: pc.asset_value.repr,
           },
         };

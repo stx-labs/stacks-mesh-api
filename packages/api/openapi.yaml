@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Stacks Mesh API
   description: A Mesh API (formerly Rosetta API) implementation for the Stacks blockchain
-  version: 0.3.0
+  version: 0.4.0
 components:
   schemas: {}
 paths:
@@ -104,9 +104,10 @@ paths:
                       - hash
                     properties:
                       index:
+                        minimum: 1
                         type: integer
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   current_block_timestamp:
                     type: number
@@ -117,9 +118,10 @@ paths:
                       - hash
                     properties:
                       index:
+                        minimum: 1
                         type: integer
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   oldest_block_identifier:
                     type: object
@@ -128,9 +130,10 @@ paths:
                       - hash
                     properties:
                       index:
+                        minimum: 1
                         type: integer
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   sync_status:
                     type: object
@@ -485,9 +488,10 @@ paths:
                   type: object
                   properties:
                     index:
+                      minimum: 1
                       type: integer
                     hash:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
       responses:
         "200":
@@ -512,9 +516,10 @@ paths:
                           - hash
                         properties:
                           index:
+                            minimum: 1
                             type: integer
                           hash:
-                            pattern: ^0x[0-9a-fA-F]+$
+                            pattern: ^(0x)?[0-9a-fA-F]+$
                             type: string
                       parent_block_identifier:
                         type: object
@@ -523,9 +528,10 @@ paths:
                           - hash
                         properties:
                           index:
+                            minimum: 1
                             type: integer
                           hash:
-                            pattern: ^0x[0-9a-fA-F]+$
+                            pattern: ^(0x)?[0-9a-fA-F]+$
                             type: string
                       timestamp:
                         type: integer
@@ -544,7 +550,7 @@ paths:
                                 - hash
                               properties:
                                 hash:
-                                  pattern: ^0x[0-9a-fA-F]+$
+                                  pattern: ^(0x)?[0-9a-fA-F]+$
                                   type: string
                             operations:
                               type: array
@@ -3309,6 +3315,9 @@ paths:
                                         - type: string
                                           enum:
                                             - deny
+                                        - type: string
+                                          enum:
+                                            - originator
                                     post_conditions:
                                       type: array
                                       items:
@@ -3477,6 +3486,9 @@ paths:
                                                   - type: string
                                                     enum:
                                                       - not_sent
+                                                  - type: string
+                                                    enum:
+                                                      - maybe_sent
                                               principal:
                                                 anyOf:
                                                   - type: object
@@ -3549,9 +3561,10 @@ paths:
                                         - hash
                                       properties:
                                         index:
+                                          minimum: 1
                                           type: integer
                                         hash:
-                                          pattern: ^0x[0-9a-fA-F]+$
+                                          pattern: ^(0x)?[0-9a-fA-F]+$
                                           type: string
                                 raw_tx:
                                   type: string
@@ -3622,9 +3635,10 @@ paths:
                               - hash
                             properties:
                               index:
+                                minimum: 1
                                 type: integer
                               hash:
-                                pattern: ^0x[0-9a-fA-F]+$
+                                pattern: ^(0x)?[0-9a-fA-F]+$
                                 type: string
                           burn_block_timestamp:
                             type: integer
@@ -3635,9 +3649,10 @@ paths:
                               - hash
                             properties:
                               index:
+                                minimum: 1
                                 type: integer
                               hash:
-                                pattern: ^0x[0-9a-fA-F]+$
+                                pattern: ^(0x)?[0-9a-fA-F]+$
                                 type: string
                           tenure_height:
                             type: integer
@@ -3688,7 +3703,7 @@ paths:
                         - hash
                       properties:
                         hash:
-                          pattern: ^0x[0-9a-fA-F]+$
+                          pattern: ^(0x)?[0-9a-fA-F]+$
                           type: string
         "500":
           description: Default Response
@@ -3749,9 +3764,10 @@ paths:
                   type: object
                   properties:
                     index:
+                      minimum: 1
                       type: integer
                     hash:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
                 transaction_identifier:
                   type: object
@@ -3759,7 +3775,7 @@ paths:
                     - hash
                   properties:
                     hash:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
       responses:
         "200":
@@ -3784,7 +3800,7 @@ paths:
                           - hash
                         properties:
                           hash:
-                            pattern: ^0x[0-9a-fA-F]+$
+                            pattern: ^(0x)?[0-9a-fA-F]+$
                             type: string
                       operations:
                         type: array
@@ -6549,6 +6565,9 @@ paths:
                                   - type: string
                                     enum:
                                       - deny
+                                  - type: string
+                                    enum:
+                                      - originator
                               post_conditions:
                                 type: array
                                 items:
@@ -6717,6 +6736,9 @@ paths:
                                             - type: string
                                               enum:
                                                 - not_sent
+                                            - type: string
+                                              enum:
+                                                - maybe_sent
                                         principal:
                                           anyOf:
                                             - type: object
@@ -6789,9 +6811,10 @@ paths:
                                   - hash
                                 properties:
                                   index:
+                                    minimum: 1
                                     type: integer
                                   hash:
-                                    pattern: ^0x[0-9a-fA-F]+$
+                                    pattern: ^(0x)?[0-9a-fA-F]+$
                                     type: string
                           raw_tx:
                             type: string
@@ -6927,9 +6950,10 @@ paths:
                   type: object
                   properties:
                     index:
+                      minimum: 1
                       type: integer
                     hash:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
                 currencies:
                   type: array
@@ -6983,9 +7007,10 @@ paths:
                       - hash
                     properties:
                       index:
+                        minimum: 1
                         type: integer
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   balances:
                     type: array
@@ -7259,7 +7284,7 @@ paths:
                     - hash
                   properties:
                     hash:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
       responses:
         "500":
@@ -7323,7 +7348,7 @@ paths:
                     - curve_type
                   properties:
                     hex_bytes:
-                      pattern: ^0x[0-9a-fA-F]+$
+                      pattern: ^(0x)?[0-9a-fA-F]+$
                       type: string
                     curve_type:
                       type: string
@@ -7986,7 +8011,7 @@ paths:
                       - curve_type
                     properties:
                       hex_bytes:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                       curve_type:
                         type: string
@@ -8574,7 +8599,7 @@ paths:
                       - curve_type
                     properties:
                       hex_bytes:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                       curve_type:
                         type: string
@@ -8592,7 +8617,7 @@ paths:
                   - payloads
                 properties:
                   unsigned_transaction:
-                    pattern: ^0x[0-9a-fA-F]+$
+                    pattern: ^(0x)?[0-9a-fA-F]+$
                     type: string
                   payloads:
                     type: array
@@ -8628,7 +8653,7 @@ paths:
                                   type: object
                                   additionalProperties: {}
                         hex_bytes:
-                          pattern: ^0x[0-9a-fA-F]+$
+                          pattern: ^(0x)?[0-9a-fA-F]+$
                           type: string
                         signature_type:
                           type: string
@@ -8690,7 +8715,7 @@ paths:
                           enum:
                             - testnet
                 unsigned_transaction:
-                  pattern: ^0x[0-9a-fA-F]+$
+                  pattern: ^(0x)?[0-9a-fA-F]+$
                   type: string
                 signatures:
                   minItems: 1
@@ -8735,7 +8760,7 @@ paths:
                                     type: object
                                     additionalProperties: {}
                           hex_bytes:
-                            pattern: ^0x[0-9a-fA-F]+$
+                            pattern: ^(0x)?[0-9a-fA-F]+$
                             type: string
                           signature_type:
                             type: string
@@ -8748,7 +8773,7 @@ paths:
                           - curve_type
                         properties:
                           hex_bytes:
-                            pattern: ^0x[0-9a-fA-F]+$
+                            pattern: ^(0x)?[0-9a-fA-F]+$
                             type: string
                           curve_type:
                             type: string
@@ -8759,7 +8784,7 @@ paths:
                         enum:
                           - ecdsa_recovery
                       hex_bytes:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
       responses:
         "200":
@@ -8772,7 +8797,7 @@ paths:
                   - signed_transaction
                 properties:
                   signed_transaction:
-                    pattern: ^0x[0-9a-fA-F]+$
+                    pattern: ^(0x)?[0-9a-fA-F]+$
                     type: string
         "500":
           description: Default Response
@@ -8832,7 +8857,7 @@ paths:
                 signed:
                   type: boolean
                 transaction:
-                  pattern: ^0x[0-9a-fA-F]+$
+                  pattern: ^(0x)?[0-9a-fA-F]+$
                   type: string
       responses:
         "200":
@@ -11615,7 +11640,7 @@ paths:
                           enum:
                             - testnet
                 signed_transaction:
-                  pattern: ^0x[0-9a-fA-F]+$
+                  pattern: ^(0x)?[0-9a-fA-F]+$
                   type: string
       responses:
         "200":
@@ -11633,7 +11658,7 @@ paths:
                       - hash
                     properties:
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   metadata:
                     type: object
@@ -11693,7 +11718,7 @@ paths:
                           enum:
                             - testnet
                 signed_transaction:
-                  pattern: ^0x[0-9a-fA-F]+$
+                  pattern: ^(0x)?[0-9a-fA-F]+$
                   type: string
       responses:
         "200":
@@ -11711,7 +11736,7 @@ paths:
                       - hash
                     properties:
                       hash:
-                        pattern: ^0x[0-9a-fA-F]+$
+                        pattern: ^(0x)?[0-9a-fA-F]+$
                         type: string
                   metadata:
                     type: object

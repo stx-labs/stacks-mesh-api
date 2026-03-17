@@ -1,6 +1,6 @@
 import { Static, TSchema, Type } from '@sinclair/typebox';
 
-export const HexStringSchema = Type.String({ pattern: '^0x[0-9a-fA-F]+$' });
+export const HexStringSchema = Type.String({ pattern: '^(0x)?[0-9a-fA-F]+$' });
 export type HexString = Static<typeof HexStringSchema>;
 
 export const DecodedClarityValueSchema = Type.Object({
