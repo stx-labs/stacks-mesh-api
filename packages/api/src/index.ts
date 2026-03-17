@@ -8,6 +8,7 @@ import { ContractAbiCache } from './cache/contract-abi-cache.js';
 
 export async function initApp() {
   const rpcClient = new StacksRpcClient({
+    scheme: ENV.STACKS_CORE_RPC_SCHEME,
     hostname: ENV.STACKS_CORE_RPC_HOST,
     port: ENV.STACKS_CORE_RPC_PORT,
     authToken: ENV.STACKS_CORE_RPC_AUTH_TOKEN,
