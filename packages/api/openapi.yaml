@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Stacks Mesh API
   description: A Mesh API (formerly Rosetta API) implementation for the Stacks blockchain
-  version: 0.4.1
+  version: 0.4.2
 components:
   schemas: {}
 paths:
