@@ -339,6 +339,55 @@ describe('/construction/payloads', () => {
       assert.equal(body.payloads[0].signature_type, 'ecdsa_recovery');
       assert.ok(body.payloads[0].hex_bytes);
     });
+
+    test('accepts metadata options with values in different order', async () => {
+      const contractIdentifier = `${SENDER_ADDRESS}.hello`;
+      const firstArg = '0x03';
+      const secondArg = '0x04';
+      const operations = [
+        {
+          operation_identifier: { index: 0 },
+          type: 'fee',
+          account: { address: senderAddress },
+          amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 1 },
+          type: 'contract_call',
+          account: { address: senderAddress },
+          metadata: {
+            contract_identifier: contractIdentifier,
+            function_name: 'hello',
+            args: [firstArg, secondArg],
+          },
+        },
+      ];
+      const metadata = {
+        sender_account_info: {
+          nonce: 0,
+          balance: '1000000',
+        },
+        // Alter property order to test unordered deep strict equality
+        options: {
+          args: [firstArg, secondArg],
+          function_name: 'hello',
+          contract_identifier: contractIdentifier,
+          sender_address: senderAddress,
+          type: 'contract_call',
+        },
+      };
+      const res = await post(fastify, '/construction/payloads', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations,
+        metadata,
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      assert.ok(body.unsigned_transaction);
+      assert.ok(body.payloads);
+      assert.equal(body.payloads.length, 1);
+    });
   });
 
   describe('contract_deploy', () => {

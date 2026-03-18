@@ -226,7 +226,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       } catch (error) {
         return reply.status(500).send(MeshErrors.invalidTransaction((error as Error).message));
       }
-      if (!isDeepStrictEqual(options, metadata.options)) {
+      if (!isUnorderedDeepStrictEqual(options, metadata.options)) {
         return reply
           .status(500)
           .send(
@@ -477,6 +477,28 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 };
+
+function normalizeForUnorderedComparison(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value
+      .map(item => normalizeForUnorderedComparison(item))
+      .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  }
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, entryValue]) => [key, normalizeForUnorderedComparison(entryValue)] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+    return Object.fromEntries(entries);
+  }
+  return value;
+}
+
+function isUnorderedDeepStrictEqual(left: unknown, right: unknown): boolean {
+  return isDeepStrictEqual(
+    normalizeForUnorderedComparison(left),
+    normalizeForUnorderedComparison(right)
+  );
+}
 
 function buildConstructionOptionsFromOperations(args: {
   operations: ConstructionOperation[];
