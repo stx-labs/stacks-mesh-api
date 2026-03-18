@@ -340,7 +340,7 @@ describe('/construction/payloads', () => {
       assert.ok(body.payloads[0].hex_bytes);
     });
 
-    test('accepts metadata options with values in different order', async () => {
+    test('accepts metadata options with values in different order and undefined fields', async () => {
       const contractIdentifier = `${SENDER_ADDRESS}.hello`;
       const firstArg = '0x03';
       const secondArg = '0x04';
@@ -359,6 +359,7 @@ describe('/construction/payloads', () => {
             contract_identifier: contractIdentifier,
             function_name: 'hello',
             args: [firstArg, secondArg],
+            memo: undefined,
           },
         },
       ];

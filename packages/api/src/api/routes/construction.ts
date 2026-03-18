@@ -487,6 +487,7 @@ function normalizeForUnorderedComparison(value: unknown): unknown {
   if (value && typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>)
       .map(([key, entryValue]) => [key, normalizeForUnorderedComparison(entryValue)] as const)
+      .filter(([, entryValue]) => entryValue !== undefined)
       .sort(([a], [b]) => a.localeCompare(b));
     return Object.fromEntries(entries);
   }
