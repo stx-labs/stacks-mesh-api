@@ -1,5 +1,5 @@
 import { Static, Type } from '@sinclair/typebox';
-import { AccountIndentifierSchema, AmountSchema } from '../index.js';
+import { AccountIndentifierSchema, AmountSchema, StacksPrincipalSchema } from '../index.js';
 import { HexStringSchema, Nullable, OperationIdentifierSchema } from './common.js';
 
 export const PublicKeySchema = Type.Object({
@@ -9,7 +9,7 @@ export const PublicKeySchema = Type.Object({
 export type PublicKey = Static<typeof PublicKeySchema>;
 
 export const SigningPayloadSchema = Type.Object({
-  address: Type.Optional(Type.String()),
+  address: Type.Optional(StacksPrincipalSchema),
   account_identifier: AccountIndentifierSchema,
   hex_bytes: HexStringSchema,
   signature_type: Type.Literal('ecdsa_recovery'),
