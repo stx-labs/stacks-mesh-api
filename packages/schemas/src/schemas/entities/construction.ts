@@ -9,7 +9,7 @@ export const PublicKeySchema = Type.Object({
 export type PublicKey = Static<typeof PublicKeySchema>;
 
 export const SigningPayloadSchema = Type.Object({
-  address: Type.String(),
+  address: Type.Optional(Type.String()),
   account_identifier: AccountIndentifierSchema,
   hex_bytes: HexStringSchema,
   signature_type: Type.Literal('ecdsa_recovery'),
