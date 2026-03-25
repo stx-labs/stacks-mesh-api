@@ -76,6 +76,37 @@ describe('/construction/combine', () => {
       assert.ok(body.signed_transaction.length >= unsignedTx.length);
     });
 
+    test('combines unsigned transaction when signing payload address is omitted', async () => {
+      // Sign the sighash offline
+      const signature = addHexPrefix(signWithKey(SENDER_PRIVATE_KEY, removeHexPrefix(sighash)));
+
+      const res = await post(fastify, '/construction/combine', {
+        network_identifier: NETWORK_IDENTIFIER,
+        unsigned_transaction: unsignedTx,
+        signatures: [
+          {
+            signing_payload: {
+              hex_bytes: sighash,
+              account_identifier: {
+                address: senderAddress,
+              },
+              signature_type: 'ecdsa_recovery',
+            },
+            public_key: {
+              hex_bytes: senderPublicKey,
+              curve_type: 'secp256k1',
+            },
+            signature_type: 'ecdsa_recovery',
+            hex_bytes: signature,
+          },
+        ],
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      assert.ok(body.signed_transaction);
+      assert.ok(body.signed_transaction.length >= unsignedTx.length);
+    });
+
     test('rejects when no signatures are provided', async () => {
       const res = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,

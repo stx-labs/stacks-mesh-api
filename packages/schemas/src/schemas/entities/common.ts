@@ -41,11 +41,11 @@ export const SubAccountIdentifierSchema = Type.Object({
 });
 export type SubAccountIdentifier = Static<typeof SubAccountIdentifierSchema>;
 
-export const AccountIndentifierSchema = Type.Object({
+export const AccountIdentifierSchema = Type.Object({
   address: StacksPrincipalSchema,
   sub_account: Type.Optional(SubAccountIdentifierSchema),
 });
-export type AccountIdentifier = Static<typeof AccountIndentifierSchema>;
+export type AccountIdentifier = Static<typeof AccountIdentifierSchema>;
 
 export const BlockIdentifierSchema = Type.Object({
   index: Type.Integer({ minimum: 1 }),

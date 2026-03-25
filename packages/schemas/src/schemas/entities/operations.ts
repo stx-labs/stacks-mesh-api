@@ -1,6 +1,6 @@
 import { Static, Type } from '@sinclair/typebox';
 import {
-  AccountIndentifierSchema,
+  AccountIdentifierSchema,
   DecodedClarityValueSchema,
   Nullable,
   OperationIdentifierSchema,
@@ -35,7 +35,7 @@ const BaseOperationSchema = Type.Object({
 const BaseAccountOperationSchema = Type.Composite([
   BaseOperationSchema,
   Type.Object({
-    account: AccountIndentifierSchema,
+    account: AccountIdentifierSchema,
   }),
 ]);
 

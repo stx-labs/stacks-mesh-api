@@ -1,5 +1,5 @@
 import { Static, Type } from '@sinclair/typebox';
-import { AccountIndentifierSchema, AmountSchema } from '../index.js';
+import { AccountIdentifierSchema, AmountSchema, StacksPrincipalSchema } from '../index.js';
 import { HexStringSchema, Nullable, OperationIdentifierSchema } from './common.js';
 
 export const PublicKeySchema = Type.Object({
@@ -9,8 +9,8 @@ export const PublicKeySchema = Type.Object({
 export type PublicKey = Static<typeof PublicKeySchema>;
 
 export const SigningPayloadSchema = Type.Object({
-  address: Type.String(),
-  account_identifier: AccountIndentifierSchema,
+  address: Type.Optional(StacksPrincipalSchema),
+  account_identifier: AccountIdentifierSchema,
   hex_bytes: HexStringSchema,
   signature_type: Type.Literal('ecdsa_recovery'),
 });
@@ -86,7 +86,7 @@ export type ConstructionMetadata = Static<typeof ConstructionMetadataSchema>;
 export const ConstructionFeeOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
   type: Type.Literal('fee'),
-  account: AccountIndentifierSchema,
+  account: AccountIdentifierSchema,
   amount: AmountSchema,
 });
 export type ConstructionFeeOperation = Static<typeof ConstructionFeeOperationSchema>;
@@ -94,7 +94,7 @@ export type ConstructionFeeOperation = Static<typeof ConstructionFeeOperationSch
 export const ConstructionTokenTransferOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
   type: Type.Literal('token_transfer'),
-  account: AccountIndentifierSchema,
+  account: AccountIdentifierSchema,
   amount: AmountSchema,
   metadata: Type.Optional(Type.Object({ memo: Nullable(Type.String()) })),
 });
@@ -105,7 +105,7 @@ export type ConstructionTokenTransferOperation = Static<
 export const ConstructionContractCallOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
   type: Type.Literal('contract_call'),
-  account: AccountIndentifierSchema,
+  account: AccountIdentifierSchema,
   metadata: Type.Object({
     contract_identifier: Type.String(),
     function_name: Type.String(),
@@ -119,7 +119,7 @@ export type ConstructionContractCallOperation = Static<
 export const ConstructionContractDeployOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
   type: Type.Literal('contract_deploy'),
-  account: AccountIndentifierSchema,
+  account: AccountIdentifierSchema,
   metadata: Type.Object({
     contract_name: Type.String(),
     clarity_version: Type.Optional(Type.Integer()),

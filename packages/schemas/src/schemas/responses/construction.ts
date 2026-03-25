@@ -1,5 +1,5 @@
 import { Static, Type } from '@sinclair/typebox';
-import { AccountIndentifierSchema, HexStringSchema } from '../entities/common.js';
+import { AccountIdentifierSchema, HexStringSchema } from '../entities/common.js';
 import { AmountSchema, OperationSchema } from '../entities/operations.js';
 import { TransactionIdentifierSchema } from '../entities/common.js';
 import {
@@ -10,13 +10,13 @@ import {
 
 export const ConstructionDeriveResponseSchema = Type.Object({
   address: Type.Optional(Type.String()),
-  account_identifier: Type.Optional(AccountIndentifierSchema),
+  account_identifier: Type.Optional(AccountIdentifierSchema),
 });
 export type ConstructionDeriveResponse = Static<typeof ConstructionDeriveResponseSchema>;
 
 export const ConstructionPreprocessResponseSchema = Type.Object({
   options: Type.Optional(ConstructionOptionsSchema),
-  required_public_keys: Type.Optional(Type.Array(AccountIndentifierSchema)),
+  required_public_keys: Type.Optional(Type.Array(AccountIdentifierSchema)),
 });
 export type ConstructionPreprocessResponse = Static<typeof ConstructionPreprocessResponseSchema>;
 
@@ -40,7 +40,7 @@ export type ConstructionCombineResponse = Static<typeof ConstructionCombineRespo
 export const ConstructionParseResponseSchema = Type.Object({
   operations: Type.Array(OperationSchema),
   signers: Type.Optional(Type.Array(Type.String())),
-  account_identifier_signers: Type.Optional(Type.Array(AccountIndentifierSchema)),
+  account_identifier_signers: Type.Optional(Type.Array(AccountIdentifierSchema)),
   metadata: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
 export type ConstructionParseResponse = Static<typeof ConstructionParseResponseSchema>;
