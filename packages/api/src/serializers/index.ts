@@ -1,6 +1,5 @@
 import { Block, Transaction, Operation, DecodedClarityValue } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
-import { StacksBlockReplay, StacksBlockReplayTransaction } from '../stacks-rpc/types.js';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
 import { ApiConfig } from '../api/index.js';
 import {
@@ -9,6 +8,7 @@ import {
   serializeStacksTransactionOperations,
 } from './transactions.js';
 import BigNumber from 'bignumber.js';
+import type { BlockReplay, BlockReplayTransaction } from '@stacks/rpc-client';
 
 export function removeHexPrefix(hex: string): string {
   if (/^0x/i.test(hex)) {
@@ -32,7 +32,7 @@ export function decodeClarityValue(hex: string): DecodedClarityValue {
     repr: decodedResult.repr,
     type: codec.decodeClarityValueToTypeName(normalizedHex),
   };
-};
+}
 
 /**
  * Serializes a fully replayed Nakamoto block into Mesh API Block format. These blocks are retrieved
@@ -42,7 +42,7 @@ export function decodeClarityValue(hex: string): DecodedClarityValue {
  * @returns The serialized block.
  */
 export async function serializeReplayedNakamotoBlock(
-  replay: StacksBlockReplay,
+  replay: BlockReplay,
   config: ApiConfig
 ): Promise<Block> {
   const blockHeight = replay.block_height;
@@ -92,7 +92,7 @@ export async function serializeReplayedNakamotoBlock(
  * @returns The serialized transaction.
  */
 export async function serializeTransactionFromReplayedNakamotoBlock(
-  replay: StacksBlockReplay,
+  replay: BlockReplay,
   txId: string,
   config: ApiConfig
 ): Promise<Transaction> {
@@ -127,7 +127,7 @@ export async function serializeDecodedTransactionOperations(
     : null;
 
   const tx: DecodedStacksTransaction = {
-    replayedTx: { events: [] } as unknown as StacksBlockReplayTransaction,
+    replayedTx: { events: [] } as unknown as BlockReplayTransaction,
     decodedTx,
     fee,
     sponsored,

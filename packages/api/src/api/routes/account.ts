@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js';
 import {
   getChainTipNakamotoBlock,
   getNakamotoBlockFromPartialBlockIdentifier,
-} from '../../utils/helpers.js';
+} from '../../stacks-rpc/helpers.js';
 import { addHexPrefix } from '../../serializers/index.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
@@ -58,9 +58,11 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
       }
 
       // Get the account balance at the calculated block identifier.
-      const accountInfo = await rpcClient.getAccount(account_identifier.address, {
-        tip: tipIdentifier.hash,
-        proof: false,
+      const accountInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
+        params: {
+          path: { principal: account_identifier.address },
+          query: { proof: 0, tip: tipIdentifier.hash },
+        },
       });
 
       // Stacks core reports `balance` as the liquid balance, excluding locked balance.

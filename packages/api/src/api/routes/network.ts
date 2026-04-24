@@ -22,9 +22,8 @@ import {
   GENESIS_BLOCK_HASH,
   GENESIS_BLOCK_TIMESTAMP,
 } from '../../utils/constants.js';
-import codec from '@stacks/codec';
 import { addHexPrefix } from '../../serializers/index.js';
-import { getChainTipNakamotoBlock } from '../../utils/helpers.js';
+import { getChainTipNakamotoBlock } from '../../stacks-rpc/helpers.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient, network, nodeVersion, apiVersion } = config;
@@ -63,7 +62,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     async (request, reply) => {
       const [chainTip, neighbors] = await Promise.all([
         getChainTipNakamotoBlock(rpcClient),
-        rpcClient.getNeighbors(),
+        rpcClient.request('GET', '/v2/neighbors'),
       ]);
       const { decodedBlock: chainTipNakamotoBlock, nodeInfo } = chainTip;
 

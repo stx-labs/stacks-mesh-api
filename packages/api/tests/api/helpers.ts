@@ -1,16 +1,29 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import { fetch as undiciFetch, MockAgent } from 'undici';
 import { ApiConfig } from '../../src/api';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client';
+import { createCoreRpcClient } from '@stacks/rpc-client';
 
-export function makeTestApiConfig(): ApiConfig {
-  const rpcClient = new StacksRpcClient({
-    scheme: 'http',
-    hostname: 'test.stacks.node',
-    port: 20444,
+export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
+  const mockFetch = ((input: any, init?: any) => {
+    if (input instanceof Request) {
+      return undiciFetch(input.url, {
+        method: input.method,
+        headers: input.headers,
+        body: input.body,
+        duplex: input.body != null ? 'half' : undefined,
+        ...init,
+        dispatcher: getMockAgent(),
+      });
+    }
+    return undiciFetch(input, { ...init, dispatcher: getMockAgent() });
+  }) as typeof globalThis.fetch;
+  const rpcClient = createCoreRpcClient({
+    baseUrl: 'http://test.stacks.node:20444',
     authToken: 'test-token',
+    fetch: mockFetch,
   });
   const tokenMetadataCache = new TokenMetadataCache({
     rpcClient,

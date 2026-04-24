@@ -2,33 +2,31 @@ import { hexToBuffer } from '@stacks/api-toolkit';
 import { Transaction, Operation, Status, Currency } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
 import { isPoxPrintEvent, makeSyntheticPoxOperation } from './pox-operations.js';
-import {
-  StacksBlockReplayTransaction,
-  StacksBlockReplayTransactionContractEvent,
-  StacksBlockReplayTransactionFtBurnEvent,
-  StacksBlockReplayTransactionFtEvent,
-  StacksBlockReplayTransactionFtMintEvent,
-  StacksBlockReplayTransactionFtTransferEvent,
-  StacksBlockReplayTransactionNftBurnEvent,
-  StacksBlockReplayTransactionNftEvent,
-  StacksBlockReplayTransactionNftMintEvent,
-  StacksBlockReplayTransactionNftTransferEvent,
-  StacksBlockReplayTransactionPayload,
-  StacksBlockReplayTransactionStxBurnEvent,
-  StacksBlockReplayTransactionStxLockEvent,
-  StacksBlockReplayTransactionStxTransferEvent,
-} from '../stacks-rpc/types.js';
-import { getTypeString } from '@stacks/transactions';
 import { ApiConfig } from '../api/index.js';
 import { serializePostConditions } from './post-conditions.js';
-import { addHexPrefix, decodeClarityValue } from './index.js';
+import { addHexPrefix, decodeClarityValue, removeHexPrefix } from './index.js';
 import BigNumber from 'bignumber.js';
+import type {
+  BlockReplayTransaction,
+  BlockReplayTransactionContractEvent,
+  BlockReplayTransactionFtBurnEvent,
+  BlockReplayTransactionFtMintEvent,
+  BlockReplayTransactionFtTransferEvent,
+  BlockReplayTransactionNftBurnEvent,
+  BlockReplayTransactionNftEvent,
+  BlockReplayTransactionNftMintEvent,
+  BlockReplayTransactionNftTransferEvent,
+  BlockReplayTransactionStxBurnEvent,
+  BlockReplayTransactionStxLockEvent,
+  BlockReplayTransactionStxTransferEvent,
+} from '@stacks/rpc-client';
+import { BlockReplayTransactionFtEvent } from '@stacks/rpc-client';
 
 /**
  * A decoded Stacks Nakamoto transaction.
  */
 export type DecodedStacksTransaction = {
-  replayedTx: StacksBlockReplayTransaction;
+  replayedTx: BlockReplayTransaction;
   decodedTx: codec.DecodedTxResult;
   fee: number;
   sponsored: boolean;
@@ -39,7 +37,7 @@ export type DecodedStacksTransaction = {
 };
 
 export async function serializeReplayedNakamotoTransaction(
-  replayedTx: StacksBlockReplayTransaction,
+  replayedTx: BlockReplayTransaction,
   fee: number,
   index: number,
   config: ApiConfig
@@ -65,7 +63,7 @@ export async function serializeReplayedNakamotoTransaction(
     operations: await serializeStacksTransactionOperations(tx, config),
     metadata: {
       status: tx.status,
-      type: serializeTxType(replayedTx.data.payload),
+      type: serializeTxType(tx.decodedTx),
       sponsored: tx.sponsored,
       canonical: true,
       execution_cost: {
@@ -90,33 +88,42 @@ export async function serializeReplayedNakamotoTransaction(
   };
 }
 
-function serializeTxResult(tx: StacksBlockReplayTransaction) {
+function serializeTxResult(tx: BlockReplayTransaction) {
   return decodeClarityValue(tx.result_hex);
 }
 
-function serializeTxStatus(replayedTx: StacksBlockReplayTransaction): Status {
-  if (!replayedTx.result.Response.committed) {
+function serializeTxStatus(replayedTx: BlockReplayTransaction): Status {
+  const result = codec.decodeClarityValue(removeHexPrefix(replayedTx.result_hex));
+  if (result.type_id === codec.ClarityTypeID.ResponseError) {
     if (replayedTx.post_condition_aborted) return 'abort_by_post_condition';
     return 'abort_by_response';
+  }
+  if (result.type_id !== codec.ClarityTypeID.ResponseOk) {
+    throw new Error(`Unexpected transaction result type: ${result.type_id}`);
   }
   return 'success';
 }
 
-function serializeTxType(payload: StacksBlockReplayTransactionPayload) {
-  if ('TenureChange' in payload) {
-    return 'tenure_change';
-  } else if ('TokenTransfer' in payload) {
-    return 'token_transfer';
-  } else if ('SmartContract' in payload) {
-    return 'contract_deploy';
-  } else if ('ContractCall' in payload) {
-    return 'contract_call';
-  } else if ('PoisonMicroblock' in payload) {
-    return 'poison_microblock';
-  } else if ('Coinbase' in payload) {
-    return 'coinbase';
+function serializeTxType(decodedTx: codec.DecodedTxResult) {
+  switch (decodedTx.payload.type_id) {
+    case codec.TxPayloadTypeID.TenureChange:
+      return 'tenure_change';
+    case codec.TxPayloadTypeID.TokenTransfer:
+      return 'token_transfer';
+    case codec.TxPayloadTypeID.SmartContract:
+    case codec.TxPayloadTypeID.VersionedSmartContract:
+      return 'contract_deploy';
+    case codec.TxPayloadTypeID.ContractCall:
+      return 'contract_call';
+    case codec.TxPayloadTypeID.PoisonMicroblock:
+      return 'poison_microblock';
+    case codec.TxPayloadTypeID.Coinbase:
+    case codec.TxPayloadTypeID.CoinbaseToAltRecipient:
+    case codec.TxPayloadTypeID.NakamotoCoinbase:
+      return 'coinbase';
+    default:
+      throw new Error('Unexpected transaction payload type');
   }
-  throw new Error(`Unexpected transaction payload type: ${JSON.stringify(payload)}`);
 }
 
 function parseTransactionMemo(memoHex: string | undefined): string | null {
@@ -159,7 +166,7 @@ function makeFeeOperation(tx: DecodedStacksTransaction, index: number = 0): Oper
 function makeStxTransferOperations(
   tx: DecodedStacksTransaction,
   index: number,
-  event?: StacksBlockReplayTransactionStxTransferEvent
+  event?: BlockReplayTransactionStxTransferEvent
 ): Operation[] {
   let sender: string;
   let recipient: string;
@@ -337,7 +344,7 @@ function makeTenureChangeOperation(tx: DecodedStacksTransaction, index: number =
 
 function makeStxBurnOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionStxBurnEvent,
+  event: BlockReplayTransactionStxBurnEvent,
   index: number
 ): Operation {
   return {
@@ -356,7 +363,7 @@ function makeStxBurnOperation(
 
 function makeStxLockOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionStxLockEvent,
+  event: BlockReplayTransactionStxLockEvent,
   index: number
 ): Operation {
   return {
@@ -398,7 +405,7 @@ function makeStxLockOperation(
 // }
 
 async function makeFtCurrency(
-  event: StacksBlockReplayTransactionFtEvent,
+  event: BlockReplayTransactionFtEvent,
   config: ApiConfig
 ): Promise<Currency> {
   const asset_identifier =
@@ -421,7 +428,7 @@ async function makeFtCurrency(
 
 async function makeFtTransferOperations(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionFtTransferEvent,
+  event: BlockReplayTransactionFtTransferEvent,
   index: number,
   config: ApiConfig
 ): Promise<Operation[]> {
@@ -455,7 +462,7 @@ async function makeFtTransferOperations(
 
 async function makeFtMintOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionFtMintEvent,
+  event: BlockReplayTransactionFtMintEvent,
   index: number,
   config: ApiConfig
 ): Promise<Operation> {
@@ -475,7 +482,7 @@ async function makeFtMintOperation(
 
 async function makeFtBurnOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionFtBurnEvent,
+  event: BlockReplayTransactionFtBurnEvent,
   index: number,
   config: ApiConfig
 ): Promise<Operation> {
@@ -493,7 +500,7 @@ async function makeFtBurnOperation(
   };
 }
 
-function makeNftCurrency(event: StacksBlockReplayTransactionNftEvent): Currency {
+function makeNftCurrency(event: BlockReplayTransactionNftEvent): Currency {
   const asset_identifier =
     'nft_mint_event' in event
       ? event.nft_mint_event.asset_identifier
@@ -519,7 +526,7 @@ function makeNftCurrency(event: StacksBlockReplayTransactionNftEvent): Currency 
 
 function makeNftTransferOperations(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionNftTransferEvent,
+  event: BlockReplayTransactionNftTransferEvent,
   index: number
 ): Operation[] {
   const currency = makeNftCurrency(event);
@@ -552,7 +559,7 @@ function makeNftTransferOperations(
 
 function makeNftMintOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionNftMintEvent,
+  event: BlockReplayTransactionNftMintEvent,
   index: number
 ): Operation {
   return {
@@ -571,7 +578,7 @@ function makeNftMintOperation(
 
 function makeNftBurnOperation(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionNftBurnEvent,
+  event: BlockReplayTransactionNftBurnEvent,
   index: number
 ): Operation {
   return {
@@ -590,7 +597,7 @@ function makeNftBurnOperation(
 
 function makeContractEventOperations(
   tx: DecodedStacksTransaction,
-  event: StacksBlockReplayTransactionContractEvent,
+  event: BlockReplayTransactionContractEvent,
   index: number,
   config: ApiConfig
 ): Operation[] {

@@ -18,14 +18,3 @@ export class StacksRpcSmartContractError extends Error {
     this.name = 'StacksRpcSmartContractClarityError';
   }
 }
-
-export class StacksRpcError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public responseBody?: string
-  ) {
-    super(message);
-    this.name = 'StacksRpcError';
-  }
-}

@@ -37,7 +37,6 @@ import {
 import type {
   ConstructionDeriveResponse,
   ConstructionParseResponse,
-  TransactionIdentifierResponse,
   ConstructionOptions,
   ConstructionOperation,
 } from '@stacks/mesh-schemas';
@@ -184,7 +183,9 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
         suggestedFee = maxFee;
       }
 
-      const senderInfo = await rpcClient.getAccount(options.sender_address);
+      const senderInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
+        params: { path: { principal: options.sender_address } },
+      });
       return reply.send({
         metadata: {
           options,
@@ -237,10 +238,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       }
 
       // Validate the sender address matches the public key.
-      const derivedAddress = getAddressFromPublicKey(
-        normalizedPublicKey,
-        network
-      );
+      const derivedAddress = getAddressFromPublicKey(normalizedPublicKey, network);
       if (derivedAddress !== options.sender_address) {
         return reply
           .status(500)
@@ -455,19 +453,12 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { signed_transaction } = request.body;
       try {
-        const result = await rpcClient.broadcastTransaction(signed_transaction);
-        if (result.error) {
-          return reply
-            .status(500)
-            .send(
-              MeshErrors.transactionBroadcastError(
-                `${result.reason}: ${JSON.stringify(result.reason_data)}`
-              )
-            );
-        }
+        const result = await rpcClient.request('POST', '/v2/transactions', {
+          body: { tx: removeHexPrefix(signed_transaction) },
+        });
         return reply.send({
           transaction_identifier: {
-            hash: addHexPrefix(result.txid),
+            hash: addHexPrefix(result),
           },
         });
       } catch (error) {

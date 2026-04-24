@@ -6,16 +6,16 @@ import {
   teardownDockerServices,
   buildTestServer,
   API_PORT,
-  type DockerResources,
   post,
   NETWORK_IDENTIFIER,
   SENDER_ADDRESS,
   RECIPIENT_ADDRESS,
 } from './helpers.js';
+import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
 describe('/construction/preprocess', () => {
   let fastify: FastifyInstance;
-  let dockerResources: DockerResources;
+  let dockerResources: DockerTestContainerConfig[];
   let senderAddress = SENDER_ADDRESS;
   let recipientAddress = RECIPIENT_ADDRESS;
 
