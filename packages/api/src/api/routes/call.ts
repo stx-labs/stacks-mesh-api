@@ -49,8 +49,12 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
             'GET',
             '/v2/contracts/interface/{deployer_address}/{contract_name}',
             {
-              deployer_address: parameters.deployer_address,
-              contract_name: parameters.contract_name,
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                },
+              },
             }
           );
           return reply.send({
@@ -64,8 +68,12 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
             'GET',
             '/v2/contracts/source/{deployer_address}/{contract_name}',
             {
-              deployer_address: parameters.deployer_address,
-              contract_name: parameters.contract_name,
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                },
+              },
             }
           );
           return reply.send({
@@ -79,9 +87,13 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
             'GET',
             '/v2/constant_val/{deployer_address}/{contract_name}/{constant_name}',
             {
-              deployer_address: parameters.deployer_address,
-              contract_name: parameters.contract_name,
-              constant_name: parameters.constant_name,
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  constant_name: parameters.constant_name,
+                },
+              },
             }
           );
           return reply.send({
@@ -95,9 +107,13 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
             'GET',
             '/v2/data_var/{principal}/{contract_name}/{var_name}',
             {
-              principal: parameters.deployer_address,
-              contract_name: parameters.contract_name,
-              var_name: parameters.var_name,
+              params: {
+                path: {
+                  principal: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  var_name: parameters.var_name,
+                },
+              },
             }
           );
           return reply.send({
@@ -111,10 +127,14 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
             'POST',
             '/v2/map_entry/{deployer_address}/{contract_name}/{map_name}',
             {
-              deployer_address: parameters.deployer_address,
-              contract_name: parameters.contract_name,
-              map_name: parameters.map_name,
-              key: parameters.key,
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  map_name: parameters.map_name,
+                },
+              },
+              body: parameters.key,
             }
           );
           return reply.send({

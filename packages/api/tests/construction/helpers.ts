@@ -8,13 +8,13 @@ import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import Docker from 'dockerode';
 import { buildApiServer } from '../../src/api/index.js';
-import { StacksRpcClient } from '../../src/stacks-rpc/stacks-rpc-client.js';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
 import { getStacksNetworkName } from '../../src/utils/helpers.js';
 import { FastifyInstance } from 'fastify';
 import { privateKeyToPublic } from '@stacks/transactions';
 import { timeout } from '@stacks/api-toolkit';
+import { createCoreRpcClient } from '@stacks/rpc-client';
 
 const execFile = promisify(execFileCb);
 const docker = new Docker();
@@ -217,13 +217,11 @@ export async function teardownDockerServices(resources: DockerResources): Promis
  * Blocks until the node is ready to accept requests.
  */
 export async function buildTestServer() {
-  const rpcClient = new StacksRpcClient({
-    scheme: 'http',
-    hostname: 'localhost',
-    port: 20443,
+  const rpcClient = createCoreRpcClient({
+    baseUrl: 'http://localhost:20443',
     authToken: '',
   });
-  const nodeInfo = await rpcClient.waitForNodeReady();
+  const nodeInfo = await rpcClient.request('GET', '/v2/info');
 
   const tokenMetadataCache = new TokenMetadataCache({
     rpcClient,
@@ -252,17 +250,17 @@ export async function buildTestServer() {
  * must resolve before the Mesh/Rosetta `/block` endpoint can work.
  */
 export async function waitForNakamotoBlock(): Promise<void> {
-  const rpcClient = new StacksRpcClient({
-    scheme: 'http',
-    hostname: 'localhost',
-    port: 20443,
+  const rpcClient = createCoreRpcClient({
+    baseUrl: 'http://localhost:20443',
     authToken: '',
   });
   while (true) {
     try {
-      const info = await rpcClient.getInfo();
+      const info = await rpcClient.request('GET', '/v2/info');
       console.log('Waiting for Nakamoto block...', info.stacks_tip_height);
-      await rpcClient.getNakamotoBlockByHeight(info.stacks_tip_height);
+      await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
+        params: { path: { block_height: info.stacks_tip_height } },
+      });
       return;
     } catch (error) {
       await timeout(1000);

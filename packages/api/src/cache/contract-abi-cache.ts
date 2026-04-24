@@ -23,10 +23,14 @@ export class ContractAbiCache {
   async get(contractIdentifier: string): Promise<ClarityAbi | null> {
     const cachedAbi = this.cache.get(contractIdentifier);
     if (cachedAbi) return cachedAbi;
-    const abi = await this.fetchAbi(contractIdentifier);
-    if (abi) {
-      this.cache.set(contractIdentifier, abi);
-      return abi;
+    try {
+      const abi = await this.fetchAbi(contractIdentifier);
+      if (abi) {
+        this.cache.set(contractIdentifier, abi);
+        return abi;
+      }
+    } catch {
+      // ABI fetch failed (e.g. contract not found), return null.
     }
     return null;
   }
@@ -39,8 +43,9 @@ export class ContractAbiCache {
       'GET',
       '/v2/contracts/interface/{deployer_address}/{contract_name}',
       {
-        deployer_address: contractAddress,
-        contract_name: contractName,
+        params: {
+          path: { deployer_address: contractAddress, contract_name: contractName },
+        },
       }
     );
     return abi as ClarityAbi;

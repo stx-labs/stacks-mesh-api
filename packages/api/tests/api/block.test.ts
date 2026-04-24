@@ -3,7 +3,7 @@ import { afterEach, beforeEach, before, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { ApiConfig, buildApiServer } from '../../src/api/index.js';
 import { loadBinaryFixture, loadFixture, makeTestApiConfig } from './helpers.js';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { MockAgent } from 'undici';
 
 function mockReplay(mockPool: ReturnType<MockAgent['get']>, blockId: string, fixture: object) {
   mockPool
@@ -42,7 +42,7 @@ describe('/block', () => {
   let config: ApiConfig;
 
   before(() => {
-    config = makeTestApiConfig();
+    config = makeTestApiConfig(() => mockAgent);
     config.contractAbiCache['cache'].set(
       'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
       loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
@@ -122,10 +122,9 @@ describe('/block', () => {
   });
 
   beforeEach(async () => {
-    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
+    fastify = await buildApiServer(config);
   });
 
   afterEach(() => {

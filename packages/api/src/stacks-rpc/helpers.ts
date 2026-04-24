@@ -16,11 +16,12 @@ export async function getChainTipNakamotoBlock(
   // Node info does not contain the index block hash, so we need a secondary request to fetch it
   // from the nakamoto block at the chain tip height.
   const nodeInfo = await rpcClient.request('GET', '/v2/info');
-  const blockBytes = await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
-    block_height: nodeInfo.stacks_tip_height,
-  });
+  const blockBytes = (await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
+    params: { path: { block_height: nodeInfo.stacks_tip_height } },
+    parseAs: 'arrayBuffer',
+  })) as unknown as ArrayBuffer;
   return {
-    decodedBlock: codec.decodeNakamotoBlock(blockBytes),
+    decodedBlock: codec.decodeNakamotoBlock(Buffer.from(blockBytes)),
     nodeInfo,
   };
 }
@@ -37,18 +38,18 @@ export async function getNakamotoBlockFromPartialBlockIdentifier(
 ): Promise<codec.DecodedNakamotoBlockResult | null> {
   try {
     if (blockIdentifier.index) {
-      return codec.decodeNakamotoBlock(
-        await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
-          block_height: blockIdentifier.index,
-        })
-      );
+      const bytes = (await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
+        params: { path: { block_height: blockIdentifier.index } },
+        parseAs: 'arrayBuffer',
+      })) as unknown as ArrayBuffer;
+      return codec.decodeNakamotoBlock(Buffer.from(bytes));
     }
     if (blockIdentifier.hash) {
-      return codec.decodeNakamotoBlock(
-        await rpcClient.request('GET', '/v3/blocks/{block_id}', {
-          block_id: removeHexPrefix(blockIdentifier.hash),
-        })
-      );
+      const bytes = (await rpcClient.request('GET', '/v3/blocks/{block_id}', {
+        params: { path: { block_id: removeHexPrefix(blockIdentifier.hash) } },
+        parseAs: 'arrayBuffer',
+      })) as unknown as ArrayBuffer;
+      return codec.decodeNakamotoBlock(Buffer.from(bytes));
     }
     return null;
   } catch (error) {
@@ -76,15 +77,16 @@ export async function getReplayedNakamotoBlockFromPartialBlockIdentifier(
     // If the block identifier is a height, fetch and decode the block header to get the index block
     // hash.
     if (!indexBlockHash) {
-      const blockBytes = await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
-        block_height: blockIdentifier.index!,
-      });
-      const decodedBlock = codec.decodeNakamotoBlock(blockBytes);
+      const bytes = (await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
+        params: { path: { block_height: blockIdentifier.index! } },
+        parseAs: 'arrayBuffer',
+      })) as unknown as ArrayBuffer;
+      const decodedBlock = codec.decodeNakamotoBlock(Buffer.from(bytes));
       indexBlockHash = decodedBlock.header.index_block_hash;
     }
     // Replay block
     return await rpcClient.request('GET', '/v3/blocks/replay/{block_id}', {
-      block_id: removeHexPrefix(indexBlockHash),
+      params: { path: { block_id: removeHexPrefix(indexBlockHash) } },
     });
   } catch (error) {
     if (error instanceof CoreRpcError && error.status === 404) {
@@ -120,12 +122,14 @@ export async function callReadOnlyFunction(
     'POST',
     '/v2/contracts/call-read/{deployer_address}/{contract_name}/{function_name}',
     {
-      deployer_address: contractAddress,
-      contract_name: contractName,
-      function_name: functionName,
-      arguments: args,
-      sender: sender,
-      sponsor: sponsor,
+      params: {
+        path: {
+          deployer_address: contractAddress,
+          contract_name: contractName,
+          function_name: functionName,
+        },
+      },
+      body: { arguments: args, sender, sponsor },
     }
   );
   if (result.okay) return result.result;

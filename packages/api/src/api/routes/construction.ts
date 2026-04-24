@@ -184,7 +184,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       }
 
       const senderInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
-        principal: options.sender_address,
+        params: { path: { principal: options.sender_address } },
       });
       return reply.send({
         metadata: {
@@ -454,7 +454,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       const { signed_transaction } = request.body;
       try {
         const result = await rpcClient.request('POST', '/v2/transactions', {
-          transaction: signed_transaction,
+          body: { tx: signed_transaction },
         });
         return reply.send({
           transaction_identifier: {
