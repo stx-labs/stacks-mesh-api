@@ -6,7 +6,6 @@ import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import Docker from 'dockerode';
 import { buildApiServer } from '../../src/api/index.js';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
@@ -15,9 +14,13 @@ import { FastifyInstance } from 'fastify';
 import { privateKeyToPublic } from '@stacks/transactions';
 import { timeout } from '@stacks/api-toolkit';
 import { createCoreRpcClient } from '@stacks/rpc-client';
+import {
+  dockerTestDown,
+  dockerTestUp,
+  type DockerTestContainerConfig,
+} from '@stacks/api-test-toolkit';
 
 const execFile = promisify(execFileCb);
-const docker = new Docker();
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const BIN_DIR = join(__dirname, '.bin');
@@ -60,10 +63,6 @@ export const COUNTER_CONTRACT_SOURCE_CODE = `
     )
   )
 `;
-
-export type DockerResources = {
-  stacksContainer: Docker.Container;
-};
 
 // ── Mesh CLI binary management ──────────────────────────────────────────────
 
@@ -125,88 +124,35 @@ export async function execMeshCli(
 
 // ── Docker management ───────────────────────────────────────────────────────
 
-async function pullImage(image: string): Promise<void> {
-  const stream = await docker.pull(image);
-  await new Promise<void>((resolve, reject) => {
-    docker.modem.followProgress(stream, (err: Error | null) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-}
-
-/**
- * Removes any leftover containers from a previous test run.
- */
-async function removeStaleContainers(): Promise<void> {
-  try {
-    const container = docker.getContainer(STACKS_CONTAINER_NAME);
-    try {
-      await container.stop();
-    } catch {
-      /* not running */
-    }
-    try {
-      await container.remove({ v: true });
-    } catch {
-      /* already gone */
-    }
-  } catch {
-    // Container doesn't exist
-  }
-}
-
 /**
  * Pulls the image and starts the Stacks blockchain container in regtest mode.
  * Removes any stale containers from prior runs before starting.
  */
-export async function setupDockerServices(): Promise<DockerResources> {
-  await removeStaleContainers();
-  await pullImage(STACKS_IMAGE);
-
-  const stacksContainer = await docker.createContainer({
-    Image: STACKS_IMAGE,
+export async function setupDockerServices(): Promise<DockerTestContainerConfig[]> {
+  const stacksContainer: DockerTestContainerConfig = {
+    image: STACKS_IMAGE,
     name: STACKS_CONTAINER_NAME,
-    ExposedPorts: {
-      '18443/tcp': {},
-      '18444/tcp': {},
-      '20443/tcp': {},
-      '20444/tcp': {},
-    },
-    Env: [
+    ports: [
+      { host: 18443, container: 18443 },
+      { host: 18444, container: 18444 },
+      { host: 20443, container: 20443 },
+      { host: 20444, container: 20444 },
+    ],
+    env: [
       'MINE_INTERVAL=0.1s',
       'STACKS_30_HEIGHT=131',
       // 'STACKS_EVENT_OBSERVER=host.docker.internal:3700',
     ],
-    HostConfig: {
-      PortBindings: {
-        '18443/tcp': [{ HostPort: '18443' }],
-        '18444/tcp': [{ HostPort: '18444' }],
-        '20443/tcp': [{ HostPort: '20443' }],
-        '20444/tcp': [{ HostPort: '20444' }],
-      },
-      ExtraHosts: ['host.docker.internal:host-gateway'],
-    },
-  });
-  await stacksContainer.start();
-
-  return { stacksContainer };
+  };
+  await dockerTestUp({ config: stacksContainer });
+  return [stacksContainer];
 }
 
-/**
- * Stops and removes all Docker resources created by {@link setupDockerServices}.
- * Errors during cleanup are swallowed so teardown always completes.
- */
-export async function teardownDockerServices(resources: DockerResources): Promise<void> {
-  try {
-    await resources.stacksContainer.stop();
-  } catch {
-    // Container may already be stopped
-  }
-  try {
-    await resources.stacksContainer.remove({ v: true });
-  } catch {
-    // Container may already be removed
+export async function teardownDockerServices(
+  dockerResources: DockerTestContainerConfig[]
+): Promise<void> {
+  for (const config of dockerResources) {
+    await dockerTestDown({ config });
   }
 }
 
@@ -221,7 +167,15 @@ export async function buildTestServer() {
     baseUrl: 'http://localhost:20443',
     authToken: '',
   });
-  const nodeInfo = await rpcClient.request('GET', '/v2/info');
+  let nodeInfo;
+  while (true) {
+    try {
+      nodeInfo = await rpcClient.request('GET', '/v2/info');
+      break;
+    } catch {
+      await timeout(1000);
+    }
+  }
 
   const tokenMetadataCache = new TokenMetadataCache({
     rpcClient,

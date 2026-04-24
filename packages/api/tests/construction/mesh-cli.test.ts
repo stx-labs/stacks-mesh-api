@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { before, after, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
-
 import {
   setupDockerServices,
   teardownDockerServices,
@@ -13,15 +12,15 @@ import {
   ensureMeshCli,
   waitForNakamotoBlock,
   API_PORT,
-  type DockerResources,
   SENDER_ADDRESS,
   SENDER_PRIVATE_KEY,
 } from './helpers.js';
+import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
 // TODO: Unskip once we update the `stacks-regtest-env` image.
 describe.skip('Mesh CLI check:construction', () => {
   let fastify: FastifyInstance;
-  let dockerResources: DockerResources;
+  let dockerResources: DockerTestContainerConfig[];
   let meshCliBin: string;
   let senderAddress: string = SENDER_ADDRESS;
   let configDir: string;

@@ -6,7 +6,6 @@ import {
   teardownDockerServices,
   buildTestServer,
   API_PORT,
-  type DockerResources,
   post,
   NETWORK_IDENTIFIER,
   SENDER_ADDRESS,
@@ -15,10 +14,11 @@ import {
 } from './helpers.js';
 import { signWithKey } from '@stacks/transactions';
 import { addHexPrefix, removeHexPrefix } from '../../src/serializers/index.js';
+import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
 describe('/construction/combine', () => {
   let fastify: FastifyInstance;
-  let dockerResources: DockerResources;
+  let dockerResources: DockerTestContainerConfig[];
   let senderAddress = SENDER_ADDRESS;
   let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;
 

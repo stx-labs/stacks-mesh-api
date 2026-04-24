@@ -454,7 +454,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       const { signed_transaction } = request.body;
       try {
         const result = await rpcClient.request('POST', '/v2/transactions', {
-          body: { tx: signed_transaction },
+          body: { tx: removeHexPrefix(signed_transaction) },
         });
         return reply.send({
           transaction_identifier: {
