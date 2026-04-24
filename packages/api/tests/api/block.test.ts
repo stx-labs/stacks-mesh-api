@@ -319,6 +319,39 @@ describe('/block', () => {
     });
   });
 
+  describe('transaction status serialization', () => {
+    test('should map response errors to abort_by_response', async () => {
+      const fixture = loadFixture('blocks/abort-by-response.json');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const response = await postBlock(fastify, fixture.block_id);
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const tx = json.block.transactions[0];
+
+      assert.strictEqual(tx.metadata.status, 'abort_by_response');
+      assert.strictEqual(tx.operations[0].status, 'abort_by_response');
+    });
+
+    test('should map post condition aborts to abort_by_post_condition', async () => {
+      const fixture = loadFixture('blocks/abort-by-post-condition.json');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const response = await postBlock(fastify, fixture.block_id);
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const tx = json.block.transactions.find(
+        (candidate: { metadata: { status: string } }) =>
+          candidate.metadata.status === 'abort_by_post_condition'
+      );
+
+      assert.ok(tx, 'Expected a transaction with abort_by_post_condition status');
+      assert.strictEqual(tx.metadata.status, 'abort_by_post_condition');
+    });
+  });
+
   describe('contract call block with events', () => {
     const fixture = loadFixture('blocks/contract-call.json');
 

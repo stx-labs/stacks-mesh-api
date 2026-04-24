@@ -46,6 +46,7 @@
     "@stacks/api-toolkit": "^1.12.2",
     "@stacks/codec": "^1.6.0",
     "@stacks/mesh-schemas": "*",
+    "@stacks/rpc-client": "^2.0.1",
     "@stacks/transactions": "^7.3.1",
     "bignumber.js": "^10.0.2",
     "env-schema": "^7.0.0",
