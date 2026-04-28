@@ -1,9 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { StacksRpcClient } from '../../stacks-rpc/stacks-rpc-client.js';
-import codec from '@stacks/codec';
 import type { ApiConfig } from '../index.js';
 import {
-  BlockIdentifier,
   BlockRequestSchema,
   BlockResponseSchema,
   BlockTransactionRequestSchema,
@@ -11,11 +8,10 @@ import {
   ErrorResponseSchema,
 } from '@stacks/mesh-schemas';
 import {
-  removeHexPrefix,
   serializeReplayedNakamotoBlock,
   serializeTransactionFromReplayedNakamotoBlock,
 } from '../../serializers/index.js';
-import { StacksBlockReplay } from '../../stacks-rpc/types.js';
+import { getReplayedNakamotoBlockFromPartialBlockIdentifier } from '../../stacks-rpc/helpers.js';
 
 export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -34,7 +30,10 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify,
     },
     async (request, reply) => {
       const { block_identifier } = request.body;
-      const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
+      const block = await getReplayedNakamotoBlockFromPartialBlockIdentifier(
+        rpcClient,
+        block_identifier
+      );
       return reply.send({
         block: await serializeReplayedNakamotoBlock(block, config),
       });
@@ -55,7 +54,10 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify,
     },
     async (request, reply) => {
       const { block_identifier, transaction_identifier } = request.body;
-      const block = await fetchReplayedNakamotoBlock(rpcClient, block_identifier);
+      const block = await getReplayedNakamotoBlockFromPartialBlockIdentifier(
+        rpcClient,
+        block_identifier
+      );
       return reply.send({
         transaction: await serializeTransactionFromReplayedNakamotoBlock(
           block,
@@ -66,19 +68,3 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify,
     }
   );
 };
-
-async function fetchReplayedNakamotoBlock(
-  rpcClient: StacksRpcClient,
-  blockIdentifier: Partial<BlockIdentifier>
-): Promise<StacksBlockReplay> {
-  let indexBlockHash = blockIdentifier.hash;
-  // If the block identifier is a height, fetch and decode the block header to get the index block
-  // hash.
-  if (!indexBlockHash) {
-    const blockBytes = await rpcClient.getNakamotoBlockByHeight(blockIdentifier.index!);
-    const decodedBlock = codec.decodeNakamotoBlock(blockBytes);
-    indexBlockHash = decodedBlock.header.index_block_hash;
-  }
-  // Replay block
-  return await rpcClient.replayNakamotoBlock(removeHexPrefix(indexBlockHash));
-}

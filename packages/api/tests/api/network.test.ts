@@ -3,18 +3,17 @@ import { afterEach, beforeEach, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { buildApiServer } from '../../src/api/index.js';
 import { loadBinaryFixture, makeTestApiConfig } from './helpers.js';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { MockAgent } from 'undici';
 
 describe('/network', () => {
   let fastify: FastifyInstance;
   let mockAgent: MockAgent;
 
   beforeEach(async () => {
-    const config = makeTestApiConfig();
-    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
+    const config = makeTestApiConfig(() => mockAgent);
+    fastify = await buildApiServer(config);
   });
 
   afterEach(() => {

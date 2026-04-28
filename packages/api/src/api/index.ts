@@ -1,14 +1,14 @@
 import Fastify from 'fastify';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
 import { PINO_LOGGER_CONFIG } from '@stacks/api-toolkit';
 import { MeshApiRoutes } from './routes/index.js';
 import cors from '@fastify/cors';
 import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../cache/contract-abi-cache.js';
+import { CoreRpcClient } from '@stacks/rpc-client';
 
 export type ApiConfig = {
-  rpcClient: StacksRpcClient;
+  rpcClient: CoreRpcClient;
   tokenMetadataCache: TokenMetadataCache;
   contractAbiCache: ContractAbiCache;
   network: 'mainnet' | 'testnet';

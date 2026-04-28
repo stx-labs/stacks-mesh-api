@@ -1,5 +1,6 @@
 import { LRUCache } from 'lru-cache';
-import { StacksRpcClient } from '../stacks-rpc/stacks-rpc-client.js';
+import { CoreRpcClient } from '@stacks/rpc-client';
+import { readStringFromContract, readUIntFromContract } from '../stacks-rpc/helpers.js';
 
 export type TokenMetadata = {
   name: string;
@@ -12,10 +13,10 @@ export type TokenMetadata = {
  * looking for FT symbols, names and decimals.
  */
 export class TokenMetadataCache {
-  private readonly rpcClient: StacksRpcClient;
+  private readonly rpcClient: CoreRpcClient;
   private readonly cache: LRUCache<string, TokenMetadata>;
 
-  constructor(args: { rpcClient: StacksRpcClient; cacheSize: number; ttl: number }) {
+  constructor(args: { rpcClient: CoreRpcClient; cacheSize: number; ttl: number }) {
     const { rpcClient, cacheSize, ttl } = args;
     this.rpcClient = rpcClient;
     this.cache = new LRUCache<string, TokenMetadata>({
@@ -44,19 +45,23 @@ export class TokenMetadataCache {
     const contractAddress = parts[0];
     const contractName = parts[1].split('::')[0];
     const [name, symbol, decimals] = await Promise.all([
-      this.rpcClient.readStringFromContract(
+      readStringFromContract(
+        this.rpcClient,
         contractAddress,
         contractName,
         'get-name',
         contractAddress
       ),
-      this.rpcClient.readStringFromContract(
+      readStringFromContract(
+        this.rpcClient,
         contractAddress,
         contractName,
         'get-symbol',
-        contractAddress
+        contractAddress,
+        []
       ),
-      this.rpcClient.readUIntFromContract(
+      readUIntFromContract(
+        this.rpcClient,
         contractAddress,
         contractName,
         'get-decimals',

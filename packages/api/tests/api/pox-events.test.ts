@@ -1,7 +1,7 @@
 import { afterEach, before, beforeEach, describe, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { ApiConfig, buildApiServer } from '../../src/api';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { MockAgent } from 'undici';
 import { FastifyInstance } from 'fastify';
 import { loadFixture, makeTestApiConfig } from './helpers';
 
@@ -11,7 +11,7 @@ describe('synthetic pox events', () => {
   let config: ApiConfig;
 
   before(() => {
-    config = makeTestApiConfig();
+    config = makeTestApiConfig(() => mockAgent);
     config.contractAbiCache['cache'].set(
       'SP001SFSMC2ZY76PD4M68P3WGX154XCH7NE3TYMX.pox4-pools',
       loadFixture('contract-interfaces/pox4-pools.json')
@@ -35,10 +35,9 @@ describe('synthetic pox events', () => {
   });
 
   beforeEach(async () => {
-    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
+    fastify = await buildApiServer(config);
   });
 
   afterEach(() => {

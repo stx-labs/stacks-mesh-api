@@ -1,20 +1,36 @@
-import { StacksRpcClient } from './stacks-rpc/stacks-rpc-client.js';
 import { ENV } from './env.js';
-import { logger, registerShutdownConfig, SERVER_VERSION } from '@stacks/api-toolkit';
+import { logger, registerShutdownConfig, SERVER_VERSION, timeout } from '@stacks/api-toolkit';
 import { ApiConfig, buildApiServer } from './api/index.js';
 import { getStacksNetworkName } from './utils/helpers.js';
 import { TokenMetadataCache } from './cache/token-metadata-cache.js';
 import { ContractAbiCache } from './cache/contract-abi-cache.js';
+import { CoreRpcClient, createCoreRpcClient, NodeInfo } from '@stacks/rpc-client';
+
+async function waitForNodeReady(rpcClient: CoreRpcClient): Promise<NodeInfo> {
+  logger.info(
+    `Connecting to Stacks node at ${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}...`
+  );
+  while (true) {
+    try {
+      const nodeInfo = await rpcClient.request('GET', '/v2/info');
+      logger.info(
+        { server_version: nodeInfo.server_version, network_id: nodeInfo.network_id },
+        `Connected to Stacks node`
+      );
+      return nodeInfo;
+    } catch (error) {
+      logger.warn(error, `Stacks node not ready, trying again in 1s...`);
+      await timeout(1000);
+    }
+  }
+}
 
 export async function initApp() {
-  const rpcClient = new StacksRpcClient({
-    scheme: ENV.STACKS_CORE_RPC_SCHEME,
-    hostname: ENV.STACKS_CORE_RPC_HOST,
-    port: ENV.STACKS_CORE_RPC_PORT,
+  const rpcClient = createCoreRpcClient({
+    baseUrl: `${ENV.STACKS_CORE_RPC_SCHEME}://${ENV.STACKS_CORE_RPC_HOST}:${ENV.STACKS_CORE_RPC_PORT}`,
     authToken: ENV.STACKS_CORE_RPC_AUTH_TOKEN,
-    timeout: ENV.STACKS_CORE_RPC_TIMEOUT_MS,
   });
-  const nodeInfo = await rpcClient.waitForNodeReady();
+  const nodeInfo = await waitForNodeReady(rpcClient);
 
   const tokenMetadataCache = new TokenMetadataCache({
     rpcClient,

@@ -6,7 +6,6 @@ import {
   teardownDockerServices,
   buildTestServer,
   API_PORT,
-  type DockerResources,
   post,
   NETWORK_IDENTIFIER,
   SENDER_ADDRESS,
@@ -18,10 +17,11 @@ import {
   ConstructionContractDeployOptions,
   ConstructionTokenTransferOptions,
 } from '@stacks/mesh-schemas';
+import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
 describe('/construction/metadata', () => {
   let fastify: FastifyInstance;
-  let dockerResources: DockerResources;
+  let dockerResources: DockerTestContainerConfig[];
   let senderAddress = SENDER_ADDRESS;
   let recipientAddress = RECIPIENT_ADDRESS;
   let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;

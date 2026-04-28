@@ -15,8 +15,6 @@ const schema = Type.Object({
   STACKS_CORE_RPC_PORT: Type.Integer({ default: 20443, minimum: 0, maximum: 65535 }),
   /** Auth token for the Stacks Core RPC server */
   STACKS_CORE_RPC_AUTH_TOKEN: Type.String(),
-  /** Timeout for the Stacks Core RPC server in milliseconds */
-  STACKS_CORE_RPC_TIMEOUT_MS: Type.Integer({ default: 10000, minimum: 0 }),
 
   /** Size of the token metadata cache. Defaults to 1000. */
   TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),

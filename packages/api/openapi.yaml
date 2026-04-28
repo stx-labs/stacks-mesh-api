@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Stacks Mesh API
   description: A Mesh API (formerly Rosetta API) implementation for the Stacks blockchain
-  version: 0.4.3
+  version: 0.4.4
 components:
   schemas: {}
 paths:
@@ -8624,13 +8624,16 @@ paths:
                     items:
                       type: object
                       required:
-                        - address
                         - account_identifier
                         - hex_bytes
                         - signature_type
                       properties:
                         address:
-                          type: string
+                          anyOf:
+                            - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                              type: string
+                            - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                              type: string
                         account_identifier:
                           type: object
                           required:
@@ -8731,13 +8734,16 @@ paths:
                       signing_payload:
                         type: object
                         required:
-                          - address
                           - account_identifier
                           - hex_bytes
                           - signature_type
                         properties:
                           address:
-                            type: string
+                            anyOf:
+                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                type: string
+                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                type: string
                           account_identifier:
                             type: object
                             required:

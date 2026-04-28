@@ -1,10 +1,10 @@
 import { Operation } from '@stacks/mesh-schemas';
 import codec from '@stacks/codec';
-import { StacksBlockReplayTransactionContractEvent } from '../stacks-rpc/types.js';
 import { PoxContractIdentifiers } from '../utils/constants.js';
 import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
+import { BlockReplayTransactionContractEvent } from '@stacks/rpc-client';
 
-export function isPoxPrintEvent(event: StacksBlockReplayTransactionContractEvent): boolean {
+export function isPoxPrintEvent(event: BlockReplayTransactionContractEvent): boolean {
   if (event.contract_event.topic !== 'print') return false;
   return PoxContractIdentifiers.includes(event.contract_event.contract_identifier);
 }

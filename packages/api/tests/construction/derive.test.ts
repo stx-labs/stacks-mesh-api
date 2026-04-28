@@ -6,16 +6,16 @@ import {
   teardownDockerServices,
   buildTestServer,
   API_PORT,
-  type DockerResources,
   post,
   NETWORK_IDENTIFIER,
   SENDER_PUBLIC_KEY,
   RECIPIENT_PUBLIC_KEY,
 } from './helpers.js';
+import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
 describe('/construction/derive', () => {
   let fastify: FastifyInstance;
-  let dockerResources: DockerResources;
+  let dockerResources: DockerTestContainerConfig[];
   let senderPublicKey = `0x${SENDER_PUBLIC_KEY}`;
   let recipientPublicKey = `0x${RECIPIENT_PUBLIC_KEY}`;
 

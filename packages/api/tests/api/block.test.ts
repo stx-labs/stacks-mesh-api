@@ -3,7 +3,7 @@ import { afterEach, beforeEach, before, describe, test } from 'node:test';
 import { FastifyInstance } from 'fastify';
 import { ApiConfig, buildApiServer } from '../../src/api/index.js';
 import { loadBinaryFixture, loadFixture, makeTestApiConfig } from './helpers.js';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { MockAgent } from 'undici';
 
 function mockReplay(mockPool: ReturnType<MockAgent['get']>, blockId: string, fixture: object) {
   mockPool
@@ -42,7 +42,7 @@ describe('/block', () => {
   let config: ApiConfig;
 
   before(() => {
-    config = makeTestApiConfig();
+    config = makeTestApiConfig(() => mockAgent);
     config.contractAbiCache['cache'].set(
       'SP21EK0KSQG7HEHBGCVRJGPGFMV8SCA2B85X01DK2.blocksurvey-proof-of-submission',
       loadFixture('contract-interfaces/blocksurvey-proof-of-submission.json')
@@ -122,10 +122,9 @@ describe('/block', () => {
   });
 
   beforeEach(async () => {
-    fastify = await buildApiServer(config);
     mockAgent = new MockAgent();
     mockAgent.disableNetConnect();
-    setGlobalDispatcher(mockAgent);
+    fastify = await buildApiServer(config);
   });
 
   afterEach(() => {
@@ -316,6 +315,39 @@ describe('/block', () => {
       assert.strictEqual(receiveOp.account.address, 'SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2');
       assert.strictEqual(receiveOp.amount.value, '1');
       assert.deepStrictEqual(receiveOp.amount.currency, { symbol: 'STX', decimals: 6 });
+    });
+  });
+
+  describe('transaction status serialization', () => {
+    test('should map response errors to abort_by_response', async () => {
+      const fixture = loadFixture('blocks/abort-by-response.json');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const response = await postBlock(fastify, fixture.block_id);
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const tx = json.block.transactions[0];
+
+      assert.strictEqual(tx.metadata.status, 'abort_by_response');
+      assert.strictEqual(tx.operations[0].status, 'abort_by_response');
+    });
+
+    test('should map post condition aborts to abort_by_post_condition', async () => {
+      const fixture = loadFixture('blocks/abort-by-post-condition.json');
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, fixture.block_id, fixture);
+
+      const response = await postBlock(fastify, fixture.block_id);
+      assert.strictEqual(response.statusCode, 200);
+      const json = JSON.parse(response.body);
+      const tx = json.block.transactions.find(
+        (candidate: { metadata: { status: string } }) =>
+          candidate.metadata.status === 'abort_by_post_condition'
+      );
+
+      assert.ok(tx, 'Expected a transaction with abort_by_post_condition status');
+      assert.strictEqual(tx.metadata.status, 'abort_by_post_condition');
     });
   });
 

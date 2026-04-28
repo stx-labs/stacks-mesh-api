@@ -7,6 +7,7 @@ import {
 } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 import { decodeClarityValue } from '../../serializers/index.js';
+import { callReadOnlyFunction } from '../../stacks-rpc/helpers.js';
 
 export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -28,76 +29,117 @@ export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, 
 
       switch (method) {
         case 'contract_call_read_only': {
-          const callResult = await rpcClient.callReadOnlyFunction(
+          const result = await callReadOnlyFunction(
+            rpcClient,
             parameters.deployer_address,
             parameters.contract_name,
             parameters.function_name,
-            parameters.arguments,
+            parameters.arguments as string[],
             parameters.sender,
             parameters.sponsor
           );
           return reply.send({
             idempotent: false,
-            result: decodeClarityValue(callResult.result),
+            result: decodeClarityValue(result),
           });
         }
 
         case 'contract_get_interface': {
-          const interfaceResult = await rpcClient.getContractInterface(
-            parameters.deployer_address,
-            parameters.contract_name
+          const result = await rpcClient.request(
+            'GET',
+            '/v2/contracts/interface/{deployer_address}/{contract_name}',
+            {
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                },
+              },
+            }
           );
           return reply.send({
             idempotent: true,
-            result: interfaceResult as unknown as Record<string, unknown>,
+            result,
           });
         }
 
         case 'contract_get_source': {
-          const sourceResult = await rpcClient.getContractSource(
-            parameters.deployer_address,
-            parameters.contract_name
+          const result = await rpcClient.request(
+            'GET',
+            '/v2/contracts/source/{deployer_address}/{contract_name}',
+            {
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                },
+              },
+            }
           );
           return reply.send({
             idempotent: true,
-            result: sourceResult,
+            result,
           });
         }
 
         case 'contract_get_constant_val': {
-          const constantValResult = await rpcClient.getContractConstantVal(
-            parameters.deployer_address,
-            parameters.contract_name,
-            parameters.constant_name
+          const result = await rpcClient.request(
+            'GET',
+            '/v2/constant_val/{deployer_address}/{contract_name}/{constant_name}',
+            {
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  constant_name: parameters.constant_name,
+                },
+              },
+            }
           );
           return reply.send({
             idempotent: true,
-            result: decodeClarityValue(constantValResult.data),
+            result: decodeClarityValue(result.data),
           });
         }
 
         case 'contract_get_data_var': {
-          const varData = await rpcClient.getContractDataVar(
-            parameters.deployer_address,
-            parameters.contract_name,
-            parameters.var_name
+          const result = await rpcClient.request(
+            'GET',
+            '/v2/data_var/{principal}/{contract_name}/{var_name}',
+            {
+              params: {
+                path: {
+                  principal: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  var_name: parameters.var_name,
+                },
+              },
+            }
           );
           return reply.send({
             idempotent: false,
-            result: decodeClarityValue(varData.data),
+            result: decodeClarityValue(result.data),
           });
         }
 
         case 'contract_get_map_entry': {
-          const mapEntry = await rpcClient.getMapEntry(
-            parameters.deployer_address,
-            parameters.contract_name,
-            parameters.map_name,
-            parameters.key
+          const result = await rpcClient.request(
+            'POST',
+            '/v2/map_entry/{deployer_address}/{contract_name}/{map_name}',
+            {
+              params: {
+                path: {
+                  deployer_address: parameters.deployer_address,
+                  contract_name: parameters.contract_name,
+                  map_name: parameters.map_name,
+                },
+              },
+              body: parameters.key,
+            }
           );
           return reply.send({
             idempotent: false,
-            result: decodeClarityValue(mapEntry.data),
+            result: decodeClarityValue(result.data),
           });
         }
 
