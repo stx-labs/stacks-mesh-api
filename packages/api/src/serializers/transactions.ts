@@ -635,7 +635,7 @@ function makeContractEventOperations(
         config.network
       );
       if (poxEvent) {
-        const poxOp = makeSyntheticPoxOperation(poxEvent, index + 1, tx);
+        const poxOp = makeSyntheticPoxOperation(poxEvent, index, tx);
         // Returns null for pox-5 events that don't map to a balance-affecting operation.
         if (poxOp) ops.push(poxOp);
       }
