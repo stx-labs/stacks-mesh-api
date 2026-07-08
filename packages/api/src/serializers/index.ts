@@ -1,5 +1,9 @@
 import { Block, Transaction, Operation, DecodedClarityValue } from '@stacks/mesh-schemas';
-import codec from '@stacks/codec';
+import codec, {
+  PostConditionAuthFlag,
+  type DecodedTxResult,
+  type TxAuthSponsored,
+} from '@stacks/codec';
 import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
 import { ApiConfig } from '../api/index.js';
 import {
@@ -116,14 +120,14 @@ export async function serializeTransactionFromReplayedNakamotoBlock(
  * available.
  */
 export async function serializeDecodedTransactionOperations(
-  decodedTx: codec.DecodedTxResult,
+  decodedTx: DecodedTxResult,
   config: ApiConfig
 ): Promise<Operation[]> {
   const senderAddress = decodedTx.auth.origin_condition.signer.address;
   const fee = BigNumber(decodedTx.auth.origin_condition.tx_fee).toNumber();
-  const sponsored = decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored;
+  const sponsored = decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored;
   const sponsorAddress = sponsored
-    ? (decodedTx.auth as codec.TxAuthSponsored).sponsor_condition.signer.address
+    ? (decodedTx.auth as TxAuthSponsored).sponsor_condition.signer.address
     : null;
 
   const tx: DecodedStacksTransaction = {

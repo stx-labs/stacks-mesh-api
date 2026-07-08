@@ -1,7 +1,12 @@
 import { BlockReplay, CoreRpcClient, CoreRpcError, NodeInfo } from '@stacks/rpc-client';
 import { StacksRpcBlockNotFoundError, StacksRpcSmartContractError } from './errors.js';
 import { BigNumber } from 'bignumber.js';
-import codec from '@stacks/codec';
+import codec, {
+  ClarityTypeID,
+  type ClarityValue,
+  type ClarityValueUInt,
+  type DecodedNakamotoBlockResult,
+} from '@stacks/codec';
 import { removeHexPrefix } from '../serializers/index.js';
 import { BlockIdentifier } from '@stacks/mesh-schemas';
 
@@ -12,7 +17,7 @@ import { BlockIdentifier } from '@stacks/mesh-schemas';
  */
 export async function getChainTipNakamotoBlock(
   rpcClient: CoreRpcClient
-): Promise<{ decodedBlock: codec.DecodedNakamotoBlockResult; nodeInfo: NodeInfo }> {
+): Promise<{ decodedBlock: DecodedNakamotoBlockResult; nodeInfo: NodeInfo }> {
   // Node info does not contain the index block hash, so we need a secondary request to fetch it
   // from the nakamoto block at the chain tip height.
   const nodeInfo = await rpcClient.request('GET', '/v2/info');
@@ -35,7 +40,7 @@ export async function getChainTipNakamotoBlock(
 export async function getNakamotoBlockFromPartialBlockIdentifier(
   rpcClient: CoreRpcClient,
   blockIdentifier: Partial<BlockIdentifier>
-): Promise<codec.DecodedNakamotoBlockResult | null> {
+): Promise<DecodedNakamotoBlockResult | null> {
   try {
     if (blockIdentifier.index) {
       const bytes = (await rpcClient.request('GET', '/v3/blocks/height/{block_height}', {
@@ -179,21 +184,21 @@ export async function readUIntFromContract(
   }
 }
 
-function unwrapClarityType(clarityValue: codec.ClarityValue): codec.ClarityValue {
-  let unwrappedClarityValue: codec.ClarityValue = clarityValue;
+function unwrapClarityType(clarityValue: ClarityValue): ClarityValue {
+  let unwrappedClarityValue: ClarityValue = clarityValue;
   while (
-    unwrappedClarityValue.type_id === codec.ClarityTypeID.ResponseOk ||
-    unwrappedClarityValue.type_id === codec.ClarityTypeID.OptionalSome
+    unwrappedClarityValue.type_id === ClarityTypeID.ResponseOk ||
+    unwrappedClarityValue.type_id === ClarityTypeID.OptionalSome
   ) {
     unwrappedClarityValue = unwrappedClarityValue.value;
   }
   return unwrappedClarityValue;
 }
 
-function checkAndParseUintCV(result: string): codec.ClarityValueUInt {
+function checkAndParseUintCV(result: string): ClarityValueUInt {
   const responseCV = codec.decodeClarityValue(result);
   const unwrappedClarityValue = unwrapClarityType(responseCV);
-  if (unwrappedClarityValue.type_id === codec.ClarityTypeID.UInt) {
+  if (unwrappedClarityValue.type_id === ClarityTypeID.UInt) {
     return unwrappedClarityValue;
   }
   throw new StacksRpcSmartContractError(
@@ -205,8 +210,8 @@ function checkAndParseString(result: string): string {
   const responseCV = codec.decodeClarityValue(result);
   const unwrappedClarityValue = unwrapClarityType(responseCV);
   if (
-    unwrappedClarityValue.type_id === codec.ClarityTypeID.StringAscii ||
-    unwrappedClarityValue.type_id === codec.ClarityTypeID.StringUtf8
+    unwrappedClarityValue.type_id === ClarityTypeID.StringAscii ||
+    unwrappedClarityValue.type_id === ClarityTypeID.StringUtf8
   ) {
     return unwrappedClarityValue.data;
   }
