@@ -1,19 +1,27 @@
-import codec from '@stacks/codec';
+// Enums are NAMED exports of @stacks/codec (not on the default export), so they must
+// be imported by name — `PostConditionAssetInfoID` is `undefined` at runtime.
+import {
+  PostConditionAssetInfoID,
+  PostConditionModeID,
+  PostConditionPrincipalTypeID,
+  type PostConditionPrincipal as CodecPostConditionPrincipal,
+  type TxPostCondition,
+} from '@stacks/codec';
 import { PostCondition, PostConditionMode, PostConditionPrincipal } from '@stacks/mesh-schemas';
 import { DecodedStacksTransaction } from './transactions.js';
 import { addHexPrefix } from './index.js';
 
 export function serializePostConditions(tx: DecodedStacksTransaction) {
   const serializePostConditionPrincipal = (
-    principal: codec.PostConditionPrincipal
+    principal: CodecPostConditionPrincipal
   ): PostConditionPrincipal => {
-    if (principal.type_id === codec.PostConditionPrincipalTypeID.Standard) {
+    if (principal.type_id === PostConditionPrincipalTypeID.Standard) {
       return {
         type_id: 'principal_standard',
         address: principal.address,
       };
     }
-    if (principal.type_id === codec.PostConditionPrincipalTypeID.Contract) {
+    if (principal.type_id === PostConditionPrincipalTypeID.Contract) {
       return {
         type_id: 'principal_contract',
         contract_name: principal.contract_name,
@@ -24,16 +32,16 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
       type_id: 'principal_origin',
     };
   };
-  const serializePostCondition = (pc: codec.TxPostCondition): PostCondition => {
+  const serializePostCondition = (pc: TxPostCondition): PostCondition => {
     switch (pc.asset_info_id) {
-      case codec.PostConditionAssetInfoID.STX:
+      case PostConditionAssetInfoID.STX:
         return {
           type: 'stx',
           condition_code: pc.condition_name,
           amount: pc.amount,
           principal: serializePostConditionPrincipal(pc.principal),
         };
-      case codec.PostConditionAssetInfoID.FungibleAsset:
+      case PostConditionAssetInfoID.FungibleAsset:
         return {
           type: 'fungible',
           condition_code: pc.condition_name,
@@ -45,7 +53,7 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
             contract_address: pc.asset.contract_address,
           },
         };
-      case codec.PostConditionAssetInfoID.NonfungibleAsset:
+      case PostConditionAssetInfoID.NonfungibleAsset:
         return {
           type: 'non_fungible',
           condition_code: pc.condition_name,
@@ -60,15 +68,30 @@ export function serializePostConditions(tx: DecodedStacksTransaction) {
             repr: pc.asset_value.repr,
           },
         };
+      case PostConditionAssetInfoID.Staking:
+        // pox-5: constrains how much STX may be staked — STX-like (amount + fungible code).
+        return {
+          type: 'staking',
+          condition_code: pc.condition_name,
+          amount: pc.amount,
+          principal: serializePostConditionPrincipal(pc.principal),
+        };
+      case PostConditionAssetInfoID.Pox:
+        // pox-5: constrains a position-altering PoX operation (no amount).
+        return {
+          type: 'pox',
+          condition_code: pc.condition_name,
+          principal: serializePostConditionPrincipal(pc.principal),
+        };
     }
   };
-  const serializePostConditionMode = (mode: codec.PostConditionModeID): PostConditionMode => {
+  const serializePostConditionMode = (mode: PostConditionModeID): PostConditionMode => {
     switch (mode) {
-      case codec.PostConditionModeID.Allow:
+      case PostConditionModeID.Allow:
         return 'allow';
-      case codec.PostConditionModeID.Deny:
+      case PostConditionModeID.Deny:
         return 'deny';
-      case codec.PostConditionModeID.Originator:
+      case PostConditionModeID.Originator:
         return 'originator';
     }
   };

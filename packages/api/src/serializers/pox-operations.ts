@@ -1,8 +1,10 @@
 import { Operation } from '@stacks/mesh-schemas';
-import codec from '@stacks/codec';
+// Enums/types are NAMED exports of @stacks/codec (not on the default export).
+import { Pox4EventName, type PoxEvent } from '@stacks/codec';
 import { PoxContractIdentifiers } from '../utils/constants.js';
 import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
 import { BlockReplayTransactionContractEvent } from '@stacks/rpc-client';
+import { makeSyntheticPox5Operation } from './pox5-operations.js';
 
 export function isPoxPrintEvent(event: BlockReplayTransactionContractEvent): boolean {
   if (event.contract_event.topic !== 'print') return false;
@@ -10,12 +12,17 @@ export function isPoxPrintEvent(event: BlockReplayTransactionContractEvent): boo
 }
 
 export function makeSyntheticPoxOperation(
-  poxEvent: codec.DecodedPoxSyntheticEvent,
+  poxEvent: PoxEvent,
   index: number,
   tx: DecodedStacksTransaction
-): Operation {
+): Operation | null {
+  // `decodePoxSyntheticEvent` returns a pox4|pox5 union discriminated by `pox_version`.
+  // pox-5 (bitcoin staking) events have a different shape and are handled separately.
+  if (poxEvent.pox_version === 'pox5') {
+    return makeSyntheticPox5Operation(poxEvent, index, tx);
+  }
   switch (poxEvent.name) {
-    case codec.PoxEventName.DelegateStx:
+    case Pox4EventName.DelegateStx:
       return {
         operation_identifier: { index: index + 1 },
         type: 'delegate_stx',
@@ -41,7 +48,7 @@ export function makeSyntheticPoxOperation(
           end_cycle_id: poxEvent.data.end_cycle_id ? parseInt(poxEvent.data.end_cycle_id) : null,
         },
       };
-    case codec.PoxEventName.DelegateStackStx:
+    case Pox4EventName.DelegateStackStx:
       return {
         operation_identifier: { index: index + 1 },
         type: 'delegate_stack_stx',
@@ -68,7 +75,7 @@ export function makeSyntheticPoxOperation(
             : null,
         },
       };
-    case codec.PoxEventName.DelegateStackIncrease:
+    case Pox4EventName.DelegateStackIncrease:
       return {
         operation_identifier: { index: index + 1 },
         type: 'delegate_stack_increase',
@@ -91,7 +98,7 @@ export function makeSyntheticPoxOperation(
           end_cycle_id: poxEvent.data.end_cycle_id ? parseInt(poxEvent.data.end_cycle_id) : null,
         },
       };
-    case codec.PoxEventName.RevokeDelegateStx:
+    case Pox4EventName.RevokeDelegateStx:
       return {
         operation_identifier: { index: index + 1 },
         type: 'revoke_delegate_stx',
@@ -112,7 +119,7 @@ export function makeSyntheticPoxOperation(
           pox_addr_raw: poxEvent.pox_addr_raw ?? undefined,
         },
       };
-    case codec.PoxEventName.StackAggregationIncrease:
+    case Pox4EventName.StackAggregationIncrease:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_aggregation_increase',
@@ -135,7 +142,7 @@ export function makeSyntheticPoxOperation(
           reward_cycle: parseInt(poxEvent.data.reward_cycle),
         },
       };
-    case codec.PoxEventName.StackAggregationCommit:
+    case Pox4EventName.StackAggregationCommit:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_aggregation_commit',
@@ -159,7 +166,7 @@ export function makeSyntheticPoxOperation(
           signer_key: poxEvent.data.signer_key,
         },
       };
-    case codec.PoxEventName.StackAggregationCommitIndexed:
+    case Pox4EventName.StackAggregationCommitIndexed:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_aggregation_commit_indexed',
@@ -183,7 +190,7 @@ export function makeSyntheticPoxOperation(
           signer_key: poxEvent.data.signer_key,
         },
       };
-    case codec.PoxEventName.DelegateStackExtend:
+    case Pox4EventName.DelegateStackExtend:
       return {
         operation_identifier: { index: index + 1 },
         type: 'delegate_stack_extend',
@@ -203,7 +210,7 @@ export function makeSyntheticPoxOperation(
           delegator: poxEvent.data.delegator,
         },
       };
-    case codec.PoxEventName.HandleUnlock:
+    case Pox4EventName.HandleUnlock:
       return {
         operation_identifier: { index: index + 1 },
         type: 'handle_unlock',
@@ -219,7 +226,7 @@ export function makeSyntheticPoxOperation(
           first_unlocked_cycle: parseInt(poxEvent.data.first_unlocked_cycle),
         },
       };
-    case codec.PoxEventName.StackStx:
+    case Pox4EventName.StackStx:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_stx',
@@ -244,7 +251,7 @@ export function makeSyntheticPoxOperation(
           end_cycle_id: poxEvent.data.end_cycle_id ? parseInt(poxEvent.data.end_cycle_id) : null,
         },
       };
-    case codec.PoxEventName.StackIncrease:
+    case Pox4EventName.StackIncrease:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_increase',
@@ -267,7 +274,7 @@ export function makeSyntheticPoxOperation(
           end_cycle_id: poxEvent.data.end_cycle_id ? parseInt(poxEvent.data.end_cycle_id) : null,
         },
       };
-    case codec.PoxEventName.StackExtend:
+    case Pox4EventName.StackExtend:
       return {
         operation_identifier: { index: index + 1 },
         type: 'stack_extend',
@@ -287,4 +294,5 @@ export function makeSyntheticPoxOperation(
         },
       };
   }
+  return null;
 }

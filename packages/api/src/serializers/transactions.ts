@@ -1,6 +1,22 @@
 import { hexToBuffer } from '@stacks/api-toolkit';
 import { Transaction, Operation, Status, Currency } from '@stacks/mesh-schemas';
-import codec from '@stacks/codec';
+// Enums are NAMED exports of @stacks/codec (not on the default export) and must be
+// imported by name; the default export carries the `decode*` functions.
+import codec, {
+  ClarityTypeID,
+  ClarityVersion,
+  PostConditionAuthFlag,
+  TenureChangeCause,
+  TxPayloadTypeID,
+  type DecodedTxResult,
+  type TxPayloadCoinbaseToAltRecipient,
+  type TxPayloadContractCall,
+  type TxPayloadNakamotoCoinbase,
+  type TxPayloadSmartContract,
+  type TxPayloadTenureChange,
+  type TxPayloadTokenTransfer,
+  type TxPayloadVersionedSmartContract,
+} from '@stacks/codec';
 import { isPoxPrintEvent, makeSyntheticPoxOperation } from './pox-operations.js';
 import { ApiConfig } from '../api/index.js';
 import { serializePostConditions } from './post-conditions.js';
@@ -27,7 +43,7 @@ import { BlockReplayTransactionFtEvent } from '@stacks/rpc-client';
  */
 export type DecodedStacksTransaction = {
   replayedTx: BlockReplayTransaction;
-  decodedTx: codec.DecodedTxResult;
+  decodedTx: DecodedTxResult;
   fee: number;
   sponsored: boolean;
   senderAddress: string;
@@ -47,10 +63,10 @@ export async function serializeReplayedNakamotoTransaction(
     replayedTx,
     decodedTx,
     fee,
-    sponsored: decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored,
+    sponsored: decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored,
     senderAddress: decodedTx.auth.origin_condition.signer.address,
     sponsorAddress:
-      decodedTx.auth.type_id === codec.PostConditionAuthFlag.Sponsored
+      decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored
         ? decodedTx.auth.sponsor_condition.signer.address
         : null,
     nonce: parseInt(decodedTx.auth.origin_condition.nonce),
@@ -94,32 +110,32 @@ function serializeTxResult(tx: BlockReplayTransaction) {
 
 function serializeTxStatus(replayedTx: BlockReplayTransaction): Status {
   const result = codec.decodeClarityValue(removeHexPrefix(replayedTx.result_hex));
-  if (result.type_id === codec.ClarityTypeID.ResponseError) {
+  if (result.type_id === ClarityTypeID.ResponseError) {
     if (replayedTx.post_condition_aborted) return 'abort_by_post_condition';
     return 'abort_by_response';
   }
-  if (result.type_id !== codec.ClarityTypeID.ResponseOk) {
+  if (result.type_id !== ClarityTypeID.ResponseOk) {
     throw new Error(`Unexpected transaction result type: ${result.type_id}`);
   }
   return 'success';
 }
 
-function serializeTxType(decodedTx: codec.DecodedTxResult) {
+function serializeTxType(decodedTx: DecodedTxResult) {
   switch (decodedTx.payload.type_id) {
-    case codec.TxPayloadTypeID.TenureChange:
+    case TxPayloadTypeID.TenureChange:
       return 'tenure_change';
-    case codec.TxPayloadTypeID.TokenTransfer:
+    case TxPayloadTypeID.TokenTransfer:
       return 'token_transfer';
-    case codec.TxPayloadTypeID.SmartContract:
-    case codec.TxPayloadTypeID.VersionedSmartContract:
+    case TxPayloadTypeID.SmartContract:
+    case TxPayloadTypeID.VersionedSmartContract:
       return 'contract_deploy';
-    case codec.TxPayloadTypeID.ContractCall:
+    case TxPayloadTypeID.ContractCall:
       return 'contract_call';
-    case codec.TxPayloadTypeID.PoisonMicroblock:
+    case TxPayloadTypeID.PoisonMicroblock:
       return 'poison_microblock';
-    case codec.TxPayloadTypeID.Coinbase:
-    case codec.TxPayloadTypeID.CoinbaseToAltRecipient:
-    case codec.TxPayloadTypeID.NakamotoCoinbase:
+    case TxPayloadTypeID.Coinbase:
+    case TxPayloadTypeID.CoinbaseToAltRecipient:
+    case TxPayloadTypeID.NakamotoCoinbase:
       return 'coinbase';
     default:
       throw new Error('Unexpected transaction payload type');
@@ -173,8 +189,8 @@ function makeStxTransferOperations(
   let amount: string;
   let memo: string | null;
 
-  if (tx.decodedTx.payload.type_id === codec.TxPayloadTypeID.TokenTransfer && !event) {
-    const payload = tx.decodedTx.payload as codec.TxPayloadTokenTransfer;
+  if (tx.decodedTx.payload.type_id === TxPayloadTypeID.TokenTransfer && !event) {
+    const payload = tx.decodedTx.payload as TxPayloadTokenTransfer;
     sender = tx.senderAddress;
     recipient = payload.recipient.address;
     amount = payload.amount;
@@ -226,7 +242,7 @@ async function makeContractCallOperation(
   index: number,
   config: ApiConfig
 ): Promise<Operation> {
-  const decodedPayload = tx.decodedTx.payload as codec.TxPayloadContractCall;
+  const decodedPayload = tx.decodedTx.payload as TxPayloadContractCall;
   const contractIdentifier = `${decodedPayload.address}.${decodedPayload.contract_name}`;
   const operation: Operation = {
     operation_identifier: { index },
@@ -268,8 +284,8 @@ async function makeContractCallOperation(
 
 function makeSmartContractOperation(tx: DecodedStacksTransaction, index: number): Operation {
   const payload = tx.decodedTx.payload as
-    | codec.TxPayloadSmartContract
-    | codec.TxPayloadVersionedSmartContract;
+    | TxPayloadSmartContract
+    | TxPayloadVersionedSmartContract;
   return {
     operation_identifier: { index },
     type: 'contract_deploy',
@@ -281,8 +297,8 @@ function makeSmartContractOperation(tx: DecodedStacksTransaction, index: number)
       contract_identifier: `${tx.senderAddress}.${payload.contract_name}`,
       source_code: payload.code_body,
       clarity_version:
-        (payload as codec.TxPayloadVersionedSmartContract).clarity_version ??
-        codec.ClarityVersion.Clarity1,
+        (payload as TxPayloadVersionedSmartContract).clarity_version ??
+        ClarityVersion.Clarity1,
       abi: undefined, // TODO: Implement abi
     },
   };
@@ -298,34 +314,34 @@ function makeCoinbaseOperation(tx: DecodedStacksTransaction, index: number = 0):
       address: tx.senderAddress,
     },
     metadata: {
-      alt_recipient: (payload as codec.TxPayloadCoinbaseToAltRecipient).recipient?.address ?? null,
-      vrf_proof: (payload as codec.TxPayloadNakamotoCoinbase).vrf_proof ?? null,
+      alt_recipient: (payload as TxPayloadCoinbaseToAltRecipient).recipient?.address ?? null,
+      vrf_proof: (payload as TxPayloadNakamotoCoinbase).vrf_proof ?? null,
     },
   };
 }
 
 function makeTenureChangeOperation(tx: DecodedStacksTransaction, index: number = 0): Operation {
-  const getCause = (cause: codec.TenureChangeCause) => {
+  const getCause = (cause: TenureChangeCause) => {
     switch (cause) {
-      case codec.TenureChangeCause.BlockFound:
+      case TenureChangeCause.BlockFound:
         return 'block_found';
-      case codec.TenureChangeCause.Extended:
+      case TenureChangeCause.Extended:
         return 'extended';
-      case codec.TenureChangeCause.ExtendedRuntime:
+      case TenureChangeCause.ExtendedRuntime:
         return 'extended_runtime';
-      case codec.TenureChangeCause.ExtendedReadCount:
+      case TenureChangeCause.ExtendedReadCount:
         return 'extended_read_count';
-      case codec.TenureChangeCause.ExtendedReadLength:
+      case TenureChangeCause.ExtendedReadLength:
         return 'extended_read_length';
-      case codec.TenureChangeCause.ExtendedWriteCount:
+      case TenureChangeCause.ExtendedWriteCount:
         return 'extended_write_count';
-      case codec.TenureChangeCause.ExtendedWriteLength:
+      case TenureChangeCause.ExtendedWriteLength:
         return 'extended_write_length';
       default:
         throw new Error(`Unexpected tenure change cause: ${cause}`);
     }
   };
-  const payload = tx.decodedTx.payload as codec.TxPayloadTenureChange;
+  const payload = tx.decodedTx.payload as TxPayloadTenureChange;
   return {
     operation_identifier: { index },
     type: 'tenure_change',
@@ -618,7 +634,11 @@ function makeContractEventOperations(
         event.contract_event.raw_value,
         config.network
       );
-      if (poxEvent) ops.push(makeSyntheticPoxOperation(poxEvent, index + 1, tx));
+      if (poxEvent) {
+        const poxOp = makeSyntheticPoxOperation(poxEvent, index, tx);
+        // Returns null for pox-5 events that don't map to a balance-affecting operation.
+        if (poxOp) ops.push(poxOp);
+      }
     } catch (error) {
       // Not a valid synthetic PoX event
     }
@@ -635,25 +655,25 @@ export async function serializeStacksTransactionOperations(
 
   // Add operations from transaction data.
   switch (tx.decodedTx.payload.type_id) {
-    case codec.TxPayloadTypeID.TenureChange:
+    case TxPayloadTypeID.TenureChange:
       ops.push(makeTenureChangeOperation(tx, ops.length));
       break;
-    case codec.TxPayloadTypeID.TokenTransfer:
+    case TxPayloadTypeID.TokenTransfer:
       ops.push(...makeStxTransferOperations(tx, ops.length));
       break;
-    case codec.TxPayloadTypeID.SmartContract:
-    case codec.TxPayloadTypeID.VersionedSmartContract:
+    case TxPayloadTypeID.SmartContract:
+    case TxPayloadTypeID.VersionedSmartContract:
       ops.push(makeSmartContractOperation(tx, ops.length));
       break;
-    case codec.TxPayloadTypeID.ContractCall:
+    case TxPayloadTypeID.ContractCall:
       ops.push(await makeContractCallOperation(tx, ops.length, config));
       break;
-    case codec.TxPayloadTypeID.PoisonMicroblock:
+    case TxPayloadTypeID.PoisonMicroblock:
       // Not supported.
       break;
-    case codec.TxPayloadTypeID.Coinbase:
-    case codec.TxPayloadTypeID.CoinbaseToAltRecipient:
-    case codec.TxPayloadTypeID.NakamotoCoinbase:
+    case TxPayloadTypeID.Coinbase:
+    case TxPayloadTypeID.CoinbaseToAltRecipient:
+    case TxPayloadTypeID.NakamotoCoinbase:
       ops.push(makeCoinbaseOperation(tx, ops.length));
       // TODO: Add miner rewards
       break;
@@ -664,7 +684,7 @@ export async function serializeStacksTransactionOperations(
       case 'stx_transfer_event':
         // Operations were already added in the transaction phase above if this was a token transfer
         // transaction. Otherwise, add the operations from events generated by contract calls.
-        if (tx.decodedTx.payload.type_id !== codec.TxPayloadTypeID.TokenTransfer) {
+        if (tx.decodedTx.payload.type_id !== TxPayloadTypeID.TokenTransfer) {
           ops.push(...makeStxTransferOperations(tx, ops.length, event));
         }
         break;

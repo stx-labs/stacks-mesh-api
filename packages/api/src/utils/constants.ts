@@ -89,6 +89,7 @@ const POX_1_CONTRACT_NAME = 'pox';
 const POX_2_CONTRACT_NAME = 'pox-2';
 const POX_3_CONTRACT_NAME = 'pox-3';
 const POX_4_CONTRACT_NAME = 'pox-4';
+const POX_5_CONTRACT_NAME = 'pox-5';
 
 export const PoxContractIdentifier = {
   pox1: {
@@ -106,6 +107,10 @@ export const PoxContractIdentifier = {
   pox4: {
     mainnet: `${BOOT_ADDR_MAINNET}.${POX_4_CONTRACT_NAME}`,
     testnet: `${BOOT_ADDR_TESTNET}.${POX_4_CONTRACT_NAME}`,
+  },
+  pox5: {
+    mainnet: `${BOOT_ADDR_MAINNET}.${POX_5_CONTRACT_NAME}`,
+    testnet: `${BOOT_ADDR_TESTNET}.${POX_5_CONTRACT_NAME}`,
   },
 } as const;
 

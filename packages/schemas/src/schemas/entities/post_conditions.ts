@@ -84,9 +84,38 @@ const NonFungiblePostConditionSchema = Type.Object({
 });
 export type NonFungiblePostCondition = Static<typeof NonFungiblePostConditionSchema>;
 
+// pox-5 (epoch 4.0+) post conditions.
+const PoxPostConditionCodeSchema = Type.Union([
+  Type.Literal('not_performed'),
+  Type.Literal('maybe_performed'),
+  Type.Literal('performed'),
+]);
+export type PoxPostConditionCode = Static<typeof PoxPostConditionCodeSchema>;
+
+// Constrains how much STX a principal may stake (lock for PoX) — same shape as an
+// STX post condition (fungible condition code + amount).
+const StakingPostConditionSchema = Type.Object({
+  type: Type.Literal('staking'),
+  condition_code: FungiblePostConditionCodeSchema,
+  amount: Type.String(),
+  principal: PostConditionPrincipalSchema,
+});
+export type StakingPostCondition = Static<typeof StakingPostConditionSchema>;
+
+// Constrains whether a principal may perform a position-altering PoX operation
+// (unstake / unstake-sbtc / update-bond-registration / announce-l1-early-exit).
+const PoxPostConditionSchema = Type.Object({
+  type: Type.Literal('pox'),
+  condition_code: PoxPostConditionCodeSchema,
+  principal: PostConditionPrincipalSchema,
+});
+export type PoxPostCondition = Static<typeof PoxPostConditionSchema>;
+
 export const PostConditionSchema = Type.Union([
   StxPostConditionSchema,
   FungiblePostConditionSchema,
   NonFungiblePostConditionSchema,
+  StakingPostConditionSchema,
+  PoxPostConditionSchema,
 ]);
 export type PostCondition = Static<typeof PostConditionSchema>;
