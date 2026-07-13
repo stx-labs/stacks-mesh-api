@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Stacks Mesh API
   description: A Mesh API (formerly Rosetta API) implementation for the Stacks blockchain
-  version: 0.4.4
+  version: 0.5.0
 components:
   schemas: {}
 paths:
@@ -1662,6 +1662,143 @@ paths:
                                       - operation_identifier
                                       - status
                                       - account
+                                      - amount
+                                      - type
+                                      - metadata
+                                    properties:
+                                      operation_identifier:
+                                        type: object
+                                        required:
+                                          - index
+                                        properties:
+                                          index:
+                                            type: integer
+                                          network_index:
+                                            type: integer
+                                      status:
+                                        anyOf:
+                                          - type: string
+                                            enum:
+                                              - pending
+                                          - type: string
+                                            enum:
+                                              - success
+                                          - type: string
+                                            enum:
+                                              - abort_by_response
+                                          - type: string
+                                            enum:
+                                              - abort_by_post_condition
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_by_fee
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_across_fork
+                                          - type: string
+                                            enum:
+                                              - dropped_too_expensive
+                                          - type: string
+                                            enum:
+                                              - dropped_problematic
+                                          - type: string
+                                            enum:
+                                              - dropped_stale_garbage_collect
+                                      account:
+                                        type: object
+                                        required:
+                                          - address
+                                        properties:
+                                          address:
+                                            anyOf:
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                                type: string
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                                type: string
+                                          sub_account:
+                                            type: object
+                                            required:
+                                              - address
+                                            properties:
+                                              address:
+                                                type: string
+                                              metadata:
+                                                type: object
+                                                additionalProperties: {}
+                                      amount:
+                                        type: object
+                                        required:
+                                          - value
+                                          - currency
+                                        properties:
+                                          value:
+                                            type: string
+                                          currency:
+                                            type: object
+                                            required:
+                                              - symbol
+                                              - decimals
+                                            properties:
+                                              symbol:
+                                                type: string
+                                              decimals:
+                                                type: integer
+                                              metadata:
+                                                type: object
+                                                required:
+                                                  - asset_identifier
+                                                  - token_type
+                                                properties:
+                                                  asset_identifier:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: "null"
+                                                  name:
+                                                    type: string
+                                                  value:
+                                                    type: string
+                                                  token_type:
+                                                    anyOf:
+                                                      - type: string
+                                                        enum:
+                                                          - ft
+                                                      - type: string
+                                                        enum:
+                                                          - nft
+                                      type:
+                                        type: string
+                                        enum:
+                                          - register_for_bond
+                                      metadata:
+                                        type: object
+                                        required:
+                                          - signer
+                                          - bond_index
+                                          - sats_total
+                                          - is_l1_lock
+                                          - first_reward_cycle
+                                          - unlock_burn_height
+                                          - unlock_cycle
+                                        properties:
+                                          signer:
+                                            type: string
+                                          bond_index:
+                                            type: integer
+                                          sats_total:
+                                            type: string
+                                          is_l1_lock:
+                                            type: boolean
+                                          first_reward_cycle:
+                                            type: integer
+                                          unlock_burn_height:
+                                            type: integer
+                                          unlock_cycle:
+                                            type: integer
+                                  - type: object
+                                    required:
+                                      - operation_identifier
+                                      - status
+                                      - account
                                       - type
                                       - metadata
                                     properties:
@@ -1845,6 +1982,405 @@ paths:
                                             type: string
                                           abi:
                                             type: string
+                                  - type: object
+                                    required:
+                                      - operation_identifier
+                                      - status
+                                      - account
+                                      - amount
+                                      - type
+                                      - metadata
+                                    properties:
+                                      operation_identifier:
+                                        type: object
+                                        required:
+                                          - index
+                                        properties:
+                                          index:
+                                            type: integer
+                                          network_index:
+                                            type: integer
+                                      status:
+                                        anyOf:
+                                          - type: string
+                                            enum:
+                                              - pending
+                                          - type: string
+                                            enum:
+                                              - success
+                                          - type: string
+                                            enum:
+                                              - abort_by_response
+                                          - type: string
+                                            enum:
+                                              - abort_by_post_condition
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_by_fee
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_across_fork
+                                          - type: string
+                                            enum:
+                                              - dropped_too_expensive
+                                          - type: string
+                                            enum:
+                                              - dropped_problematic
+                                          - type: string
+                                            enum:
+                                              - dropped_stale_garbage_collect
+                                      account:
+                                        type: object
+                                        required:
+                                          - address
+                                        properties:
+                                          address:
+                                            anyOf:
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                                type: string
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                                type: string
+                                          sub_account:
+                                            type: object
+                                            required:
+                                              - address
+                                            properties:
+                                              address:
+                                                type: string
+                                              metadata:
+                                                type: object
+                                                additionalProperties: {}
+                                      amount:
+                                        type: object
+                                        required:
+                                          - value
+                                          - currency
+                                        properties:
+                                          value:
+                                            type: string
+                                          currency:
+                                            type: object
+                                            required:
+                                              - symbol
+                                              - decimals
+                                            properties:
+                                              symbol:
+                                                type: string
+                                              decimals:
+                                                type: integer
+                                              metadata:
+                                                type: object
+                                                required:
+                                                  - asset_identifier
+                                                  - token_type
+                                                properties:
+                                                  asset_identifier:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: "null"
+                                                  name:
+                                                    type: string
+                                                  value:
+                                                    type: string
+                                                  token_type:
+                                                    anyOf:
+                                                      - type: string
+                                                        enum:
+                                                          - ft
+                                                      - type: string
+                                                        enum:
+                                                          - nft
+                                      type:
+                                        type: string
+                                        enum:
+                                          - stake
+                                      metadata:
+                                        type: object
+                                        required:
+                                          - signer
+                                          - num_cycles
+                                          - first_reward_cycle
+                                          - unlock_burn_height
+                                          - unlock_cycle
+                                        properties:
+                                          signer:
+                                            type: string
+                                          num_cycles:
+                                            type: integer
+                                          first_reward_cycle:
+                                            type: integer
+                                          unlock_burn_height:
+                                            type: integer
+                                          unlock_cycle:
+                                            type: integer
+                                  - type: object
+                                    required:
+                                      - operation_identifier
+                                      - status
+                                      - account
+                                      - amount
+                                      - type
+                                      - metadata
+                                    properties:
+                                      operation_identifier:
+                                        type: object
+                                        required:
+                                          - index
+                                        properties:
+                                          index:
+                                            type: integer
+                                          network_index:
+                                            type: integer
+                                      status:
+                                        anyOf:
+                                          - type: string
+                                            enum:
+                                              - pending
+                                          - type: string
+                                            enum:
+                                              - success
+                                          - type: string
+                                            enum:
+                                              - abort_by_response
+                                          - type: string
+                                            enum:
+                                              - abort_by_post_condition
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_by_fee
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_across_fork
+                                          - type: string
+                                            enum:
+                                              - dropped_too_expensive
+                                          - type: string
+                                            enum:
+                                              - dropped_problematic
+                                          - type: string
+                                            enum:
+                                              - dropped_stale_garbage_collect
+                                      account:
+                                        type: object
+                                        required:
+                                          - address
+                                        properties:
+                                          address:
+                                            anyOf:
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                                type: string
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                                type: string
+                                          sub_account:
+                                            type: object
+                                            required:
+                                              - address
+                                            properties:
+                                              address:
+                                                type: string
+                                              metadata:
+                                                type: object
+                                                additionalProperties: {}
+                                      amount:
+                                        type: object
+                                        required:
+                                          - value
+                                          - currency
+                                        properties:
+                                          value:
+                                            type: string
+                                          currency:
+                                            type: object
+                                            required:
+                                              - symbol
+                                              - decimals
+                                            properties:
+                                              symbol:
+                                                type: string
+                                              decimals:
+                                                type: integer
+                                              metadata:
+                                                type: object
+                                                required:
+                                                  - asset_identifier
+                                                  - token_type
+                                                properties:
+                                                  asset_identifier:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: "null"
+                                                  name:
+                                                    type: string
+                                                  value:
+                                                    type: string
+                                                  token_type:
+                                                    anyOf:
+                                                      - type: string
+                                                        enum:
+                                                          - ft
+                                                      - type: string
+                                                        enum:
+                                                          - nft
+                                      type:
+                                        type: string
+                                        enum:
+                                          - stake_update
+                                      metadata:
+                                        type: object
+                                        required:
+                                          - signer
+                                          - old_signer
+                                          - amount_increase
+                                          - num_cycles
+                                          - cycles_to_extend
+                                          - prev_unlock_height
+                                          - unlock_burn_height
+                                          - unlock_cycle
+                                        properties:
+                                          signer:
+                                            type: string
+                                          old_signer:
+                                            type: string
+                                          amount_increase:
+                                            type: string
+                                          num_cycles:
+                                            type: integer
+                                          cycles_to_extend:
+                                            type: integer
+                                          prev_unlock_height:
+                                            type: integer
+                                          unlock_burn_height:
+                                            type: integer
+                                          unlock_cycle:
+                                            type: integer
+                                  - type: object
+                                    required:
+                                      - operation_identifier
+                                      - status
+                                      - account
+                                      - amount
+                                      - type
+                                      - metadata
+                                    properties:
+                                      operation_identifier:
+                                        type: object
+                                        required:
+                                          - index
+                                        properties:
+                                          index:
+                                            type: integer
+                                          network_index:
+                                            type: integer
+                                      status:
+                                        anyOf:
+                                          - type: string
+                                            enum:
+                                              - pending
+                                          - type: string
+                                            enum:
+                                              - success
+                                          - type: string
+                                            enum:
+                                              - abort_by_response
+                                          - type: string
+                                            enum:
+                                              - abort_by_post_condition
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_by_fee
+                                          - type: string
+                                            enum:
+                                              - dropped_replace_across_fork
+                                          - type: string
+                                            enum:
+                                              - dropped_too_expensive
+                                          - type: string
+                                            enum:
+                                              - dropped_problematic
+                                          - type: string
+                                            enum:
+                                              - dropped_stale_garbage_collect
+                                      account:
+                                        type: object
+                                        required:
+                                          - address
+                                        properties:
+                                          address:
+                                            anyOf:
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                                type: string
+                                              - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                                type: string
+                                          sub_account:
+                                            type: object
+                                            required:
+                                              - address
+                                            properties:
+                                              address:
+                                                type: string
+                                              metadata:
+                                                type: object
+                                                additionalProperties: {}
+                                      amount:
+                                        type: object
+                                        required:
+                                          - value
+                                          - currency
+                                        properties:
+                                          value:
+                                            type: string
+                                          currency:
+                                            type: object
+                                            required:
+                                              - symbol
+                                              - decimals
+                                            properties:
+                                              symbol:
+                                                type: string
+                                              decimals:
+                                                type: integer
+                                              metadata:
+                                                type: object
+                                                required:
+                                                  - asset_identifier
+                                                  - token_type
+                                                properties:
+                                                  asset_identifier:
+                                                    anyOf:
+                                                      - type: string
+                                                      - type: "null"
+                                                  name:
+                                                    type: string
+                                                  value:
+                                                    type: string
+                                                  token_type:
+                                                    anyOf:
+                                                      - type: string
+                                                        enum:
+                                                          - ft
+                                                      - type: string
+                                                        enum:
+                                                          - nft
+                                      type:
+                                        type: string
+                                        enum:
+                                          - unstake
+                                      metadata:
+                                        type: object
+                                        required:
+                                          - signer
+                                          - first_reward_cycle
+                                          - unlock_cycle
+                                          - unlock_burn_height
+                                        properties:
+                                          signer:
+                                            type: string
+                                          first_reward_cycle:
+                                            type: integer
+                                          unlock_cycle:
+                                            type: integer
+                                          unlock_burn_height:
+                                            type: integer
                                   - type: object
                                     required:
                                       - operation_identifier
@@ -3547,6 +4083,127 @@ paths:
                                                     type: string
                                                   repr:
                                                     type: string
+                                          - type: object
+                                            required:
+                                              - type
+                                              - condition_code
+                                              - amount
+                                              - principal
+                                            properties:
+                                              type:
+                                                type: string
+                                                enum:
+                                                  - staking
+                                              condition_code:
+                                                anyOf:
+                                                  - type: string
+                                                    enum:
+                                                      - sent_equal_to
+                                                  - type: string
+                                                    enum:
+                                                      - sent_greater_than
+                                                  - type: string
+                                                    enum:
+                                                      - sent_greater_than_or_equal_to
+                                                  - type: string
+                                                    enum:
+                                                      - sent_less_than
+                                                  - type: string
+                                                    enum:
+                                                      - sent_less_than_or_equal_to
+                                              amount:
+                                                type: string
+                                              principal:
+                                                anyOf:
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                      - address
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_standard
+                                                      address:
+                                                        type: string
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                      - contract_name
+                                                      - address
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_contract
+                                                      contract_name:
+                                                        type: string
+                                                      address:
+                                                        type: string
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_origin
+                                          - type: object
+                                            required:
+                                              - type
+                                              - condition_code
+                                              - principal
+                                            properties:
+                                              type:
+                                                type: string
+                                                enum:
+                                                  - pox
+                                              condition_code:
+                                                anyOf:
+                                                  - type: string
+                                                    enum:
+                                                      - not_performed
+                                                  - type: string
+                                                    enum:
+                                                      - maybe_performed
+                                                  - type: string
+                                                    enum:
+                                                      - performed
+                                              principal:
+                                                anyOf:
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                      - address
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_standard
+                                                      address:
+                                                        type: string
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                      - contract_name
+                                                      - address
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_contract
+                                                      contract_name:
+                                                        type: string
+                                                      address:
+                                                        type: string
+                                                  - type: object
+                                                    required:
+                                                      - type_id
+                                                    properties:
+                                                      type_id:
+                                                        type: string
+                                                        enum:
+                                                          - principal_origin
                                 position:
                                   type: object
                                   required:
@@ -4912,6 +5569,143 @@ paths:
                                 - operation_identifier
                                 - status
                                 - account
+                                - amount
+                                - type
+                                - metadata
+                              properties:
+                                operation_identifier:
+                                  type: object
+                                  required:
+                                    - index
+                                  properties:
+                                    index:
+                                      type: integer
+                                    network_index:
+                                      type: integer
+                                status:
+                                  anyOf:
+                                    - type: string
+                                      enum:
+                                        - pending
+                                    - type: string
+                                      enum:
+                                        - success
+                                    - type: string
+                                      enum:
+                                        - abort_by_response
+                                    - type: string
+                                      enum:
+                                        - abort_by_post_condition
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_by_fee
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_across_fork
+                                    - type: string
+                                      enum:
+                                        - dropped_too_expensive
+                                    - type: string
+                                      enum:
+                                        - dropped_problematic
+                                    - type: string
+                                      enum:
+                                        - dropped_stale_garbage_collect
+                                account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      anyOf:
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                          type: string
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                          type: string
+                                    sub_account:
+                                      type: object
+                                      required:
+                                        - address
+                                      properties:
+                                        address:
+                                          type: string
+                                        metadata:
+                                          type: object
+                                          additionalProperties: {}
+                                amount:
+                                  type: object
+                                  required:
+                                    - value
+                                    - currency
+                                  properties:
+                                    value:
+                                      type: string
+                                    currency:
+                                      type: object
+                                      required:
+                                        - symbol
+                                        - decimals
+                                      properties:
+                                        symbol:
+                                          type: string
+                                        decimals:
+                                          type: integer
+                                        metadata:
+                                          type: object
+                                          required:
+                                            - asset_identifier
+                                            - token_type
+                                          properties:
+                                            asset_identifier:
+                                              anyOf:
+                                                - type: string
+                                                - type: "null"
+                                            name:
+                                              type: string
+                                            value:
+                                              type: string
+                                            token_type:
+                                              anyOf:
+                                                - type: string
+                                                  enum:
+                                                    - ft
+                                                - type: string
+                                                  enum:
+                                                    - nft
+                                type:
+                                  type: string
+                                  enum:
+                                    - register_for_bond
+                                metadata:
+                                  type: object
+                                  required:
+                                    - signer
+                                    - bond_index
+                                    - sats_total
+                                    - is_l1_lock
+                                    - first_reward_cycle
+                                    - unlock_burn_height
+                                    - unlock_cycle
+                                  properties:
+                                    signer:
+                                      type: string
+                                    bond_index:
+                                      type: integer
+                                    sats_total:
+                                      type: string
+                                    is_l1_lock:
+                                      type: boolean
+                                    first_reward_cycle:
+                                      type: integer
+                                    unlock_burn_height:
+                                      type: integer
+                                    unlock_cycle:
+                                      type: integer
+                            - type: object
+                              required:
+                                - operation_identifier
+                                - status
+                                - account
                                 - type
                                 - metadata
                               properties:
@@ -5095,6 +5889,405 @@ paths:
                                       type: string
                                     abi:
                                       type: string
+                            - type: object
+                              required:
+                                - operation_identifier
+                                - status
+                                - account
+                                - amount
+                                - type
+                                - metadata
+                              properties:
+                                operation_identifier:
+                                  type: object
+                                  required:
+                                    - index
+                                  properties:
+                                    index:
+                                      type: integer
+                                    network_index:
+                                      type: integer
+                                status:
+                                  anyOf:
+                                    - type: string
+                                      enum:
+                                        - pending
+                                    - type: string
+                                      enum:
+                                        - success
+                                    - type: string
+                                      enum:
+                                        - abort_by_response
+                                    - type: string
+                                      enum:
+                                        - abort_by_post_condition
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_by_fee
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_across_fork
+                                    - type: string
+                                      enum:
+                                        - dropped_too_expensive
+                                    - type: string
+                                      enum:
+                                        - dropped_problematic
+                                    - type: string
+                                      enum:
+                                        - dropped_stale_garbage_collect
+                                account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      anyOf:
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                          type: string
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                          type: string
+                                    sub_account:
+                                      type: object
+                                      required:
+                                        - address
+                                      properties:
+                                        address:
+                                          type: string
+                                        metadata:
+                                          type: object
+                                          additionalProperties: {}
+                                amount:
+                                  type: object
+                                  required:
+                                    - value
+                                    - currency
+                                  properties:
+                                    value:
+                                      type: string
+                                    currency:
+                                      type: object
+                                      required:
+                                        - symbol
+                                        - decimals
+                                      properties:
+                                        symbol:
+                                          type: string
+                                        decimals:
+                                          type: integer
+                                        metadata:
+                                          type: object
+                                          required:
+                                            - asset_identifier
+                                            - token_type
+                                          properties:
+                                            asset_identifier:
+                                              anyOf:
+                                                - type: string
+                                                - type: "null"
+                                            name:
+                                              type: string
+                                            value:
+                                              type: string
+                                            token_type:
+                                              anyOf:
+                                                - type: string
+                                                  enum:
+                                                    - ft
+                                                - type: string
+                                                  enum:
+                                                    - nft
+                                type:
+                                  type: string
+                                  enum:
+                                    - stake
+                                metadata:
+                                  type: object
+                                  required:
+                                    - signer
+                                    - num_cycles
+                                    - first_reward_cycle
+                                    - unlock_burn_height
+                                    - unlock_cycle
+                                  properties:
+                                    signer:
+                                      type: string
+                                    num_cycles:
+                                      type: integer
+                                    first_reward_cycle:
+                                      type: integer
+                                    unlock_burn_height:
+                                      type: integer
+                                    unlock_cycle:
+                                      type: integer
+                            - type: object
+                              required:
+                                - operation_identifier
+                                - status
+                                - account
+                                - amount
+                                - type
+                                - metadata
+                              properties:
+                                operation_identifier:
+                                  type: object
+                                  required:
+                                    - index
+                                  properties:
+                                    index:
+                                      type: integer
+                                    network_index:
+                                      type: integer
+                                status:
+                                  anyOf:
+                                    - type: string
+                                      enum:
+                                        - pending
+                                    - type: string
+                                      enum:
+                                        - success
+                                    - type: string
+                                      enum:
+                                        - abort_by_response
+                                    - type: string
+                                      enum:
+                                        - abort_by_post_condition
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_by_fee
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_across_fork
+                                    - type: string
+                                      enum:
+                                        - dropped_too_expensive
+                                    - type: string
+                                      enum:
+                                        - dropped_problematic
+                                    - type: string
+                                      enum:
+                                        - dropped_stale_garbage_collect
+                                account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      anyOf:
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                          type: string
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                          type: string
+                                    sub_account:
+                                      type: object
+                                      required:
+                                        - address
+                                      properties:
+                                        address:
+                                          type: string
+                                        metadata:
+                                          type: object
+                                          additionalProperties: {}
+                                amount:
+                                  type: object
+                                  required:
+                                    - value
+                                    - currency
+                                  properties:
+                                    value:
+                                      type: string
+                                    currency:
+                                      type: object
+                                      required:
+                                        - symbol
+                                        - decimals
+                                      properties:
+                                        symbol:
+                                          type: string
+                                        decimals:
+                                          type: integer
+                                        metadata:
+                                          type: object
+                                          required:
+                                            - asset_identifier
+                                            - token_type
+                                          properties:
+                                            asset_identifier:
+                                              anyOf:
+                                                - type: string
+                                                - type: "null"
+                                            name:
+                                              type: string
+                                            value:
+                                              type: string
+                                            token_type:
+                                              anyOf:
+                                                - type: string
+                                                  enum:
+                                                    - ft
+                                                - type: string
+                                                  enum:
+                                                    - nft
+                                type:
+                                  type: string
+                                  enum:
+                                    - stake_update
+                                metadata:
+                                  type: object
+                                  required:
+                                    - signer
+                                    - old_signer
+                                    - amount_increase
+                                    - num_cycles
+                                    - cycles_to_extend
+                                    - prev_unlock_height
+                                    - unlock_burn_height
+                                    - unlock_cycle
+                                  properties:
+                                    signer:
+                                      type: string
+                                    old_signer:
+                                      type: string
+                                    amount_increase:
+                                      type: string
+                                    num_cycles:
+                                      type: integer
+                                    cycles_to_extend:
+                                      type: integer
+                                    prev_unlock_height:
+                                      type: integer
+                                    unlock_burn_height:
+                                      type: integer
+                                    unlock_cycle:
+                                      type: integer
+                            - type: object
+                              required:
+                                - operation_identifier
+                                - status
+                                - account
+                                - amount
+                                - type
+                                - metadata
+                              properties:
+                                operation_identifier:
+                                  type: object
+                                  required:
+                                    - index
+                                  properties:
+                                    index:
+                                      type: integer
+                                    network_index:
+                                      type: integer
+                                status:
+                                  anyOf:
+                                    - type: string
+                                      enum:
+                                        - pending
+                                    - type: string
+                                      enum:
+                                        - success
+                                    - type: string
+                                      enum:
+                                        - abort_by_response
+                                    - type: string
+                                      enum:
+                                        - abort_by_post_condition
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_by_fee
+                                    - type: string
+                                      enum:
+                                        - dropped_replace_across_fork
+                                    - type: string
+                                      enum:
+                                        - dropped_too_expensive
+                                    - type: string
+                                      enum:
+                                        - dropped_problematic
+                                    - type: string
+                                      enum:
+                                        - dropped_stale_garbage_collect
+                                account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      anyOf:
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                          type: string
+                                        - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                          type: string
+                                    sub_account:
+                                      type: object
+                                      required:
+                                        - address
+                                      properties:
+                                        address:
+                                          type: string
+                                        metadata:
+                                          type: object
+                                          additionalProperties: {}
+                                amount:
+                                  type: object
+                                  required:
+                                    - value
+                                    - currency
+                                  properties:
+                                    value:
+                                      type: string
+                                    currency:
+                                      type: object
+                                      required:
+                                        - symbol
+                                        - decimals
+                                      properties:
+                                        symbol:
+                                          type: string
+                                        decimals:
+                                          type: integer
+                                        metadata:
+                                          type: object
+                                          required:
+                                            - asset_identifier
+                                            - token_type
+                                          properties:
+                                            asset_identifier:
+                                              anyOf:
+                                                - type: string
+                                                - type: "null"
+                                            name:
+                                              type: string
+                                            value:
+                                              type: string
+                                            token_type:
+                                              anyOf:
+                                                - type: string
+                                                  enum:
+                                                    - ft
+                                                - type: string
+                                                  enum:
+                                                    - nft
+                                type:
+                                  type: string
+                                  enum:
+                                    - unstake
+                                metadata:
+                                  type: object
+                                  required:
+                                    - signer
+                                    - first_reward_cycle
+                                    - unlock_cycle
+                                    - unlock_burn_height
+                                  properties:
+                                    signer:
+                                      type: string
+                                    first_reward_cycle:
+                                      type: integer
+                                    unlock_cycle:
+                                      type: integer
+                                    unlock_burn_height:
+                                      type: integer
                             - type: object
                               required:
                                 - operation_identifier
@@ -6797,6 +7990,127 @@ paths:
                                               type: string
                                             repr:
                                               type: string
+                                    - type: object
+                                      required:
+                                        - type
+                                        - condition_code
+                                        - amount
+                                        - principal
+                                      properties:
+                                        type:
+                                          type: string
+                                          enum:
+                                            - staking
+                                        condition_code:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - sent_equal_to
+                                            - type: string
+                                              enum:
+                                                - sent_greater_than
+                                            - type: string
+                                              enum:
+                                                - sent_greater_than_or_equal_to
+                                            - type: string
+                                              enum:
+                                                - sent_less_than
+                                            - type: string
+                                              enum:
+                                                - sent_less_than_or_equal_to
+                                        amount:
+                                          type: string
+                                        principal:
+                                          anyOf:
+                                            - type: object
+                                              required:
+                                                - type_id
+                                                - address
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_standard
+                                                address:
+                                                  type: string
+                                            - type: object
+                                              required:
+                                                - type_id
+                                                - contract_name
+                                                - address
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_contract
+                                                contract_name:
+                                                  type: string
+                                                address:
+                                                  type: string
+                                            - type: object
+                                              required:
+                                                - type_id
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_origin
+                                    - type: object
+                                      required:
+                                        - type
+                                        - condition_code
+                                        - principal
+                                      properties:
+                                        type:
+                                          type: string
+                                          enum:
+                                            - pox
+                                        condition_code:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - not_performed
+                                            - type: string
+                                              enum:
+                                                - maybe_performed
+                                            - type: string
+                                              enum:
+                                                - performed
+                                        principal:
+                                          anyOf:
+                                            - type: object
+                                              required:
+                                                - type_id
+                                                - address
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_standard
+                                                address:
+                                                  type: string
+                                            - type: object
+                                              required:
+                                                - type_id
+                                                - contract_name
+                                                - address
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_contract
+                                                contract_name:
+                                                  type: string
+                                                address:
+                                                  type: string
+                                            - type: object
+                                              required:
+                                                - type_id
+                                              properties:
+                                                type_id:
+                                                  type: string
+                                                  enum:
+                                                    - principal_origin
                           position:
                             type: object
                             required:
@@ -9985,6 +11299,143 @@ paths:
                             - operation_identifier
                             - status
                             - account
+                            - amount
+                            - type
+                            - metadata
+                          properties:
+                            operation_identifier:
+                              type: object
+                              required:
+                                - index
+                              properties:
+                                index:
+                                  type: integer
+                                network_index:
+                                  type: integer
+                            status:
+                              anyOf:
+                                - type: string
+                                  enum:
+                                    - pending
+                                - type: string
+                                  enum:
+                                    - success
+                                - type: string
+                                  enum:
+                                    - abort_by_response
+                                - type: string
+                                  enum:
+                                    - abort_by_post_condition
+                                - type: string
+                                  enum:
+                                    - dropped_replace_by_fee
+                                - type: string
+                                  enum:
+                                    - dropped_replace_across_fork
+                                - type: string
+                                  enum:
+                                    - dropped_too_expensive
+                                - type: string
+                                  enum:
+                                    - dropped_problematic
+                                - type: string
+                                  enum:
+                                    - dropped_stale_garbage_collect
+                            account:
+                              type: object
+                              required:
+                                - address
+                              properties:
+                                address:
+                                  anyOf:
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                      type: string
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                      type: string
+                                sub_account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                      additionalProperties: {}
+                            amount:
+                              type: object
+                              required:
+                                - value
+                                - currency
+                              properties:
+                                value:
+                                  type: string
+                                currency:
+                                  type: object
+                                  required:
+                                    - symbol
+                                    - decimals
+                                  properties:
+                                    symbol:
+                                      type: string
+                                    decimals:
+                                      type: integer
+                                    metadata:
+                                      type: object
+                                      required:
+                                        - asset_identifier
+                                        - token_type
+                                      properties:
+                                        asset_identifier:
+                                          anyOf:
+                                            - type: string
+                                            - type: "null"
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+                                        token_type:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - ft
+                                            - type: string
+                                              enum:
+                                                - nft
+                            type:
+                              type: string
+                              enum:
+                                - register_for_bond
+                            metadata:
+                              type: object
+                              required:
+                                - signer
+                                - bond_index
+                                - sats_total
+                                - is_l1_lock
+                                - first_reward_cycle
+                                - unlock_burn_height
+                                - unlock_cycle
+                              properties:
+                                signer:
+                                  type: string
+                                bond_index:
+                                  type: integer
+                                sats_total:
+                                  type: string
+                                is_l1_lock:
+                                  type: boolean
+                                first_reward_cycle:
+                                  type: integer
+                                unlock_burn_height:
+                                  type: integer
+                                unlock_cycle:
+                                  type: integer
+                        - type: object
+                          required:
+                            - operation_identifier
+                            - status
+                            - account
                             - type
                             - metadata
                           properties:
@@ -10168,6 +11619,405 @@ paths:
                                   type: string
                                 abi:
                                   type: string
+                        - type: object
+                          required:
+                            - operation_identifier
+                            - status
+                            - account
+                            - amount
+                            - type
+                            - metadata
+                          properties:
+                            operation_identifier:
+                              type: object
+                              required:
+                                - index
+                              properties:
+                                index:
+                                  type: integer
+                                network_index:
+                                  type: integer
+                            status:
+                              anyOf:
+                                - type: string
+                                  enum:
+                                    - pending
+                                - type: string
+                                  enum:
+                                    - success
+                                - type: string
+                                  enum:
+                                    - abort_by_response
+                                - type: string
+                                  enum:
+                                    - abort_by_post_condition
+                                - type: string
+                                  enum:
+                                    - dropped_replace_by_fee
+                                - type: string
+                                  enum:
+                                    - dropped_replace_across_fork
+                                - type: string
+                                  enum:
+                                    - dropped_too_expensive
+                                - type: string
+                                  enum:
+                                    - dropped_problematic
+                                - type: string
+                                  enum:
+                                    - dropped_stale_garbage_collect
+                            account:
+                              type: object
+                              required:
+                                - address
+                              properties:
+                                address:
+                                  anyOf:
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                      type: string
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                      type: string
+                                sub_account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                      additionalProperties: {}
+                            amount:
+                              type: object
+                              required:
+                                - value
+                                - currency
+                              properties:
+                                value:
+                                  type: string
+                                currency:
+                                  type: object
+                                  required:
+                                    - symbol
+                                    - decimals
+                                  properties:
+                                    symbol:
+                                      type: string
+                                    decimals:
+                                      type: integer
+                                    metadata:
+                                      type: object
+                                      required:
+                                        - asset_identifier
+                                        - token_type
+                                      properties:
+                                        asset_identifier:
+                                          anyOf:
+                                            - type: string
+                                            - type: "null"
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+                                        token_type:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - ft
+                                            - type: string
+                                              enum:
+                                                - nft
+                            type:
+                              type: string
+                              enum:
+                                - stake
+                            metadata:
+                              type: object
+                              required:
+                                - signer
+                                - num_cycles
+                                - first_reward_cycle
+                                - unlock_burn_height
+                                - unlock_cycle
+                              properties:
+                                signer:
+                                  type: string
+                                num_cycles:
+                                  type: integer
+                                first_reward_cycle:
+                                  type: integer
+                                unlock_burn_height:
+                                  type: integer
+                                unlock_cycle:
+                                  type: integer
+                        - type: object
+                          required:
+                            - operation_identifier
+                            - status
+                            - account
+                            - amount
+                            - type
+                            - metadata
+                          properties:
+                            operation_identifier:
+                              type: object
+                              required:
+                                - index
+                              properties:
+                                index:
+                                  type: integer
+                                network_index:
+                                  type: integer
+                            status:
+                              anyOf:
+                                - type: string
+                                  enum:
+                                    - pending
+                                - type: string
+                                  enum:
+                                    - success
+                                - type: string
+                                  enum:
+                                    - abort_by_response
+                                - type: string
+                                  enum:
+                                    - abort_by_post_condition
+                                - type: string
+                                  enum:
+                                    - dropped_replace_by_fee
+                                - type: string
+                                  enum:
+                                    - dropped_replace_across_fork
+                                - type: string
+                                  enum:
+                                    - dropped_too_expensive
+                                - type: string
+                                  enum:
+                                    - dropped_problematic
+                                - type: string
+                                  enum:
+                                    - dropped_stale_garbage_collect
+                            account:
+                              type: object
+                              required:
+                                - address
+                              properties:
+                                address:
+                                  anyOf:
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                      type: string
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                      type: string
+                                sub_account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                      additionalProperties: {}
+                            amount:
+                              type: object
+                              required:
+                                - value
+                                - currency
+                              properties:
+                                value:
+                                  type: string
+                                currency:
+                                  type: object
+                                  required:
+                                    - symbol
+                                    - decimals
+                                  properties:
+                                    symbol:
+                                      type: string
+                                    decimals:
+                                      type: integer
+                                    metadata:
+                                      type: object
+                                      required:
+                                        - asset_identifier
+                                        - token_type
+                                      properties:
+                                        asset_identifier:
+                                          anyOf:
+                                            - type: string
+                                            - type: "null"
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+                                        token_type:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - ft
+                                            - type: string
+                                              enum:
+                                                - nft
+                            type:
+                              type: string
+                              enum:
+                                - stake_update
+                            metadata:
+                              type: object
+                              required:
+                                - signer
+                                - old_signer
+                                - amount_increase
+                                - num_cycles
+                                - cycles_to_extend
+                                - prev_unlock_height
+                                - unlock_burn_height
+                                - unlock_cycle
+                              properties:
+                                signer:
+                                  type: string
+                                old_signer:
+                                  type: string
+                                amount_increase:
+                                  type: string
+                                num_cycles:
+                                  type: integer
+                                cycles_to_extend:
+                                  type: integer
+                                prev_unlock_height:
+                                  type: integer
+                                unlock_burn_height:
+                                  type: integer
+                                unlock_cycle:
+                                  type: integer
+                        - type: object
+                          required:
+                            - operation_identifier
+                            - status
+                            - account
+                            - amount
+                            - type
+                            - metadata
+                          properties:
+                            operation_identifier:
+                              type: object
+                              required:
+                                - index
+                              properties:
+                                index:
+                                  type: integer
+                                network_index:
+                                  type: integer
+                            status:
+                              anyOf:
+                                - type: string
+                                  enum:
+                                    - pending
+                                - type: string
+                                  enum:
+                                    - success
+                                - type: string
+                                  enum:
+                                    - abort_by_response
+                                - type: string
+                                  enum:
+                                    - abort_by_post_condition
+                                - type: string
+                                  enum:
+                                    - dropped_replace_by_fee
+                                - type: string
+                                  enum:
+                                    - dropped_replace_across_fork
+                                - type: string
+                                  enum:
+                                    - dropped_too_expensive
+                                - type: string
+                                  enum:
+                                    - dropped_problematic
+                                - type: string
+                                  enum:
+                                    - dropped_stale_garbage_collect
+                            account:
+                              type: object
+                              required:
+                                - address
+                              properties:
+                                address:
+                                  anyOf:
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}\.[a-zA-Z]([a-zA-Z0-9]|[-_]){0,39}$
+                                      type: string
+                                    - pattern: ^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{28,41}$
+                                      type: string
+                                sub_account:
+                                  type: object
+                                  required:
+                                    - address
+                                  properties:
+                                    address:
+                                      type: string
+                                    metadata:
+                                      type: object
+                                      additionalProperties: {}
+                            amount:
+                              type: object
+                              required:
+                                - value
+                                - currency
+                              properties:
+                                value:
+                                  type: string
+                                currency:
+                                  type: object
+                                  required:
+                                    - symbol
+                                    - decimals
+                                  properties:
+                                    symbol:
+                                      type: string
+                                    decimals:
+                                      type: integer
+                                    metadata:
+                                      type: object
+                                      required:
+                                        - asset_identifier
+                                        - token_type
+                                      properties:
+                                        asset_identifier:
+                                          anyOf:
+                                            - type: string
+                                            - type: "null"
+                                        name:
+                                          type: string
+                                        value:
+                                          type: string
+                                        token_type:
+                                          anyOf:
+                                            - type: string
+                                              enum:
+                                                - ft
+                                            - type: string
+                                              enum:
+                                                - nft
+                            type:
+                              type: string
+                              enum:
+                                - unstake
+                            metadata:
+                              type: object
+                              required:
+                                - signer
+                                - first_reward_cycle
+                                - unlock_cycle
+                                - unlock_burn_height
+                              properties:
+                                signer:
+                                  type: string
+                                first_reward_cycle:
+                                  type: integer
+                                unlock_cycle:
+                                  type: integer
+                                unlock_burn_height:
+                                  type: integer
                         - type: object
                           required:
                             - operation_identifier
