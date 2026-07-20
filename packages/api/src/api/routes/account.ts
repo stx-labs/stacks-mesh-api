@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { ApiConfig } from '../index.js';
+import type { OnlineApiConfig } from '../index.js';
 import {
   AccountBalanceRequestSchema,
   AccountBalanceResponse,
@@ -17,7 +17,7 @@ import {
 } from '../../stacks-rpc/helpers.js';
 import { addHexPrefix } from '../../serializers/index.js';
 
-export const AccountRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
+export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
 
   fastify.post(

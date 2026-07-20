@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { ApiConfig } from '../index.js';
+import type { OnlineApiConfig } from '../index.js';
 import {
   CallRequestSchema,
   CallResponseSchema,
@@ -9,7 +9,7 @@ import { MeshErrors } from '../../utils/errors.js';
 import { decodeClarityValue } from '../../serializers/index.js';
 import { callReadOnlyFunction } from '../../stacks-rpc/helpers.js';
 
-export const CallRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
+export const CallRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
 
   fastify.post(

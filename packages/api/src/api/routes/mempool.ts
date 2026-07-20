@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { ApiConfig } from '../index.js';
+import type { OnlineApiConfig } from '../index.js';
 import {
   ErrorResponseSchema,
   MempoolRequestSchema,
@@ -7,7 +7,7 @@ import {
 } from '../../../../schemas/dist/index.js';
 import { MeshErrors } from '../../utils/errors.js';
 
-export const MempoolRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (
+export const MempoolRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
   fastify,
   _config
 ) => {

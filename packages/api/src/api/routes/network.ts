@@ -26,7 +26,7 @@ import { addHexPrefix } from '../../serializers/index.js';
 import { getChainTipNakamotoBlock } from '../../stacks-rpc/helpers.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
-  const { rpcClient, networkName, nodeVersion, apiVersion } = config;
+  const { networkName, nodeVersion, apiVersion } = config;
 
   fastify.post(
     '/network/list',
@@ -47,73 +47,77 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     }
   );
 
-  fastify.post(
-    '/network/status',
-    {
-      schema: {
-        body: NetworkStatusRequestSchema,
-        tags: ['Network'],
-        response: {
-          200: NetworkStatusResponseSchema,
-          500: ErrorResponseSchema,
+  // Node-backed — only served in online mode.
+  if (config.mode === 'online') {
+    const { rpcClient } = config;
+    fastify.post(
+      '/network/status',
+      {
+        schema: {
+          body: NetworkStatusRequestSchema,
+          tags: ['Network'],
+          response: {
+            200: NetworkStatusResponseSchema,
+            500: ErrorResponseSchema,
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const [chainTip, neighbors] = await Promise.all([
-        getChainTipNakamotoBlock(rpcClient),
-        rpcClient.request('GET', '/v2/neighbors'),
-      ]);
-      const { decodedBlock: chainTipNakamotoBlock, nodeInfo } = chainTip;
+      async (request, reply) => {
+        const [chainTip, neighbors] = await Promise.all([
+          getChainTipNakamotoBlock(rpcClient),
+          rpcClient.request('GET', '/v2/neighbors'),
+        ]);
+        const { decodedBlock: chainTipNakamotoBlock, nodeInfo } = chainTip;
 
-      // Create a map of public key hash to peer for deduplication.
-      const peerMap = new Map<string, Peer>();
-      const neighborGroups = [
-        { peers: neighbors.bootstrap, type: 'bootstrap' },
-        { peers: neighbors.sample, type: 'sample' },
-        { peers: neighbors.inbound, type: 'inbound' },
-        { peers: neighbors.outbound, type: 'outbound' },
-      ] as const;
-      for (const { peers, type } of neighborGroups) {
-        for (const peer of peers) {
-          const existing = peerMap.get(peer.public_key_hash);
-          if (existing) {
-            existing.metadata.type.push(type);
-          } else {
-            peerMap.set(peer.public_key_hash, {
-              peer_id: peer.public_key_hash,
-              metadata: {
-                ip: peer.ip,
-                port: peer.port,
-                peer_version: peer.peer_version,
-                type: [type],
-              },
-            });
+        // Create a map of public key hash to peer for deduplication.
+        const peerMap = new Map<string, Peer>();
+        const neighborGroups = [
+          { peers: neighbors.bootstrap, type: 'bootstrap' },
+          { peers: neighbors.sample, type: 'sample' },
+          { peers: neighbors.inbound, type: 'inbound' },
+          { peers: neighbors.outbound, type: 'outbound' },
+        ] as const;
+        for (const { peers, type } of neighborGroups) {
+          for (const peer of peers) {
+            const existing = peerMap.get(peer.public_key_hash);
+            if (existing) {
+              existing.metadata.type.push(type);
+            } else {
+              peerMap.set(peer.public_key_hash, {
+                peer_id: peer.public_key_hash,
+                metadata: {
+                  ip: peer.ip,
+                  port: peer.port,
+                  peer_version: peer.peer_version,
+                  type: [type],
+                },
+              });
+            }
           }
         }
+
+        const blockIndex = Number(chainTipNakamotoBlock.header.chain_length);
+        const response: NetworkStatusResponse = {
+          current_block_identifier: {
+            index: blockIndex,
+            hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
+          },
+          current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
+          genesis_block_identifier: {
+            index: 1,
+            hash: GENESIS_BLOCK_HASH[networkName],
+          },
+          sync_status: {
+            current_index: blockIndex,
+            synced: nodeInfo.is_fully_synced,
+          },
+          peers: Array.from(peerMap.values()),
+        };
+
+        return reply.send(response);
       }
-
-      const blockIndex = Number(chainTipNakamotoBlock.header.chain_length);
-      const response: NetworkStatusResponse = {
-        current_block_identifier: {
-          index: blockIndex,
-          hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
-        },
-        current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
-        genesis_block_identifier: {
-          index: 1,
-          hash: GENESIS_BLOCK_HASH[networkName],
-        },
-        sync_status: {
-          current_index: blockIndex,
-          synced: nodeInfo.is_fully_synced,
-        },
-        peers: Array.from(peerMap.values()),
-      };
-
-      return reply.send(response);
-    }
-  );
+    );
+  }
 
   fastify.post(
     '/network/options',

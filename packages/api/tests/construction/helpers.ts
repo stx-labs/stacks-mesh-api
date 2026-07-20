@@ -190,6 +190,7 @@ export async function buildTestServer() {
 
   const networkName = getStacksNetworkName(nodeInfo.network_id);
   return buildApiServer({
+    mode: 'online',
     rpcClient,
     networkName,
     network: buildStacksNetwork(networkName, nodeInfo.network_id),

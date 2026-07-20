@@ -12,10 +12,16 @@ import { handleMeshError } from '../middleware/error-handlers.js';
 export const MeshApiRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   fastify.setErrorHandler(handleMeshError);
   fastify.addHook('preHandler', validateMeshRequest(config));
+  // Registered in every mode. These plugins serve the offline-safe endpoints and internally gate
+  // their node-backed endpoints (`/network/status`, `/construction/metadata`, `/construction/submit`)
+  // on `config.mode === 'online'`.
   await fastify.register(NetworkRoutes, config);
-  await fastify.register(BlockRoutes, config);
-  await fastify.register(AccountRoutes, config);
-  await fastify.register(MempoolRoutes, config);
   await fastify.register(ConstructionRoutes, config);
-  await fastify.register(CallRoutes, config);
+  // Data API — node-backed, online only. Not registered in offline mode (endpoints 404).
+  if (config.mode === 'online') {
+    await fastify.register(BlockRoutes, config);
+    await fastify.register(AccountRoutes, config);
+    await fastify.register(MempoolRoutes, config);
+    await fastify.register(CallRoutes, config);
+  }
 };

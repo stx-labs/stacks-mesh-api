@@ -9,8 +9,7 @@ import { CoreRpcClient } from '@stacks/rpc-client';
 import type { StacksNetwork } from '@stacks/network';
 import type { StacksNetworkName } from '../utils/helpers.js';
 
-export type ApiConfig = {
-  rpcClient: CoreRpcClient;
+type BaseApiConfig = {
   tokenMetadataCache: TokenMetadataCache;
   contractAbiCache: ContractAbiCache;
   /** Network format label — address version bytes, PoX boot address, request validation. */
@@ -20,6 +19,23 @@ export type ApiConfig = {
   nodeVersion: string;
   apiVersion: string;
 };
+
+/** Full config: connected to a node, serves the entire API. */
+export type OnlineApiConfig = BaseApiConfig & {
+  mode: 'online';
+  rpcClient: CoreRpcClient;
+};
+
+/**
+ * Node-less config: serves only the offline endpoints (offline Construction subset +
+ * `/network/list` + `/network/options`) and makes no outbound calls. `network`/`networkName` come
+ * from `STACKS_CHAIN_ID` instead of the node.
+ */
+export type OfflineApiConfig = BaseApiConfig & {
+  mode: 'offline';
+};
+
+export type ApiConfig = OnlineApiConfig | OfflineApiConfig;
 
 export async function buildApiServer(config: ApiConfig) {
   const fastify = Fastify({
