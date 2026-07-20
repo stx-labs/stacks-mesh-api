@@ -1,7 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { before, describe, test } from 'node:test';
 import { FastifyInstance, LightMyRequestResponse } from 'fastify';
-import { ChainId } from '@stacks/network';
 import { privateKeyToPublic } from '@stacks/transactions';
 import { ApiConfig, buildApiServer } from '../../src/api/index.js';
 import { buildStacksNetwork } from '../../src/utils/helpers.js';

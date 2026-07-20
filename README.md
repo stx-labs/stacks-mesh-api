@@ -71,7 +71,7 @@ Set `MODE=offline` to run a node-less instance for air-gapped transaction constr
 
 Offline mode serves only the endpoints that need no chain state:
 
-- `/construction/derive`, `/preprocess`, `/payloads`, `/combine`, `/parse`, `/hash`
+- `/construction/derive`, `/construction/preprocess`, `/construction/payloads`, `/construction/combine`, `/construction/parse`, `/construction/hash`
 - `/network/list`, `/network/options`
 
 The node-backed endpoints — `/construction/metadata`, `/construction/submit`, `/network/status`, and the Data API (`/account/*`, `/block/*`, `/mempool/*`, `/call`) — are **not registered** and return `404`. Run a separate `online` instance for those, per the standard Mesh online/offline split.
