@@ -17,11 +17,11 @@ const schema = Type.Object({
   STACKS_CORE_RPC_AUTH_TOKEN: Type.String(),
 
   /**
-   * Optional override for the network address/transaction format. The chain ID used for
-   * transaction signing always comes from the connected node (`/v2/info` `network_id`); this only
-   * selects the address version bytes / boot address (mainnet vs testnet format). Set it only for
-   * custom networks whose chain ID isn't the standard mainnet (`0x00000001`) or testnet
-   * (`0x80000000`) value — otherwise the format is inferred from the node.
+   * Optional override for the network address/transaction format. The chain ID used for transaction
+   * signing always comes from the connected node (`/v2/info` `network_id`); this only selects the
+   * address version bytes / boot address (mainnet vs testnet format). Set it only for custom
+   * networks whose chain ID isn't the standard mainnet (`0x00000001`) or testnet (`0x80000000`)
+   * value — otherwise the format is inferred from the node.
    */
   STACKS_NETWORK: Type.Optional(
     Type.Union([Type.Literal('mainnet'), Type.Literal('testnet')])
