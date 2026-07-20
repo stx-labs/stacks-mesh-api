@@ -70,6 +70,13 @@ async function buildOnlineConfig(): Promise<ApiConfig> {
   });
   const nodeInfo = await waitForNodeReady(rpcClient);
 
+  if (ENV.STACKS_CHAIN_ID != null) {
+    logger.warn(
+      { configured_chain_id: ENV.STACKS_CHAIN_ID, node_chain_id: nodeInfo.network_id },
+      `STACKS_CHAIN_ID is ignored in online mode; using the connected node's chain ID instead`
+    );
+  }
+
   const networkName = getStacksNetworkName(nodeInfo.network_id);
   // The chain ID for transaction signing always comes from the node, so a custom-chain-ID network
   // is supported without extra config (any non-mainnet chain ID resolves to testnet format).
