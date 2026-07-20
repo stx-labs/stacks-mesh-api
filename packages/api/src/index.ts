@@ -43,12 +43,12 @@ export async function initApp() {
     ttl: ENV.CONTRACT_ABI_CACHE_TTL_MS,
   });
 
-  const networkName = getStacksNetworkName(nodeInfo.network_id, ENV.STACKS_NETWORK);
+  const networkName = getStacksNetworkName(nodeInfo.network_id);
   // The chain ID for transaction signing always comes from the node, so a custom-chain-ID network
-  // is supported without extra config; the format label falls back to (or is overridden to) testnet.
+  // is supported without extra config (any non-mainnet chain ID resolves to testnet format).
   const network = buildStacksNetwork(networkName, nodeInfo.network_id);
   logger.info(
-    { networkName, chain_id: nodeInfo.network_id, format_override: ENV.STACKS_NETWORK ?? null },
+    { networkName, chain_id: nodeInfo.network_id },
     `Resolved Stacks network`
   );
 

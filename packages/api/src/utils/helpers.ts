@@ -8,27 +8,14 @@ export type StacksNetworkName = 'mainnet' | 'testnet';
  * the PoX boot address, and the value requests are validated against — all of which are identical
  * across every testnet regardless of its chain ID.
  *
- * Known chain IDs map directly. Any other value (e.g. a custom/private testnet or devnet) defaults
- * to `testnet` format, since mainnet has exactly one chain ID; pass `override` to force the format
- * explicitly.
+ * The canonical mainnet chain ID maps to `mainnet`; every other value — the canonical testnet ID
+ * or any custom/private testnet/devnet ID — maps to `testnet`, since mainnet has exactly one fixed
+ * chain ID.
  * @param networkId - The node's chain ID (`/v2/info` `network_id`).
- * @param override - Optional explicit format, from `STACKS_NETWORK`.
  * @returns The Stacks network name.
  */
-export function getStacksNetworkName(
-  networkId: number,
-  override?: StacksNetworkName
-): StacksNetworkName {
-  if (override) return override;
-  switch (networkId) {
-    case StacksNetworkId.mainnet:
-      return 'mainnet';
-    case StacksNetworkId.testnet:
-      return 'testnet';
-    default:
-      // Custom chain ID (private testnet/devnet). Treat as testnet address/tx format.
-      return 'testnet';
-  }
+export function getStacksNetworkName(networkId: number): StacksNetworkName {
+  return networkId === StacksNetworkId.mainnet ? 'mainnet' : 'testnet';
 }
 
 /**
