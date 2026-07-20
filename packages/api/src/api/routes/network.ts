@@ -26,7 +26,7 @@ import { addHexPrefix } from '../../serializers/index.js';
 import { getChainTipNakamotoBlock } from '../../stacks-rpc/helpers.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
-  const { rpcClient, network, nodeVersion, apiVersion } = config;
+  const { rpcClient, networkName, nodeVersion, apiVersion } = config;
 
   fastify.post(
     '/network/list',
@@ -41,7 +41,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
     },
     async (_request, reply) => {
       const response: NetworkListResponse = {
-        network_identifiers: [{ blockchain: 'stacks', network }],
+        network_identifiers: [{ blockchain: 'stacks', network: networkName }],
       };
       return reply.send(response);
     }
@@ -102,7 +102,7 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
         current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
         genesis_block_identifier: {
           index: 1,
-          hash: GENESIS_BLOCK_HASH[network],
+          hash: GENESIS_BLOCK_HASH[networkName],
         },
         sync_status: {
           current_index: blockIndex,

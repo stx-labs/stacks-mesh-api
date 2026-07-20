@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { buildApiServer } from '../../src/api/index.js';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache.js';
-import { getStacksNetworkName } from '../../src/utils/helpers.js';
+import { buildStacksNetwork, getStacksNetworkName } from '../../src/utils/helpers.js';
 import { FastifyInstance } from 'fastify';
 import { privateKeyToPublic } from '@stacks/transactions';
 import { timeout } from '@stacks/api-toolkit';
@@ -188,9 +188,11 @@ export async function buildTestServer() {
     ttl: 60_000,
   });
 
+  const networkName = getStacksNetworkName(nodeInfo.network_id);
   return buildApiServer({
     rpcClient,
-    network: getStacksNetworkName(nodeInfo.network_id),
+    networkName,
+    network: buildStacksNetwork(networkName, nodeInfo.network_id),
     apiVersion: '1.0.0',
     nodeVersion: nodeInfo.server_version,
     tokenMetadataCache,

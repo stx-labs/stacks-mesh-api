@@ -632,7 +632,7 @@ function makeContractEventOperations(
     try {
       const poxEvent = codec.decodePoxSyntheticEvent(
         event.contract_event.raw_value,
-        config.network
+        config.networkName
       );
       if (poxEvent) {
         const poxOp = makeSyntheticPoxOperation(poxEvent, index, tx);

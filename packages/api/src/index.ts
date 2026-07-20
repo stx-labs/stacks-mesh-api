@@ -1,7 +1,7 @@
 import { ENV } from './env.js';
 import { logger, registerShutdownConfig, SERVER_VERSION, timeout } from '@stacks/api-toolkit';
 import { ApiConfig, buildApiServer } from './api/index.js';
-import { getStacksNetworkName } from './utils/helpers.js';
+import { buildStacksNetwork, getStacksNetworkName } from './utils/helpers.js';
 import { TokenMetadataCache } from './cache/token-metadata-cache.js';
 import { ContractAbiCache } from './cache/contract-abi-cache.js';
 import { CoreRpcClient, createCoreRpcClient, NodeInfo } from '@stacks/rpc-client';
@@ -43,9 +43,19 @@ export async function initApp() {
     ttl: ENV.CONTRACT_ABI_CACHE_TTL_MS,
   });
 
+  const networkName = getStacksNetworkName(nodeInfo.network_id);
+  // The chain ID for transaction signing always comes from the node, so a custom-chain-ID network
+  // is supported without extra config (any non-mainnet chain ID resolves to testnet format).
+  const network = buildStacksNetwork(networkName, nodeInfo.network_id);
+  logger.info(
+    { networkName, chain_id: nodeInfo.network_id },
+    `Resolved Stacks network`
+  );
+
   const apiConfig: ApiConfig = {
     rpcClient,
-    network: getStacksNetworkName(nodeInfo.network_id),
+    networkName,
+    network,
     nodeVersion: nodeInfo.server_version,
     apiVersion: `stacks-mesh-api ${SERVER_VERSION.tag} (${SERVER_VERSION.branch}:${SERVER_VERSION.commit})`,
     tokenMetadataCache,
