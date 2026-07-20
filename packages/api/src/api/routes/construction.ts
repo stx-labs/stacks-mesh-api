@@ -51,6 +51,8 @@ import BigNumber from 'bignumber.js';
 import { isDeepStrictEqual } from 'node:util';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
+  // `network` carries the node's actual chain ID (folded into the signing sighash), so
+  // transactions are constructed/signed correctly even against a node running a custom chain ID.
   const { rpcClient, network } = config;
 
   fastify.post(
@@ -68,7 +70,10 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { public_key } = request.body;
       try {
-        const address = getAddressFromPublicKey(removeHexPrefix(public_key.hex_bytes), network);
+        const address = getAddressFromPublicKey(
+          removeHexPrefix(public_key.hex_bytes),
+          network
+        );
         const response: ConstructionDeriveResponse = {
           account_identifier: { address },
         };

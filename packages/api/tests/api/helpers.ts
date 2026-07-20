@@ -4,6 +4,8 @@ import { fetch as undiciFetch, MockAgent } from 'undici';
 import { ApiConfig } from '../../src/api';
 import { ContractAbiCache } from '../../src/cache/contract-abi-cache';
 import { TokenMetadataCache } from '../../src/cache/token-metadata-cache';
+import { buildStacksNetwork } from '../../src/utils/helpers';
+import { ChainId } from '@stacks/network';
 import { createCoreRpcClient } from '@stacks/rpc-client';
 
 export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
@@ -37,7 +39,8 @@ export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
   });
   return {
     rpcClient,
-    network: 'mainnet',
+    networkName: 'mainnet',
+    network: buildStacksNetwork('mainnet', ChainId.Mainnet),
     nodeVersion: '1.0.0',
     apiVersion: '1.0.0',
     tokenMetadataCache,

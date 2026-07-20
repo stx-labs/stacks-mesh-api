@@ -6,12 +6,17 @@ import cors from '@fastify/cors';
 import { TokenMetadataCache } from '../cache/token-metadata-cache.js';
 import { ContractAbiCache } from '../cache/contract-abi-cache.js';
 import { CoreRpcClient } from '@stacks/rpc-client';
+import type { StacksNetwork } from '@stacks/network';
+import type { StacksNetworkName } from '../utils/helpers.js';
 
 export type ApiConfig = {
   rpcClient: CoreRpcClient;
   tokenMetadataCache: TokenMetadataCache;
   contractAbiCache: ContractAbiCache;
-  network: 'mainnet' | 'testnet';
+  /** Network format label — address version bytes, PoX boot address, request validation. */
+  networkName: StacksNetworkName;
+  /** Network object (with the node's actual chain ID) used for transaction construction/signing. */
+  network: StacksNetwork;
   nodeVersion: string;
   apiVersion: string;
 };

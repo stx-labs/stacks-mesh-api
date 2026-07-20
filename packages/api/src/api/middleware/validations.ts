@@ -34,7 +34,7 @@ export const validateMeshRequest = (config: ApiConfig) => {
     if ('network_identifier' in body) {
       const networkError = validateNetwork(
         body.network_identifier as NetworkIdentifier,
-        config.network
+        config.networkName
       );
       if (networkError) {
         return reply.status(500).send(networkError);
