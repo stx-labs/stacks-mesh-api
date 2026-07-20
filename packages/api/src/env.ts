@@ -7,14 +7,28 @@ const schema = Type.Object({
   /** Port in which to serve the API */
   API_PORT: Type.Number({ default: 3000, minimum: 0, maximum: 65535 }),
 
+  /**
+   * API mode. `online` (default) connects to a Stacks node and serves the full API. `offline`
+   * serves only the endpoints that need no chain state and makes no outbound calls (the offline
+   * subset of the Construction API, plus `/network/list` and `/network/options`) — for air-gapped
+   * transaction construction/signing.
+   */
+  MODE: Type.Union([Type.Literal('online'), Type.Literal('offline')], { default: 'online' }),
+
   /** Scheme of the Stacks Core RPC server */
   STACKS_CORE_RPC_SCHEME: Type.String({ default: 'http' }),
-  /** Hostname of the Stacks Core RPC server */
-  STACKS_CORE_RPC_HOST: Type.String(),
+  /** Hostname of the Stacks Core RPC server. Required in `online` mode. */
+  STACKS_CORE_RPC_HOST: Type.Optional(Type.String()),
   /** Port for the Stacks Core RPC server */
   STACKS_CORE_RPC_PORT: Type.Integer({ default: 20443, minimum: 0, maximum: 65535 }),
-  /** Auth token for the Stacks Core RPC server */
-  STACKS_CORE_RPC_AUTH_TOKEN: Type.String(),
+  /** Auth token for the Stacks Core RPC server. Required in `online` mode. */
+  STACKS_CORE_RPC_AUTH_TOKEN: Type.Optional(Type.String()),
+  /**
+   * Chain ID of the target network, used for transaction construction/signing. Required in
+   * `offline` mode (there's no node to read `/v2/info` `network_id` from); ignored in `online`
+   * mode, where it always comes from the node. Any non-mainnet value resolves to testnet format.
+   */
+  STACKS_CHAIN_ID: Type.Optional(Type.Integer({ minimum: 0 })),
 
   /** Size of the token metadata cache. Defaults to 1000. */
   TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),

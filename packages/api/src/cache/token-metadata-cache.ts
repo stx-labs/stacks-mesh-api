@@ -13,10 +13,11 @@ export type TokenMetadata = {
  * looking for FT symbols, names and decimals.
  */
 export class TokenMetadataCache {
-  private readonly rpcClient: CoreRpcClient;
+  // Absent in offline mode: `get` then resolves to `null` without any node call.
+  private readonly rpcClient?: CoreRpcClient;
   private readonly cache: LRUCache<string, TokenMetadata>;
 
-  constructor(args: { rpcClient: CoreRpcClient; cacheSize: number; ttl: number }) {
+  constructor(args: { rpcClient?: CoreRpcClient; cacheSize: number; ttl: number }) {
     const { rpcClient, cacheSize, ttl } = args;
     this.rpcClient = rpcClient;
     this.cache = new LRUCache<string, TokenMetadata>({
@@ -27,6 +28,8 @@ export class TokenMetadataCache {
   }
 
   async get(assetIdentifier: string): Promise<TokenMetadata | null> {
+    // No node connection (offline mode) — cannot resolve token metadata.
+    if (!this.rpcClient) return null;
     const key = assetIdentifier;
     const cachedMetadata = this.cache.get(key);
     if (!cachedMetadata) {
@@ -41,6 +44,8 @@ export class TokenMetadataCache {
   }
 
   private async fetchMetadata(assetIdentifier: string): Promise<TokenMetadata | undefined> {
+    // Only reached via `get`, which returns early when there is no rpcClient (offline mode).
+    if (!this.rpcClient) return undefined;
     const parts = assetIdentifier.split('.');
     const contractAddress = parts[0];
     const contractName = parts[1].split('::')[0];

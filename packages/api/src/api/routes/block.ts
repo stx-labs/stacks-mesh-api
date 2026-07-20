@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import type { ApiConfig } from '../index.js';
+import type { OnlineApiConfig } from '../index.js';
 import {
   BlockRequestSchema,
   BlockResponseSchema,
@@ -13,7 +13,7 @@ import {
 } from '../../serializers/index.js';
 import { getReplayedNakamotoBlockFromPartialBlockIdentifier } from '../../stacks-rpc/helpers.js';
 
-export const BlockRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
+export const BlockRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
 
   fastify.post(

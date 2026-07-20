@@ -52,16 +52,36 @@ The API is configured via environment variables (a `.env` file is also supported
 
 | Variable | Default | Description |
 |---|---|---|
+| `MODE` | `online` | `online` connects to a node and serves the full API. `offline` serves only the node-less endpoints (see [Offline mode](#offline-mode)) |
 | `API_HOST` | `0.0.0.0` | Address the HTTP server binds to |
 | `API_PORT` | `3000` | Port the HTTP server listens on |
-| `STACKS_CORE_RPC_HOST` | *(required)* | Hostname of the Stacks node RPC |
+| `STACKS_CORE_RPC_HOST` | *(required online)* | Hostname of the Stacks node RPC |
 | `STACKS_CORE_RPC_PORT` | `20443` | Port of the Stacks node RPC |
-| `STACKS_CORE_RPC_AUTH_TOKEN` | *(required)* | Auth token for the Stacks node RPC |
+| `STACKS_CORE_RPC_AUTH_TOKEN` | *(required online)* | Auth token for the Stacks node RPC |
 | `STACKS_CORE_RPC_TIMEOUT_MS` | `10000` | RPC request timeout in milliseconds |
+| `STACKS_CHAIN_ID` | *(required offline)* | Target chain ID, used for transaction signing. Offline only; online reads it from the node's `/v2/info` |
 | `TOKEN_METADATA_CACHE_SIZE` | `1000` | Max entries in the token metadata LRU cache |
 | `TOKEN_METADATA_CACHE_TTL_MS` | `86400000` | Token metadata cache TTL (default 24 h) |
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
 | `CONTRACT_ABI_CACHE_TTL_MS` | `86400000` | Contract ABI cache TTL (default 24 h) |
+
+### Offline mode
+
+Set `MODE=offline` to run a node-less instance for air-gapped transaction construction and signing. It makes **no outbound calls** and needs no Stacks node — only `STACKS_CHAIN_ID` (so signatures target the right chain; any non-mainnet value uses testnet address format).
+
+Offline mode serves only the endpoints that need no chain state:
+
+- `/construction/derive`, `/construction/preprocess`, `/construction/payloads`, `/construction/combine`, `/construction/parse`, `/construction/hash`
+- `/network/list`, `/network/options`
+
+The node-backed endpoints — `/construction/metadata`, `/construction/submit`, `/network/status`, and the Data API (`/account/*`, `/block/*`, `/mempool/*`, `/call`) — are **not registered** and return `404`. Run a separate `online` instance for those, per the standard Mesh online/offline split.
+
+> Note: `/construction/parse` of a `contract_call` omits argument names in offline mode (labeling them requires the contract ABI from a node); the operation and its raw args are still returned.
+
+```env
+MODE=offline
+STACKS_CHAIN_ID=2147483648
+```
 
 ## Running locally
 

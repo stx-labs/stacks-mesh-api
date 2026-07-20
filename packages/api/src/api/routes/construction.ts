@@ -53,7 +53,8 @@ import { isDeepStrictEqual } from 'node:util';
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   // `network` carries the node's actual chain ID (folded into the signing sighash), so
   // transactions are constructed/signed correctly even against a node running a custom chain ID.
-  const { rpcClient, network } = config;
+  // Available in every mode; `rpcClient` (used by the node-backed endpoints below) is not.
+  const { network } = config;
 
   fastify.post(
     '/construction/derive',
@@ -70,10 +71,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     async (request, reply) => {
       const { public_key } = request.body;
       try {
-        const address = getAddressFromPublicKey(
-          removeHexPrefix(public_key.hex_bytes),
-          network
-        );
+        const address = getAddressFromPublicKey(removeHexPrefix(public_key.hex_bytes), network);
         const response: ConstructionDeriveResponse = {
           account_identifier: { address },
         };
@@ -113,101 +111,105 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 
-  fastify.post(
-    '/construction/metadata',
-    {
-      schema: {
-        body: ConstructionMetadataRequestSchema,
-        tags: ['Construction'],
-        response: {
-          200: ConstructionMetadataResponseSchema,
-          500: ErrorResponseSchema,
+  // Node-backed (fetches nonce/balance) — only served in online mode.
+  if (config.mode === 'online') {
+    const { rpcClient } = config;
+    fastify.post(
+      '/construction/metadata',
+      {
+        schema: {
+          body: ConstructionMetadataRequestSchema,
+          tags: ['Construction'],
+          response: {
+            200: ConstructionMetadataResponseSchema,
+            500: ErrorResponseSchema,
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const { options, public_keys } = request.body;
+      async (request, reply) => {
+        const { options, public_keys } = request.body;
 
-      // Estimate fee using a dummy transaction depending on the operation type specified in
-      // options.
-      //
-      // TODO: Fees are currently estimated by transaction byte size because the Stacks node's fee
-      // estimation endpoint does not yet return accurate values. We should switch back once that is
-      // fixed.
-      let suggestedFee = 200; // Default fallback fee in uSTX
-      const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
-      switch (options.type) {
-        case 'token_transfer': {
-          const dummyTx = await makeUnsignedSTXTokenTransfer({
-            recipient: options.recipient_address,
-            amount: 1,
-            fee: 0,
-            nonce: 0,
-            publicKey: dummyPubKey,
-            network,
-          });
-          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-          break;
+        // Estimate fee using a dummy transaction depending on the operation type specified in
+        // options.
+        //
+        // TODO: Fees are currently estimated by transaction byte size because the Stacks node's fee
+        // estimation endpoint does not yet return accurate values. We should switch back once that is
+        // fixed.
+        let suggestedFee = 200; // Default fallback fee in uSTX
+        const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
+        switch (options.type) {
+          case 'token_transfer': {
+            const dummyTx = await makeUnsignedSTXTokenTransfer({
+              recipient: options.recipient_address,
+              amount: 1,
+              fee: 0,
+              nonce: 0,
+              publicKey: dummyPubKey,
+              network,
+            });
+            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+            break;
+          }
+          case 'contract_call': {
+            // TODO: Should we check if the contract exists?
+            const [contractAddress, contractName] = options.contract_identifier.split('.');
+            const dummyTx = await makeUnsignedContractCall({
+              contractAddress,
+              contractName,
+              functionName: options.function_name,
+              functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
+              publicKey: dummyPubKey,
+              fee: 0,
+            });
+            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+            break;
+          }
+          case 'contract_deploy': {
+            const dummyTx = await makeUnsignedContractDeploy({
+              contractName: options.contract_name,
+              codeBody: options.source_code,
+              clarityVersion: options.clarity_version,
+              publicKey: dummyPubKey,
+              fee: 0,
+            });
+            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
+            break;
+          }
         }
-        case 'contract_call': {
-          // TODO: Should we check if the contract exists?
-          const [contractAddress, contractName] = options.contract_identifier.split('.');
-          const dummyTx = await makeUnsignedContractCall({
-            contractAddress,
-            contractName,
-            functionName: options.function_name,
-            functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
-            publicKey: dummyPubKey,
-            fee: 0,
-          });
-          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-          break;
+        // Apply fee multiplier if specified
+        const feeMultiplier = options?.suggested_fee_multiplier
+          ? Number(options.suggested_fee_multiplier)
+          : undefined;
+        if (feeMultiplier !== undefined) {
+          suggestedFee = Math.round(suggestedFee * feeMultiplier);
         }
-        case 'contract_deploy': {
-          const dummyTx = await makeUnsignedContractDeploy({
-            contractName: options.contract_name,
-            codeBody: options.source_code,
-            clarityVersion: options.clarity_version,
-            publicKey: dummyPubKey,
-            fee: 0,
-          });
-          suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-          break;
+        // Cap fee if max_fee was specified in options
+        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
+        if (maxFee !== undefined && suggestedFee > maxFee) {
+          suggestedFee = maxFee;
         }
-      }
-      // Apply fee multiplier if specified
-      const feeMultiplier = options?.suggested_fee_multiplier
-        ? Number(options.suggested_fee_multiplier)
-        : undefined;
-      if (feeMultiplier !== undefined) {
-        suggestedFee = Math.round(suggestedFee * feeMultiplier);
-      }
-      // Cap fee if max_fee was specified in options
-      const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
-      if (maxFee !== undefined && suggestedFee > maxFee) {
-        suggestedFee = maxFee;
-      }
 
-      const senderInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
-        params: { path: { principal: options.sender_address } },
-      });
-      return reply.send({
-        metadata: {
-          options,
-          sender_account_info: {
-            nonce: senderInfo.nonce,
-            balance: BigNumber(senderInfo.balance).toString(),
+        const senderInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
+          params: { path: { principal: options.sender_address } },
+        });
+        return reply.send({
+          metadata: {
+            options,
+            sender_account_info: {
+              nonce: senderInfo.nonce,
+              balance: BigNumber(senderInfo.balance).toString(),
+            },
           },
-        },
-        suggested_fee: [
-          {
-            value: String(suggestedFee),
-            currency: STX_CURRENCY,
-          },
-        ],
-      });
-    }
-  );
+          suggested_fee: [
+            {
+              value: String(suggestedFee),
+              currency: STX_CURRENCY,
+            },
+          ],
+        });
+      }
+    );
+  }
 
   fastify.post(
     '/construction/payloads',
@@ -443,35 +445,39 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
     }
   );
 
-  fastify.post(
-    '/construction/submit',
-    {
-      schema: {
-        body: ConstructionSubmitRequestSchema,
-        tags: ['Construction'],
-        response: {
-          200: TransactionIdentifierResponseSchema,
-          500: ErrorResponseSchema,
+  // Node-backed (broadcasts the transaction) — only served in online mode.
+  if (config.mode === 'online') {
+    const { rpcClient } = config;
+    fastify.post(
+      '/construction/submit',
+      {
+        schema: {
+          body: ConstructionSubmitRequestSchema,
+          tags: ['Construction'],
+          response: {
+            200: TransactionIdentifierResponseSchema,
+            500: ErrorResponseSchema,
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const { signed_transaction } = request.body;
-      try {
-        const result = await rpcClient.request('POST', '/v2/transactions', {
-          body: { tx: removeHexPrefix(signed_transaction) },
-        });
-        return reply.send({
-          transaction_identifier: {
-            hash: addHexPrefix(result),
-          },
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return reply.status(500).send(MeshErrors.transactionBroadcastError(message));
+      async (request, reply) => {
+        const { signed_transaction } = request.body;
+        try {
+          const result = await rpcClient.request('POST', '/v2/transactions', {
+            body: { tx: removeHexPrefix(signed_transaction) },
+          });
+          return reply.send({
+            transaction_identifier: {
+              hash: addHexPrefix(result),
+            },
+          });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown error';
+          return reply.status(500).send(MeshErrors.transactionBroadcastError(message));
+        }
       }
-    }
-  );
+    );
+  }
 };
 
 function normalizeForUnorderedComparison(value: unknown): unknown {

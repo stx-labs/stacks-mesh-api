@@ -38,6 +38,7 @@ export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
     ttl: 60_000,
   });
   return {
+    mode: 'online',
     rpcClient,
     networkName: 'mainnet',
     network: buildStacksNetwork('mainnet', ChainId.Mainnet),
