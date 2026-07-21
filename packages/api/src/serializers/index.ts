@@ -8,10 +8,10 @@ import { StacksRpcTransactionNotFoundError } from '../stacks-rpc/errors.js';
 import { ApiConfig } from '../api/index.js';
 import {
   DecodedStacksTransaction,
+  getDeclaredTxFee,
   serializeReplayedNakamotoTransaction,
   serializeStacksTransactionOperations,
 } from './transactions.js';
-import BigNumber from 'bignumber.js';
 import type { BlockReplay, BlockReplayTransaction } from '@stacks/rpc-client';
 
 export function removeHexPrefix(hex: string): string {
@@ -81,7 +81,7 @@ export async function serializeReplayedNakamotoBlock(
     block.metadata!.execution_cost!.runtime += tx.execution_cost.runtime;
     block.metadata!.execution_cost!.write_count += tx.execution_cost.write_count;
     block.metadata!.execution_cost!.write_length += tx.execution_cost.write_length;
-    const serializedTx = await serializeReplayedNakamotoTransaction(tx, replay.fees, i, config);
+    const serializedTx = await serializeReplayedNakamotoTransaction(tx, i, config);
     block.transactions.push(serializedTx);
   }
 
@@ -106,7 +106,7 @@ export async function serializeTransactionFromReplayedNakamotoBlock(
   let index = 0;
   for (const tx of replay.transactions) {
     if (addHexPrefix(tx.txid) === normalizedTxId) {
-      return serializeReplayedNakamotoTransaction(tx, replay.fees, index, config);
+      return serializeReplayedNakamotoTransaction(tx, index, config);
     }
     index++;
   }
@@ -124,7 +124,7 @@ export async function serializeDecodedTransactionOperations(
   config: ApiConfig
 ): Promise<Operation[]> {
   const senderAddress = decodedTx.auth.origin_condition.signer.address;
-  const fee = BigNumber(decodedTx.auth.origin_condition.tx_fee).toNumber();
+  const fee = getDeclaredTxFee(decodedTx);
   const sponsored = decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored;
   const sponsorAddress = sponsored
     ? (decodedTx.auth as TxAuthSponsored).sponsor_condition.signer.address

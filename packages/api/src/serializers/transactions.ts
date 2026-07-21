@@ -52,9 +52,22 @@ export type DecodedStacksTransaction = {
   status: Status;
 };
 
+/**
+ * The fee declared by a transaction, in µSTX. This is a per-transaction value read from the tx
+ * itself — NOT the block-level `fees` total (which is the sum across all transactions in the
+ * block). For a sponsored transaction the sponsor pays, so the fee comes from the sponsor's
+ * spending condition; otherwise from the origin's.
+ */
+export function getDeclaredTxFee(decodedTx: DecodedTxResult): number {
+  const condition =
+    decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored
+      ? decodedTx.auth.sponsor_condition
+      : decodedTx.auth.origin_condition;
+  return BigNumber(condition.tx_fee).toNumber();
+}
+
 export async function serializeReplayedNakamotoTransaction(
   replayedTx: BlockReplayTransaction,
-  fee: number,
   index: number,
   config: ApiConfig
 ): Promise<Transaction> {
@@ -62,7 +75,7 @@ export async function serializeReplayedNakamotoTransaction(
   const tx: DecodedStacksTransaction = {
     replayedTx,
     decodedTx,
-    fee,
+    fee: getDeclaredTxFee(decodedTx),
     sponsored: decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored,
     senderAddress: decodedTx.auth.origin_condition.signer.address,
     sponsorAddress:
@@ -89,7 +102,7 @@ export async function serializeReplayedNakamotoTransaction(
         write_count: replayedTx.execution_cost.write_count,
         write_length: replayedTx.execution_cost.write_length,
       },
-      fee_rate: fee.toString(),
+      fee_rate: tx.fee.toString(),
       nonce: tx.nonce,
       position: {
         index,
@@ -283,9 +296,7 @@ async function makeContractCallOperation(
 }
 
 function makeSmartContractOperation(tx: DecodedStacksTransaction, index: number): Operation {
-  const payload = tx.decodedTx.payload as
-    | TxPayloadSmartContract
-    | TxPayloadVersionedSmartContract;
+  const payload = tx.decodedTx.payload as TxPayloadSmartContract | TxPayloadVersionedSmartContract;
   return {
     operation_identifier: { index },
     type: 'contract_deploy',
@@ -297,8 +308,7 @@ function makeSmartContractOperation(tx: DecodedStacksTransaction, index: number)
       contract_identifier: `${tx.senderAddress}.${payload.contract_name}`,
       source_code: payload.code_body,
       clarity_version:
-        (payload as TxPayloadVersionedSmartContract).clarity_version ??
-        ClarityVersion.Clarity1,
+        (payload as TxPayloadVersionedSmartContract).clarity_version ?? ClarityVersion.Clarity1,
       abi: undefined, // TODO: Implement abi
     },
   };
