@@ -30,17 +30,20 @@ export class TokenMetadataCache {
   async get(assetIdentifier: string): Promise<TokenMetadata | null> {
     // No node connection (offline mode) — cannot resolve token metadata.
     if (!this.rpcClient) return null;
-    const key = assetIdentifier;
-    const cachedMetadata = this.cache.get(key);
-    if (!cachedMetadata) {
-      const metadata = await this.fetchMetadata(key);
+    const cachedMetadata = this.cache.get(assetIdentifier);
+    if (cachedMetadata) return cachedMetadata;
+    try {
+      const metadata = await this.fetchMetadata(assetIdentifier);
       if (metadata) {
-        this.cache.set(key, metadata);
+        this.cache.set(assetIdentifier, metadata);
         return metadata;
       }
-      return null;
+    } catch {
+      // Metadata fetch failed (e.g. a non-standard token whose read-only functions reject the
+      // call, or a contract that no longer exists). Degrade to null so one bad token doesn't fail
+      // the whole block serialization — callers fall back to empty symbol / 0 decimals.
     }
-    return cachedMetadata ?? null;
+    return null;
   }
 
   private async fetchMetadata(assetIdentifier: string): Promise<TokenMetadata | undefined> {
