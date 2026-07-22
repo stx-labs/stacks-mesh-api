@@ -524,7 +524,7 @@ describe('/block', () => {
       // Fee is the transaction's OWN declared fee, not the block-level `fees` total. This block's
       // `fees` (750180) is the sum of the deploy tx (750000) and the token transfer below (180);
       // each tx must report only its own fee. (Regression: previously the block total was applied
-      // to every tx — see https://github.com/stx-labs/stacks-mesh-api PR.)
+      // to every tx.)
       assert.strictEqual(fixture.fees, 750180);
       const feeOp = tx0.operations[0];
       assert.strictEqual(feeOp.type, 'fee');
