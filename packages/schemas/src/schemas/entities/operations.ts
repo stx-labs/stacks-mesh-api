@@ -29,7 +29,6 @@ export type Amount = Static<typeof AmountSchema>;
 
 const BaseOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
-  // Rosetta: identifiers of operations related to this one (e.g. the other side of a transfer).
   related_operations: Type.Optional(Type.Array(OperationIdentifierSchema)),
   status: StatusSchema,
 });
