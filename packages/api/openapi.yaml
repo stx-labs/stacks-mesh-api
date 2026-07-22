@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Stacks Mesh API
   description: A Mesh API (formerly Rosetta API) implementation for the Stacks blockchain
-  version: 0.7.0
+  version: 0.7.1
 components:
   schemas: {}
 paths:
@@ -1594,6 +1594,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -1679,6 +1690,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -1782,6 +1804,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -1858,6 +1891,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -1963,6 +2007,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2105,6 +2160,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2255,6 +2321,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2402,6 +2479,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2520,6 +2608,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2614,6 +2713,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2696,6 +2806,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2832,6 +2953,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -2933,6 +3065,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3021,6 +3164,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3152,6 +3306,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3292,6 +3457,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3420,6 +3596,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3567,6 +3754,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3714,6 +3912,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3855,6 +4064,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -3957,6 +4177,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4101,6 +4332,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4251,6 +4493,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4374,6 +4627,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4470,6 +4734,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4581,6 +4856,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
@@ -4692,6 +4978,17 @@ paths:
                                   type: integer
                                 network_index:
                                   type: integer
+                            related_operations:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - index
+                                properties:
+                                  index:
+                                    type: integer
+                                  network_index:
+                                    type: integer
                             status:
                               anyOf:
                                 - type: string
