@@ -16,8 +16,12 @@ import {
   getNakamotoBlockFromPartialBlockIdentifier,
 } from '../../stacks-rpc/helpers.js';
 import { addHexPrefix } from '../../serializers/index.js';
+import { selectDisplayBlockHash } from '../../utils/block-hash.js';
 
-export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fastify, config) => {
+export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
+  fastify,
+  config
+) => {
   const { rpcClient } = config;
 
   fastify.post(
@@ -35,33 +39,34 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
     async (request, reply) => {
       const { account_identifier, block_identifier } = request.body;
 
-      // If the caller provides a block identifier, use it. Otherwise, use the chain tip.
-      let tipIdentifier: BlockIdentifier | undefined;
-      if (block_identifier) {
-        const decodedBlock = await getNakamotoBlockFromPartialBlockIdentifier(
-          rpcClient,
-          block_identifier
-        );
-        if (decodedBlock) {
-          tipIdentifier = {
-            index: Number(decodedBlock.header.chain_length),
-            hash: addHexPrefix(decodedBlock.header.index_block_hash),
-          };
-        }
-      }
-      if (!tipIdentifier) {
-        const { decodedBlock } = await getChainTipNakamotoBlock(rpcClient);
-        tipIdentifier = {
-          index: Number(decodedBlock.header.chain_length),
-          hash: addHexPrefix(decodedBlock.header.index_block_hash),
-        };
+      // Resolve the target block: the caller's block identifier if given, otherwise the chain tip.
+      let decodedBlock =
+        (block_identifier &&
+          (await getNakamotoBlockFromPartialBlockIdentifier(
+            rpcClient,
+            block_identifier,
+            config.blockHashMode
+          ))) ||
+        undefined;
+      if (!decodedBlock) {
+        decodedBlock = (await getChainTipNakamotoBlock(rpcClient)).decodedBlock;
       }
 
-      // Get the account balance at the calculated block identifier.
+      // The node's `tip` param always needs the index block hash, independent of display mode.
+      const indexBlockHash = addHexPrefix(decodedBlock.header.index_block_hash);
+      const tipIdentifier: BlockIdentifier = {
+        index: Number(decodedBlock.header.chain_length),
+        hash: selectDisplayBlockHash(config.blockHashMode, {
+          indexBlockHash,
+          blockHash: addHexPrefix(decodedBlock.header.block_hash),
+        }),
+      };
+
+      // Get the account balance at the resolved block.
       const accountInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
         params: {
           path: { principal: account_identifier.address },
-          query: { proof: 0, tip: tipIdentifier.hash },
+          query: { proof: 0, tip: indexBlockHash },
         },
       });
 

@@ -8,6 +8,7 @@ import { ContractAbiCache } from '../cache/contract-abi-cache.js';
 import { CoreRpcClient } from '@stacks/rpc-client';
 import type { StacksNetwork } from '@stacks/network';
 import type { StacksNetworkName } from '../utils/helpers.js';
+import type { BlockHashMode } from '../utils/block-hash.js';
 
 type BaseApiConfig = {
   tokenMetadataCache: TokenMetadataCache;
@@ -16,6 +17,8 @@ type BaseApiConfig = {
   networkName: StacksNetworkName;
   /** Network object (with the node's actual chain ID) used for transaction construction/signing. */
   network: StacksNetwork;
+  /** Which block hash to display in responses (`index_block_hash` by default). */
+  blockHashMode: BlockHashMode;
   nodeVersion: string;
   apiVersion: string;
 };

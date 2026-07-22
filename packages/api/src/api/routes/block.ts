@@ -11,7 +11,10 @@ import {
   serializeReplayedNakamotoBlock,
   serializeTransactionFromReplayedNakamotoBlock,
 } from '../../serializers/index.js';
-import { getReplayedNakamotoBlockFromPartialBlockIdentifier } from '../../stacks-rpc/helpers.js';
+import {
+  getParentBlockHash,
+  getReplayedNakamotoBlockFromPartialBlockIdentifier,
+} from '../../stacks-rpc/helpers.js';
 
 export const BlockRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fastify, config) => {
   const { rpcClient } = config;
@@ -32,10 +35,17 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fa
       const { block_identifier } = request.body;
       const block = await getReplayedNakamotoBlockFromPartialBlockIdentifier(
         rpcClient,
-        block_identifier
+        block_identifier,
+        config.blockHashMode
       );
+      // In block_hash mode the parent must be displayed as its block_hash, which the replay doesn't
+      // carry — fetch it from the parent header (null for genesis, which has no parent block).
+      const parentBlockHash =
+        config.blockHashMode === 'block_hash'
+          ? ((await getParentBlockHash(rpcClient, block.parent_block_id)) ?? undefined)
+          : undefined;
       return reply.send({
-        block: await serializeReplayedNakamotoBlock(block, config),
+        block: await serializeReplayedNakamotoBlock(block, config, parentBlockHash),
       });
     }
   );
@@ -56,7 +66,8 @@ export const BlockRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (fa
       const { block_identifier, transaction_identifier } = request.body;
       const block = await getReplayedNakamotoBlockFromPartialBlockIdentifier(
         rpcClient,
-        block_identifier
+        block_identifier,
+        config.blockHashMode
       );
       return reply.send({
         transaction: await serializeTransactionFromReplayedNakamotoBlock(

@@ -118,9 +118,19 @@ export const PoxContractIdentifiers = Object.values(PoxContractIdentifier).flatM
   Object.values
 ) as string[];
 
+// Genesis block identifiers per network. `index_block_hash` is the default display; `block_hash`
+// is shown when BLOCK_HASH_MODE=block_hash.
+// TODO: the testnet `block_hash` is a placeholder (matching the placeholder index hash) — set a
+//       real value if testnet genesis is needed in block_hash mode.
 export const GENESIS_BLOCK_HASH = {
-  mainnet: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
-  testnet: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  mainnet: {
+    index_block_hash: '0x918697ef63f9d8bdf844c3312b299e72a231cde542f3173f7755bb8c1cdaf3a7',
+    block_hash: '0x6b2c809627f2fd19991d8eb6ae034cb4cce1e1fc714aa77351506b5af1f8248e',
+  },
+  testnet: {
+    index_block_hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    block_hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  },
 } as const;
 
 export const GENESIS_BLOCK_TIMESTAMP = 1610645304000;

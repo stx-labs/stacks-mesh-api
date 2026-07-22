@@ -60,6 +60,7 @@ The API is configured via environment variables (a `.env` file is also supported
 | `STACKS_CORE_RPC_AUTH_TOKEN` | *(required online)* | Auth token for the Stacks node RPC |
 | `STACKS_CORE_RPC_TIMEOUT_MS` | `10000` | RPC request timeout in milliseconds |
 | `STACKS_CHAIN_ID` | *(required offline)* | Target chain ID, used for transaction signing. Offline only; online reads it from the node's `/v2/info` |
+| `BLOCK_HASH_MODE` | `index_block_hash` | Which block hash to display in responses. `index_block_hash` (canonical Stacks block id) or `block_hash` (see [Block hash mode](#block-hash-mode)) |
 | `TOKEN_METADATA_CACHE_SIZE` | `1000` | Max entries in the token metadata LRU cache |
 | `TOKEN_METADATA_CACHE_TTL_MS` | `86400000` | Token metadata cache TTL (default 24 h) |
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
@@ -82,6 +83,12 @@ The node-backed endpoints — `/construction/metadata`, `/construction/submit`, 
 MODE=offline
 STACKS_CHAIN_ID=2147483648
 ```
+
+### Block hash mode
+
+By default the API displays the **`index_block_hash`** (the canonical Stacks block identifier, a.k.a. `block_id`) wherever a block hash appears in a response (`/block`, `/account/balance`, `/network/status`). Set `BLOCK_HASH_MODE=block_hash` to display the Stacks **`block_hash`** instead, for backwards compatibility with systems that key on it.
+
+The node itself always operates on the `index_block_hash`, so this only changes what is displayed — internal lookups (including the account-balance `tip`) still use the `index_block_hash`. One consequence for input: because the node cannot resolve a bare `block_hash`, in `block_hash` mode a point lookup by hash (`/block`, `/account/balance`) **must also include the block `index`**. Requests that supply both are validated (the hash must match the block at that index); the API's own responses always include both `index` and `hash`, so echoing an identifier back always works.
 
 ## Running locally
 
