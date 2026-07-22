@@ -109,7 +109,10 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
           current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
           genesis_block_identifier: {
             index: 1,
-            hash: GENESIS_BLOCK_HASH[networkName],
+            hash: selectDisplayBlockHash(config.blockHashMode, {
+              indexBlockHash: GENESIS_BLOCK_HASH[networkName].index_block_hash,
+              blockHash: GENESIS_BLOCK_HASH[networkName].block_hash,
+            }),
           },
           sync_status: {
             current_index: blockIndex,

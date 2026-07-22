@@ -144,6 +144,12 @@ describe('block hash mode = block_hash', () => {
 
     const res = await post(fastify, '/network/status', {});
     assert.equal(res.statusCode, 200);
-    assert.equal(JSON.parse(res.body).current_block_identifier.hash, BLOCK_HASH);
+    const json = JSON.parse(res.body);
+    assert.equal(json.current_block_identifier.hash, BLOCK_HASH);
+    // Genesis also displays its block_hash (mainnet) in block_hash mode.
+    assert.equal(
+      json.genesis_block_identifier.hash,
+      '0x6b2c809627f2fd19991d8eb6ae034cb4cce1e1fc714aa77351506b5af1f8248e'
+    );
   });
 });
