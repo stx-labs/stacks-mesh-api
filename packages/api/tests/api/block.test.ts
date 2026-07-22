@@ -521,9 +521,15 @@ describe('/block', () => {
       // Operations: fee + contract_deploy = 2
       assert.strictEqual(tx0.operations.length, 2);
 
+      // Fee is the transaction's OWN declared fee, not the block-level `fees` total. This block's
+      // `fees` (750180) is the sum of the deploy tx (750000) and the token transfer below (180);
+      // each tx must report only its own fee. (Regression: previously the block total was applied
+      // to every tx.)
+      assert.strictEqual(fixture.fees, 750180);
       const feeOp = tx0.operations[0];
       assert.strictEqual(feeOp.type, 'fee');
-      assert.strictEqual(feeOp.amount.value, `-${fixture.fees}`);
+      assert.strictEqual(feeOp.amount.value, '-750000');
+      assert.strictEqual(tx0.metadata.fee_rate, '750000');
 
       const deployOp = tx0.operations[1];
       assert.strictEqual(deployOp.type, 'contract_deploy');
@@ -532,10 +538,12 @@ describe('/block', () => {
       assert.ok(deployOp.metadata.source_code.includes('define-trait'));
       assert.ok(deployOp.metadata.clarity_version !== undefined);
 
-      // Second tx: token transfer
+      // Second tx: token transfer — its own fee (180), distinct from the block total.
       const tx1 = block.transactions[1];
       assert.strictEqual(tx1.metadata.type, 'token_transfer');
       assert.strictEqual(tx1.operations.length, 3); // fee + send + receive
+      assert.strictEqual(tx1.metadata.fee_rate, '180');
+      assert.strictEqual(tx1.operations[0].amount.value, '-180');
     });
   });
 
