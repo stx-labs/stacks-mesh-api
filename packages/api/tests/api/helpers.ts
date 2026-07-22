@@ -42,6 +42,7 @@ export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
     rpcClient,
     networkName: 'mainnet',
     network: buildStacksNetwork('mainnet', ChainId.Mainnet),
+    blockHashMode: 'index_block_hash',
     nodeVersion: '1.0.0',
     apiVersion: '1.0.0',
     tokenMetadataCache,

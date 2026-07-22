@@ -194,6 +194,7 @@ export async function buildTestServer() {
     rpcClient,
     networkName,
     network: buildStacksNetwork(networkName, nodeInfo.network_id),
+    blockHashMode: 'index_block_hash',
     apiVersion: '1.0.0',
     nodeVersion: nodeInfo.server_version,
     tokenMetadataCache,

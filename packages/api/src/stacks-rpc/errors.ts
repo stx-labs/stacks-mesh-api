@@ -5,6 +5,13 @@ export class StacksRpcBlockNotFoundError extends Error {
   }
 }
 
+export class StacksRpcInvalidBlockIdentifierError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'StacksRpcInvalidBlockIdentifierError';
+  }
+}
+
 export class StacksRpcTransactionNotFoundError extends Error {
   constructor(message: string) {
     super(message);

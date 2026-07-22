@@ -13,6 +13,7 @@ import {
   serializeStacksTransactionOperations,
 } from './transactions.js';
 import type { BlockReplay, BlockReplayTransaction } from '@stacks/rpc-client';
+import { selectDisplayBlockHash } from '../utils/block-hash.js';
 
 export function removeHexPrefix(hex: string): string {
   if (/^0x/i.test(hex)) {
@@ -43,21 +44,34 @@ export function decodeClarityValue(hex: string): DecodedClarityValue {
  * from the Stacks core RPC API and include all transaction events and fetched via `/block`
  * endpoints.
  * @param replay - The replayed Nakamoto block.
+ * @param config - The API config (selects which hash to display).
+ * @param parentBlockHash - The parent block's `block_hash`, required in `block_hash` mode (the
+ *   replay only carries the parent's index block hash). Ignored in `index_block_hash` mode.
  * @returns The serialized block.
  */
 export async function serializeReplayedNakamotoBlock(
   replay: BlockReplay,
-  config: ApiConfig
+  config: ApiConfig,
+  parentBlockHash?: string
 ): Promise<Block> {
   const blockHeight = replay.block_height;
+  const parentHash =
+    config.blockHashMode === 'block_hash'
+      ? // Fall back to the parent index hash only if the parent hash couldn't be resolved
+        // (e.g. genesis has no parent block to fetch).
+        (parentBlockHash ?? addHexPrefix(replay.parent_block_id))
+      : addHexPrefix(replay.parent_block_id);
   const block: Block = {
     block_identifier: {
       index: blockHeight,
-      hash: addHexPrefix(replay.block_id),
+      hash: selectDisplayBlockHash(config.blockHashMode, {
+        indexBlockHash: addHexPrefix(replay.block_id),
+        blockHash: addHexPrefix(replay.block_hash),
+      }),
     },
     parent_block_identifier: {
       index: blockHeight > 0 ? blockHeight - 1 : 0,
-      hash: addHexPrefix(replay.parent_block_id),
+      hash: parentHash,
     },
     timestamp: Number(replay.timestamp) * 1000,
     transactions: [],

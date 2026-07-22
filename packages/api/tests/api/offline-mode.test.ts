@@ -16,6 +16,7 @@ function makeOfflineConfig(): ApiConfig {
     networkName: 'testnet',
     // A non-mainnet chain ID; offline mode gets it from STACKS_CHAIN_ID rather than the node.
     network: buildStacksNetwork('testnet', 0x12345678),
+    blockHashMode: 'index_block_hash',
     nodeVersion: 'offline',
     apiVersion: 'test',
     tokenMetadataCache: new TokenMetadataCache({ cacheSize: 10, ttl: 1000 }),

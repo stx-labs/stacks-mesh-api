@@ -24,6 +24,7 @@ import {
 } from '../../utils/constants.js';
 import { addHexPrefix } from '../../serializers/index.js';
 import { getChainTipNakamotoBlock } from '../../stacks-rpc/helpers.js';
+import { selectDisplayBlockHash } from '../../utils/block-hash.js';
 
 export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
   const { networkName, nodeVersion, apiVersion } = config;
@@ -100,7 +101,10 @@ export const NetworkRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastif
         const response: NetworkStatusResponse = {
           current_block_identifier: {
             index: blockIndex,
-            hash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
+            hash: selectDisplayBlockHash(config.blockHashMode, {
+              indexBlockHash: addHexPrefix(chainTipNakamotoBlock.header.index_block_hash),
+              blockHash: addHexPrefix(chainTipNakamotoBlock.header.block_hash),
+            }),
           },
           current_block_timestamp: Number(chainTipNakamotoBlock.header.timestamp) * 1000,
           genesis_block_identifier: {

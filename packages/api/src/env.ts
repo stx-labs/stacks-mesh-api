@@ -30,6 +30,17 @@ const schema = Type.Object({
    */
   STACKS_CHAIN_ID: Type.Optional(Type.Integer({ minimum: 0 })),
 
+  /**
+   * Which block hash to display in responses. `index_block_hash` (default) is the canonical Stacks
+   * block identifier. `block_hash` displays the (Bitcoin-anchored) Stacks block hash instead, for
+   * backwards compatibility with systems that key on it. Node RPCs always operate on the
+   * index_block_hash, so in `block_hash` mode a point lookup by hash must also include the block
+   * index (the node cannot resolve a bare block_hash).
+   */
+  BLOCK_HASH_MODE: Type.Union([Type.Literal('index_block_hash'), Type.Literal('block_hash')], {
+    default: 'index_block_hash',
+  }),
+
   /** Size of the token metadata cache. Defaults to 1000. */
   TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),
   /** TTL of the token metadata cache in milliseconds. Defaults to 24 hours. */

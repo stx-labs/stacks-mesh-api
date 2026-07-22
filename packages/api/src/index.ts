@@ -43,6 +43,7 @@ function buildOfflineConfig(): ApiConfig {
     mode: 'offline',
     networkName,
     network,
+    blockHashMode: ENV.BLOCK_HASH_MODE,
     nodeVersion: 'offline',
     apiVersion: API_VERSION,
     // No rpcClient → these resolve to null without any outbound call (offline no-op).
@@ -88,6 +89,7 @@ async function buildOnlineConfig(): Promise<ApiConfig> {
     rpcClient,
     networkName,
     network,
+    blockHashMode: ENV.BLOCK_HASH_MODE,
     nodeVersion: nodeInfo.server_version,
     apiVersion: API_VERSION,
     tokenMetadataCache: new TokenMetadataCache({
