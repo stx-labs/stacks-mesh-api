@@ -44,7 +44,9 @@ import { BlockReplayTransactionFtEvent } from '@stacks/rpc-client';
 export type DecodedStacksTransaction = {
   replayedTx: BlockReplayTransaction;
   decodedTx: DecodedTxResult;
-  fee: number;
+  // Kept as a BigNumber (µSTX fees are u64 and can exceed Number.MAX_SAFE_INTEGER); only
+  // stringified at the display boundary (`fee_rate`, the fee operation amount).
+  fee: BigNumber;
   sponsored: boolean;
   senderAddress: string;
   sponsorAddress: string | null;
@@ -57,13 +59,16 @@ export type DecodedStacksTransaction = {
  * itself — NOT the block-level `fees` total (which is the sum across all transactions in the
  * block). For a sponsored transaction the sponsor pays, so the fee comes from the sponsor's
  * spending condition; otherwise from the origin's.
+ *
+ * Returned as a BigNumber (not a JS number) because µSTX fees are u64 and can exceed
+ * Number.MAX_SAFE_INTEGER — converting to a number would silently lose precision.
  */
-export function getDeclaredTxFee(decodedTx: DecodedTxResult): number {
+export function getDeclaredTxFee(decodedTx: DecodedTxResult): BigNumber {
   const condition =
     decodedTx.auth.type_id === PostConditionAuthFlag.Sponsored
       ? decodedTx.auth.sponsor_condition
       : decodedTx.auth.origin_condition;
-  return BigNumber(condition.tx_fee).toNumber();
+  return BigNumber(condition.tx_fee);
 }
 
 export async function serializeReplayedNakamotoTransaction(
@@ -184,7 +189,7 @@ function makeFeeOperation(tx: DecodedStacksTransaction, index: number = 0): Oper
     },
     amount: {
       currency: makeStxCurrency(),
-      value: BigNumber(tx.fee).negated().toString(),
+      value: tx.fee.negated().toString(),
     },
     metadata: {
       sponsored: tx.sponsored,
@@ -661,7 +666,7 @@ export async function serializeStacksTransactionOperations(
   config: ApiConfig
 ): Promise<Operation[]> {
   const ops: Operation[] = [];
-  if (tx.fee > 0) ops.push(makeFeeOperation(tx));
+  if (tx.fee.gt(0)) ops.push(makeFeeOperation(tx));
 
   // Add operations from transaction data.
   switch (tx.decodedTx.payload.type_id) {
