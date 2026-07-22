@@ -315,6 +315,11 @@ describe('/block', () => {
       assert.strictEqual(receiveOp.account.address, 'SP3SBQ9PZEMBNBAWTR7FRPE3XK0EFW9JWVX4G80S2');
       assert.strictEqual(receiveOp.amount.value, '1');
       assert.deepStrictEqual(receiveOp.amount.currency, { symbol: 'STX', decimals: 6 });
+      // The credit is related to the debit (the two sides of the transfer).
+      assert.deepStrictEqual(receiveOp.related_operations, [
+        { index: sendOp.operation_identifier.index },
+      ]);
+      assert.strictEqual(sendOp.related_operations, undefined);
     });
   });
 
@@ -482,6 +487,10 @@ describe('/block', () => {
       assert.strictEqual(ftReceiveOp.type, 'token_transfer');
       assert.strictEqual(ftReceiveOp.amount.value, '1077761294227');
       assert.strictEqual(ftReceiveOp.amount.currency.symbol, 'VIBES');
+      // FT credit is related to the FT debit.
+      assert.deepStrictEqual(ftReceiveOp.related_operations, [
+        { index: ftSendOp.operation_identifier.index },
+      ]);
 
       // Verify FT transfer operations (TOKEN-ALEX)
       const alexSendOp = tx3.operations[11];
@@ -615,6 +624,10 @@ describe('/block', () => {
         nftReceiveOp.account.address,
         'SP1GWN5GFV1KNNGFWBDJA79Q6XMYPZNK51Y6NB8NW.auction-v2'
       );
+      // NFT credit is related to the NFT debit.
+      assert.deepStrictEqual(nftReceiveOp.related_operations, [
+        { index: nftSendOp.operation_identifier.index },
+      ]);
     });
   });
 

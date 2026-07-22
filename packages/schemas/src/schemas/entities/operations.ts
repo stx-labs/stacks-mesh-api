@@ -29,6 +29,7 @@ export type Amount = Static<typeof AmountSchema>;
 
 const BaseOperationSchema = Type.Object({
   operation_identifier: OperationIdentifierSchema,
+  related_operations: Type.Optional(Type.Array(OperationIdentifierSchema)),
   status: StatusSchema,
 });
 
@@ -105,7 +106,7 @@ const ContractCallOperationSchema = Type.Composite([
             DecodedClarityValueSchema,
             Type.Object({
               name: Type.String(),
-            })
+            }),
           ])
         ),
         Nullable(Type.String()),
@@ -399,10 +400,7 @@ const ContractLogOperationSchema = Type.Composite([
     metadata: Type.Object({
       contract_identifier: Type.String(),
       topic: Type.String(),
-      value: Type.Union([
-        Type.String(),
-        DecodedClarityValueSchema,
-      ]),
+      value: Type.Union([Type.String(), DecodedClarityValueSchema]),
     }),
   }),
 ]);

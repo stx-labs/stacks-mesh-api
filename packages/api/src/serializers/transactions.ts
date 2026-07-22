@@ -239,6 +239,8 @@ function makeStxTransferOperations(
   };
   const receive: Operation = {
     operation_identifier: { index: index + 1 },
+    // Rosetta: the credit is related to the debit above (the two sides of the same transfer).
+    related_operations: [{ index }],
     type: 'token_transfer',
     status: tx.status,
     account: {
@@ -478,6 +480,8 @@ async function makeFtTransferOperations(
   };
   const receive: Operation = {
     operation_identifier: { index: index + 1 },
+    // Rosetta: the credit is related to the debit above (the two sides of the same transfer).
+    related_operations: [{ index }],
     type: 'token_transfer',
     status: tx.status,
     account: {
@@ -575,6 +579,8 @@ function makeNftTransferOperations(
   };
   const receive: Operation = {
     operation_identifier: { index: index + 1 },
+    // Rosetta: the credit is related to the debit above (the two sides of the same transfer).
+    related_operations: [{ index }],
     type: 'token_transfer',
     status: tx.status,
     account: {
