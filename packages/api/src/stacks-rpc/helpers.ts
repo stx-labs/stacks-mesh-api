@@ -89,8 +89,9 @@ async function resolveIndexBlockHash(
     // itself (e.g. account balance) don't fetch it a second time.
     const block = await fetchNakamotoBlockByHeight(rpcClient, blockIdentifier.index);
     if (blockIdentifier.hash) {
-      const expected = addHexPrefix(headerHashForMode(block.header, mode));
-      if (addHexPrefix(blockIdentifier.hash) !== expected) {
+      const expected = addHexPrefix(headerHashForMode(block.header, mode)).toLowerCase();
+      const provided = addHexPrefix(blockIdentifier.hash).toLowerCase();
+      if (provided !== expected) {
         throw new StacksRpcInvalidBlockIdentifierError(
           `hash ${blockIdentifier.hash} does not match the block at index ${blockIdentifier.index}`
         );
@@ -142,7 +143,7 @@ export async function getNakamotoBlockFromPartialBlockIdentifier(
   rpcClient: CoreRpcClient,
   blockIdentifier: Partial<BlockIdentifier>,
   mode: BlockHashMode
-): Promise<DecodedNakamotoBlockResult | null> {
+): Promise<DecodedNakamotoBlockResult> {
   try {
     const { indexBlockHash, block } = await resolveIndexBlockHash(rpcClient, blockIdentifier, mode);
     return block ?? (await fetchNakamotoBlockByIndexHash(rpcClient, indexBlockHash));
