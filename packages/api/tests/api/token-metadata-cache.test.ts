@@ -11,6 +11,7 @@ function cacheWithRpc(request: (...args: unknown[]) => Promise<unknown>): TokenM
     rpcClient: { request } as unknown as CoreRpcClient,
     cacheSize: 10,
     ttl: 1000,
+    errorTtl: 1000,
   });
 }
 
@@ -36,17 +37,22 @@ describe('TokenMetadataCache.get resilience', () => {
     assert.equal(metadata?.decimals, 0);
   });
 
-  test('does not cache incomplete results (retries on the next request)', async () => {
+  test('negatively caches a failed lookup so it is not re-queried on the next request', async () => {
     let calls = 0;
     const cache = cacheWithRpc(async () => {
       calls++;
       return { okay: false, cause: 'boom' };
     });
-    await cache.get(ASSET);
+    const first = await cache.get(ASSET);
     const afterFirst = calls;
-    await cache.get(ASSET);
-    // A cached result would have served the second call with no new requests.
-    assert.ok(calls > afterFirst, 'expected the fetch to be retried, not served from cache');
+    const second = await cache.get(ASSET);
+    // The second lookup is served from the failure cache — no new node calls.
+    assert.equal(
+      calls,
+      afterFirst,
+      'expected the failed lookup to be served from the negative cache'
+    );
+    assert.deepEqual(second, first);
   });
 
   test('does not throw on a malformed asset identifier (synchronous parse failure)', async () => {
@@ -59,7 +65,7 @@ describe('TokenMetadataCache.get resilience', () => {
   });
 
   test('returns null without a node (offline)', async () => {
-    const cache = new TokenMetadataCache({ cacheSize: 10, ttl: 1000 });
+    const cache = new TokenMetadataCache({ cacheSize: 10, ttl: 1000, errorTtl: 1000 });
     assert.equal(await cache.get(ASSET), null);
   });
 });

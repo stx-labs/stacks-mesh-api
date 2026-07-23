@@ -25,15 +25,27 @@ function fallbackSymbol(assetIdentifier: string): string {
 /**
  * Cache for fungible token metadata. This is used to avoid making repeated calls to the Stacks node
  * looking for FT symbols, names and decimals.
+ *
+ * Both resolved metadata and fallbacks (for tokens whose SIP-010 getters failed) live in the same
+ * cache — a fallback is itself a valid `TokenMetadata`. Fallbacks are stored with a shorter TTL
+ * (`errorTtl`) so a non-standard token isn't re-queried on every FT event, while a genuinely
+ * transient failure still retries once its shorter entry expires.
  */
 export class TokenMetadataCache {
   // Absent in offline mode: `get` then resolves to `null` without any node call.
   private readonly rpcClient?: CoreRpcClient;
   private readonly cache: LRUCache<string, TokenMetadata>;
+  private readonly errorTtl: number;
 
-  constructor(args: { rpcClient?: CoreRpcClient; cacheSize: number; ttl: number }) {
-    const { rpcClient, cacheSize, ttl } = args;
+  constructor(args: {
+    rpcClient?: CoreRpcClient;
+    cacheSize: number;
+    ttl: number;
+    errorTtl: number;
+  }) {
+    const { rpcClient, cacheSize, ttl, errorTtl } = args;
     this.rpcClient = rpcClient;
+    this.errorTtl = errorTtl;
     this.cache = new LRUCache<string, TokenMetadata>({
       max: cacheSize,
       ttl: ttl,
@@ -48,9 +60,9 @@ export class TokenMetadataCache {
     if (cached) return cached;
     try {
       const { metadata, complete } = await this.fetchMetadata(assetIdentifier);
-      // Only cache fully-resolved metadata. Partial/fallback results are left uncached so a
-      // transient read failure recovers on the next request rather than being pinned for the TTL.
-      if (complete) this.cache.set(assetIdentifier, metadata);
+      // Resolved metadata is cached for the full TTL; a fallback is cached with the shorter
+      // `errorTtl` so it isn't re-queried on every occurrence but still retries once it expires.
+      this.cache.set(assetIdentifier, metadata, complete ? undefined : { ttl: this.errorTtl });
       return metadata;
     } catch (error) {
       // `fetchMetadata` degrades to fallbacks rather than throwing, but guard against any
@@ -63,7 +75,9 @@ export class TokenMetadataCache {
         },
         'Token metadata lookup failed unexpectedly; using fallback symbol'
       );
-      return { symbol: fallbackSymbol(assetIdentifier), decimals: 0 };
+      const fallback = { symbol: fallbackSymbol(assetIdentifier), decimals: 0 };
+      this.cache.set(assetIdentifier, fallback, { ttl: this.errorTtl });
+      return fallback;
     }
   }
 

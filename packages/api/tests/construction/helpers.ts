@@ -181,6 +181,7 @@ export async function buildTestServer() {
     rpcClient,
     cacheSize: 100,
     ttl: 60_000,
+    errorTtl: 60_000,
   });
   const contractAbiCache = new ContractAbiCache({
     rpcClient,

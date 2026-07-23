@@ -45,6 +45,12 @@ const schema = Type.Object({
   TOKEN_METADATA_CACHE_SIZE: Type.Integer({ default: 1000, minimum: 0 }),
   /** TTL of the token metadata cache in milliseconds. Defaults to 24 hours. */
   TOKEN_METADATA_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 24, minimum: 0 }),
+  /**
+   * TTL (ms) for negatively-cached token metadata lookups — tokens whose SIP-010 getters failed.
+   * Kept short so a transient failure recovers, while a persistently non-standard token isn't
+   * re-queried on every occurrence. Defaults to 2 hours.
+   */
+  TOKEN_METADATA_ERROR_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 2, minimum: 0 }),
   /** Size of the contract ABI cache. Defaults to 100. */
   CONTRACT_ABI_CACHE_SIZE: Type.Integer({ default: 100, minimum: 0 }),
   /** TTL of the contract ABI cache in milliseconds. Defaults to 24 hours. */
