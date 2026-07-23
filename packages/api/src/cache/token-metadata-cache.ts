@@ -46,11 +46,25 @@ export class TokenMetadataCache {
     if (!this.rpcClient) return null;
     const cached = this.cache.get(assetIdentifier);
     if (cached) return cached;
-    const { metadata, complete } = await this.fetchMetadata(assetIdentifier);
-    // Only cache fully-resolved metadata. Partial/fallback results are left uncached so a transient
-    // read failure recovers on the next request rather than being pinned for the cache TTL.
-    if (complete) this.cache.set(assetIdentifier, metadata);
-    return metadata;
+    try {
+      const { metadata, complete } = await this.fetchMetadata(assetIdentifier);
+      // Only cache fully-resolved metadata. Partial/fallback results are left uncached so a
+      // transient read failure recovers on the next request rather than being pinned for the TTL.
+      if (complete) this.cache.set(assetIdentifier, metadata);
+      return metadata;
+    } catch (error) {
+      // `fetchMetadata` degrades to fallbacks rather than throwing, but guard against any
+      // unexpected synchronous throw (e.g. a malformed asset identifier) so one bad token can never
+      // fail block serialization.
+      logger.debug(
+        {
+          asset_identifier: assetIdentifier,
+          error: error instanceof Error ? error.message : String(error),
+        },
+        'Token metadata lookup failed unexpectedly; using fallback symbol'
+      );
+      return { symbol: fallbackSymbol(assetIdentifier), decimals: 0 };
+    }
   }
 
   /**

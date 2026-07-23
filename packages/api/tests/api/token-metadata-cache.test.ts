@@ -49,6 +49,15 @@ describe('TokenMetadataCache.get resilience', () => {
     assert.ok(calls > afterFirst, 'expected the fetch to be retried, not served from cache');
   });
 
+  test('does not throw on a malformed asset identifier (synchronous parse failure)', async () => {
+    // No '.' → the internal parse would throw before any promise is created; get() must still
+    // resolve to a fallback rather than letting it bubble up and fail block serialization.
+    const cache = cacheWithRpc(async () => ({ okay: false, cause: 'boom' }));
+    const metadata = await cache.get('not-a-valid-asset-identifier');
+    assert.equal(metadata?.decimals, 0);
+    assert.equal(typeof metadata?.symbol, 'string');
+  });
+
   test('returns null without a node (offline)', async () => {
     const cache = new TokenMetadataCache({ cacheSize: 10, ttl: 1000 });
     assert.equal(await cache.get(ASSET), null);
