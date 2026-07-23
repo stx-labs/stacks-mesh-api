@@ -63,7 +63,7 @@ The API is configured via environment variables (a `.env` file is also supported
 | `BLOCK_HASH_MODE` | `index_block_hash` | Which block hash to display in responses. `index_block_hash` (canonical Stacks block id) or `block_hash` (see [Block hash mode](#block-hash-mode)) |
 | `TOKEN_METADATA_CACHE_SIZE` | `1000` | Max entries in the token metadata LRU cache |
 | `TOKEN_METADATA_CACHE_TTL_MS` | `86400000` | Token metadata cache TTL (default 24 h) |
-| `TOKEN_METADATA_ERROR_CACHE_TTL_MS` | `600000` | TTL for negatively-cached token metadata lookups — tokens whose SIP-010 getters failed (default 2 hours) |
+| `TOKEN_METADATA_ERROR_CACHE_TTL_MS` | `7200000` | TTL for negatively-cached token metadata lookups — tokens whose SIP-010 getters failed (default 2 hours) |
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
 | `CONTRACT_ABI_CACHE_TTL_MS` | `86400000` | Contract ABI cache TTL (default 24 h) |
 

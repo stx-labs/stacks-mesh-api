@@ -11,6 +11,7 @@ function cacheWithRpc(request: (...args: unknown[]) => Promise<unknown>): TokenM
     rpcClient: { request } as unknown as CoreRpcClient,
     cacheSize: 10,
     ttl: 1000,
+    errorTtl: 1000,
   });
 }
 
@@ -64,7 +65,7 @@ describe('TokenMetadataCache.get resilience', () => {
   });
 
   test('returns null without a node (offline)', async () => {
-    const cache = new TokenMetadataCache({ cacheSize: 10, ttl: 1000 });
+    const cache = new TokenMetadataCache({ cacheSize: 10, ttl: 1000, errorTtl: 1000 });
     assert.equal(await cache.get(ASSET), null);
   });
 });

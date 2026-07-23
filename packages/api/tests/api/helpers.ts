@@ -31,6 +31,7 @@ export function makeTestApiConfig(getMockAgent: () => MockAgent): ApiConfig {
     rpcClient,
     cacheSize: 100,
     ttl: 60_000,
+    errorTtl: 60_000,
   });
   const contractAbiCache = new ContractAbiCache({
     rpcClient,

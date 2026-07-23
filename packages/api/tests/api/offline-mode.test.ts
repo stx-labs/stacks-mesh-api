@@ -19,7 +19,7 @@ function makeOfflineConfig(): ApiConfig {
     blockHashMode: 'index_block_hash',
     nodeVersion: 'offline',
     apiVersion: 'test',
-    tokenMetadataCache: new TokenMetadataCache({ cacheSize: 10, ttl: 1000 }),
+    tokenMetadataCache: new TokenMetadataCache({ cacheSize: 10, ttl: 1000, errorTtl: 1000 }),
     contractAbiCache: new ContractAbiCache({ cacheSize: 10, ttl: 1000 }),
   };
 }
