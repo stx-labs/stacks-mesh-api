@@ -25,32 +25,50 @@ function fallbackSymbol(assetIdentifier: string): string {
 /**
  * Cache for fungible token metadata. This is used to avoid making repeated calls to the Stacks node
  * looking for FT symbols, names and decimals.
+ *
+ * Two caches are kept: resolved metadata (long TTL) and failed/incomplete lookups (short TTL). The
+ * latter is a negative cache — without it, a non-standard token (whose SIP-010 getters reject the
+ * call) would re-run its read-only calls on every FT event in every block.
  */
 export class TokenMetadataCache {
   // Absent in offline mode: `get` then resolves to `null` without any node call.
   private readonly rpcClient?: CoreRpcClient;
   private readonly cache: LRUCache<string, TokenMetadata>;
+  private readonly failureCache: LRUCache<string, TokenMetadata>;
 
-  constructor(args: { rpcClient?: CoreRpcClient; cacheSize: number; ttl: number }) {
-    const { rpcClient, cacheSize, ttl } = args;
+  constructor(args: {
+    rpcClient?: CoreRpcClient;
+    cacheSize: number;
+    ttl: number;
+    errorTtl: number;
+  }) {
+    const { rpcClient, cacheSize, ttl, errorTtl } = args;
     this.rpcClient = rpcClient;
     this.cache = new LRUCache<string, TokenMetadata>({
       max: cacheSize,
       ttl: ttl,
       allowStale: true,
     });
+    this.failureCache = new LRUCache<string, TokenMetadata>({
+      max: cacheSize,
+      ttl: errorTtl,
+    });
   }
 
   async get(assetIdentifier: string): Promise<TokenMetadata | null> {
     // No node connection (offline mode) — cannot resolve token metadata.
     if (!this.rpcClient) return null;
-    const cached = this.cache.get(assetIdentifier);
-    if (cached) return cached;
+    const resolved = this.cache.get(assetIdentifier);
+    if (resolved) return resolved;
+    // A recent failed lookup — serve the cached fallback without hitting the node again.
+    const cachedFailure = this.failureCache.get(assetIdentifier);
+    if (cachedFailure) return cachedFailure;
     try {
       const { metadata, complete } = await this.fetchMetadata(assetIdentifier);
-      // Only cache fully-resolved metadata. Partial/fallback results are left uncached so a
-      // transient read failure recovers on the next request rather than being pinned for the TTL.
+      // Fully-resolved metadata goes in the long-lived cache; a partial/fallback result is
+      // negatively cached (short TTL) so it isn't re-queried on every occurrence but still retries.
       if (complete) this.cache.set(assetIdentifier, metadata);
+      else this.failureCache.set(assetIdentifier, metadata);
       return metadata;
     } catch (error) {
       // `fetchMetadata` degrades to fallbacks rather than throwing, but guard against any
@@ -63,7 +81,9 @@ export class TokenMetadataCache {
         },
         'Token metadata lookup failed unexpectedly; using fallback symbol'
       );
-      return { symbol: fallbackSymbol(assetIdentifier), decimals: 0 };
+      const fallback = { symbol: fallbackSymbol(assetIdentifier), decimals: 0 };
+      this.failureCache.set(assetIdentifier, fallback);
+      return fallback;
     }
   }
 

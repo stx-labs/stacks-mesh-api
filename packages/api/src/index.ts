@@ -50,6 +50,7 @@ function buildOfflineConfig(): ApiConfig {
     tokenMetadataCache: new TokenMetadataCache({
       cacheSize: ENV.TOKEN_METADATA_CACHE_SIZE,
       ttl: ENV.TOKEN_METADATA_CACHE_TTL_MS,
+      errorTtl: ENV.TOKEN_METADATA_ERROR_CACHE_TTL_MS,
     }),
     contractAbiCache: new ContractAbiCache({
       cacheSize: ENV.CONTRACT_ABI_CACHE_SIZE,
@@ -96,6 +97,7 @@ async function buildOnlineConfig(): Promise<ApiConfig> {
       rpcClient,
       cacheSize: ENV.TOKEN_METADATA_CACHE_SIZE,
       ttl: ENV.TOKEN_METADATA_CACHE_TTL_MS,
+      errorTtl: ENV.TOKEN_METADATA_ERROR_CACHE_TTL_MS,
     }),
     contractAbiCache: new ContractAbiCache({
       rpcClient,
