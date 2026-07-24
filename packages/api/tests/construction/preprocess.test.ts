@@ -87,7 +87,9 @@ describe('/construction/preprocess', () => {
       assert.match(body.description, /require two operations/);
     });
 
-    test('rejects when a fee operation is provided', async () => {
+    test('tolerates a fee operation and derives options from the transfer legs', async () => {
+      // Wallets (e.g. ChainIO/Nova) send the full operation set — including the fee leg — to
+      // preprocess. It must be ignored, not rejected; options come from the token_transfer legs.
       const res = await post(fastify, '/construction/preprocess', {
         network_identifier: NETWORK_IDENTIFIER,
         operations: [
@@ -95,7 +97,7 @@ describe('/construction/preprocess', () => {
             operation_identifier: { index: 0 },
             type: 'fee',
             account: { address: senderAddress },
-            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+            amount: { value: '-300', currency: { symbol: 'STX', decimals: 6 } },
           },
           {
             operation_identifier: { index: 1 },
@@ -113,9 +115,13 @@ describe('/construction/preprocess', () => {
           },
         ],
       });
-      assert.equal(res.statusCode, 500);
+      assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
-      assert.match(body.description, /Fee operation is not allowed/);
+      assert.equal(body.options.type, 'token_transfer');
+      assert.equal(body.options.sender_address, senderAddress);
+      assert.equal(body.options.recipient_address, recipientAddress);
+      assert.equal(body.options.amount, '1000000');
+      assert.equal(body.required_public_keys[0].address, senderAddress);
     });
 
     test('rejects when more than two operations are provided', async () => {

@@ -100,7 +100,6 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       try {
         const options = buildConstructionOptionsFromOperations({
           operations,
-          allowFeeOperation: false,
           maxFee: max_fee?.[0]?.value,
           suggestedFeeMultiplier: suggested_fee_multiplier,
         });
@@ -237,7 +236,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       // Build and validate construction options from operations.
       let options: ConstructionOptions;
       try {
-        options = buildConstructionOptionsFromOperations({ operations, allowFeeOperation: true });
+        options = buildConstructionOptionsFromOperations({ operations });
       } catch (error) {
         return reply.status(500).send(MeshErrors.invalidTransaction((error as Error).message));
       }
@@ -518,20 +517,18 @@ function isUnorderedDeepStrictEqual(left: unknown, right: unknown): boolean {
 
 function buildConstructionOptionsFromOperations(args: {
   operations: ConstructionOperation[];
-  allowFeeOperation?: boolean;
   maxFee?: string;
   suggestedFeeMultiplier?: number;
 }): ConstructionOptions {
-  const { operations, allowFeeOperation = false, maxFee, suggestedFeeMultiplier } = args;
+  const { operations, maxFee, suggestedFeeMultiplier } = args;
   const maxFeeObject = maxFee ? { max_fee: maxFee } : undefined;
   const suggestedFeeMultiplierObject = suggestedFeeMultiplier
     ? { suggested_fee_multiplier: suggestedFeeMultiplier }
     : undefined;
 
-  const feeOperation = operations.find(op => op.type === 'fee');
-  if (feeOperation && !allowFeeOperation) {
-    throw new Error('Fee operation is not allowed at this stage');
-  }
+  // A fee operation may be present (wallets often include the full operation set); it's ignored
+  // here and the transfer options are derived from the remaining legs. `/construction/payloads`
+  // still requires and reads the fee operation separately.
   const filteredOperations = operations.filter(op => op.type !== 'fee');
 
   // `contract_call` and `contract_deploy` are the only valid single operation types.
