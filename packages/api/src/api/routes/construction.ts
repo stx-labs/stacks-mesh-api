@@ -9,7 +9,6 @@ import {
   isSingleSig,
   sigHashPreSign,
   AuthType,
-  serializePayloadBytes,
   makeUnsignedContractCall,
   hexToCV,
   makeUnsignedContractDeploy,
@@ -41,6 +40,7 @@ import type {
   ConstructionOperation,
 } from '@stacks/mesh-schemas';
 import { STX_CURRENCY } from '../../utils/constants.js';
+import { estimateTransactionFee, reorderSignatureToVrs } from '../../utils/construction.js';
 import { MeshErrors } from '../../utils/errors.js';
 import {
   addHexPrefix,
@@ -129,52 +129,59 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       async (request, reply) => {
         const { options, public_keys } = request.body;
 
-        // Estimate fee using a dummy transaction depending on the operation type specified in
-        // options.
+        // Estimate the fee from the full serialized transaction size at a base per-byte rate, with
+        // a floor (see `estimateTransactionFee`).
         //
-        // TODO: Fees are currently estimated by transaction byte size because the Stacks node's fee
-        // estimation endpoint does not yet return accurate values. We should switch back once that is
-        // fixed.
-        let suggestedFee = 200; // Default fallback fee in uSTX
+        // TODO: this is a size-based estimate. The node's fee endpoints (`/v2/fees/transaction`,
+        // `/v2/fees/transfer`) could give network-aware rates, but historically returned inaccurate
+        // values, so we keep a self-contained estimate for now.
+        // Fee = full serialized tx byte length × the base rate. If a dummy tx can't be built/sized
+        // (unexpected op type or a build error), fall back to the configured default fee.
+        let suggestedFee = config.constructionDefaultFee;
         const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
-        switch (options.type) {
-          case 'token_transfer': {
-            const dummyTx = await makeUnsignedSTXTokenTransfer({
-              recipient: options.recipient_address,
-              amount: 1,
-              fee: 0,
-              nonce: 0,
-              publicKey: dummyPubKey,
-              network,
-            });
-            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-            break;
+        try {
+          switch (options.type) {
+            case 'token_transfer': {
+              const dummyTx = await makeUnsignedSTXTokenTransfer({
+                recipient: options.recipient_address,
+                amount: 1,
+                fee: 0,
+                nonce: 0,
+                publicKey: dummyPubKey,
+                network,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
+            case 'contract_call': {
+              // TODO: Should we check if the contract exists?
+              const [contractAddress, contractName] = options.contract_identifier.split('.');
+              const dummyTx = await makeUnsignedContractCall({
+                contractAddress,
+                contractName,
+                functionName: options.function_name,
+                functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
+                publicKey: dummyPubKey,
+                fee: 0,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
+            case 'contract_deploy': {
+              const dummyTx = await makeUnsignedContractDeploy({
+                contractName: options.contract_name,
+                codeBody: options.source_code,
+                clarityVersion: options.clarity_version,
+                publicKey: dummyPubKey,
+                fee: 0,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
           }
-          case 'contract_call': {
-            // TODO: Should we check if the contract exists?
-            const [contractAddress, contractName] = options.contract_identifier.split('.');
-            const dummyTx = await makeUnsignedContractCall({
-              contractAddress,
-              contractName,
-              functionName: options.function_name,
-              functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-            break;
-          }
-          case 'contract_deploy': {
-            const dummyTx = await makeUnsignedContractDeploy({
-              contractName: options.contract_name,
-              codeBody: options.source_code,
-              clarityVersion: options.clarity_version,
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            suggestedFee = serializePayloadBytes(dummyTx.payload).length ?? suggestedFee;
-            break;
-          }
+        } catch {
+          // Couldn't build/serialize a dummy transaction to size the fee — use the default.
+          suggestedFee = config.constructionDefaultFee;
         }
         // Apply fee multiplier if specified
         const feeMultiplier = options?.suggested_fee_multiplier
@@ -377,7 +384,10 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               )
             );
         }
-        tx.auth.spendingCondition.signature = createMessageSignature(signatureHex);
+        // Rosetta signatures are [R|S|V] (recovery byte last); Stacks expects [V|R|S].
+        tx.auth.spendingCondition.signature = createMessageSignature(
+          reorderSignatureToVrs(signatureHex)
+        );
       } else {
         // TODO: Multi-sig transaction combining
         return reply

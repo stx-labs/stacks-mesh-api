@@ -19,6 +19,8 @@ type BaseApiConfig = {
   network: StacksNetwork;
   /** Which block hash to display in responses (`index_block_hash` by default). */
   blockHashMode: BlockHashMode;
+  /** Default/fallback suggested fee (µSTX) and floor for `/construction/metadata` estimates. */
+  constructionDefaultFee: number;
   nodeVersion: string;
   apiVersion: string;
 };
