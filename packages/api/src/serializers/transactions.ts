@@ -71,12 +71,52 @@ export function getDeclaredTxFee(decodedTx: DecodedTxResult): BigNumber {
   return BigNumber(condition.tx_fee);
 }
 
+/**
+ * Warm the contract-ABI and token-metadata caches for an entire block up front, concurrently.
+ *
+ * Block serialization is otherwise serial (transaction by transaction, event by event), so each
+ * uncached contract ABI / token metadata lookup would block the next on a round-trip to the node.
+ * Priming the caches here — one concurrent batch over the block's *unique* contracts and FT assets —
+ * means the subsequent serial `.get()` calls all hit warm caches. Best-effort: cache `.get()`s never
+ * throw, and it's wrapped in `allSettled` so a prefetch failure can never fail serialization.
+ */
+export async function prefetchBlockMetadata(
+  transactions: BlockReplayTransaction[],
+  decodedTxs: DecodedTxResult[],
+  config: ApiConfig
+): Promise<void> {
+  const contractIdentifiers = new Set<string>();
+  for (const decodedTx of decodedTxs) {
+    if (decodedTx.payload.type_id === TxPayloadTypeID.ContractCall) {
+      const payload = decodedTx.payload as TxPayloadContractCall;
+      contractIdentifiers.add(`${payload.address}.${payload.contract_name}`);
+    }
+  }
+
+  const assetIdentifiers = new Set<string>();
+  for (const tx of transactions) {
+    for (const event of tx.events) {
+      if (event.type === 'ft_mint_event')
+        assetIdentifiers.add(event.ft_mint_event.asset_identifier);
+      else if (event.type === 'ft_transfer_event')
+        assetIdentifiers.add(event.ft_transfer_event.asset_identifier);
+      else if (event.type === 'ft_burn_event')
+        assetIdentifiers.add(event.ft_burn_event.asset_identifier);
+    }
+  }
+
+  await Promise.allSettled([
+    ...[...contractIdentifiers].map(id => config.contractAbiCache.get(id)),
+    ...[...assetIdentifiers].map(id => config.tokenMetadataCache.get(id)),
+  ]);
+}
+
 export async function serializeReplayedNakamotoTransaction(
   replayedTx: BlockReplayTransaction,
+  decodedTx: DecodedTxResult,
   index: number,
   config: ApiConfig
 ): Promise<Transaction> {
-  const decodedTx = codec.decodeTransaction(replayedTx.hex);
   const tx: DecodedStacksTransaction = {
     replayedTx,
     decodedTx,
