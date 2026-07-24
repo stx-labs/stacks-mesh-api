@@ -327,7 +327,10 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           {
             account_identifier: { address: options.sender_address },
             address: options.sender_address,
-            hex_bytes: addHexPrefix(sigHash),
+            // Bare hex (no 0x): this is the signing payload, and Rosetta clients hex-decode it
+            // directly (e.g. rosetta-sdk-go's encoding/hex rejects a 0x prefix). Matches the old
+            // stacks-blockchain-api rosetta output. `unsigned_transaction`/`hash` stay 0x-prefixed.
+            hex_bytes: removeHexPrefix(sigHash),
             signature_type: 'ecdsa_recovery',
           },
         ],

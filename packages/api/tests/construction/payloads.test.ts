@@ -87,9 +87,10 @@ describe('/construction/payloads', () => {
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
 
-      // Should return unsigned transaction hex
+      // Should return unsigned transaction hex, 0x-prefixed
       assert.ok(body.unsigned_transaction);
       assert.ok(body.unsigned_transaction.length > 0);
+      assert.match(body.unsigned_transaction, /^0x/);
 
       // Should return exactly one signing payload
       assert.ok(body.payloads);
@@ -97,7 +98,11 @@ describe('/construction/payloads', () => {
       assert.equal(body.payloads[0].account_identifier.address, senderAddress);
       assert.equal(body.payloads[0].address, senderAddress);
       assert.equal(body.payloads[0].signature_type, 'ecdsa_recovery');
+      // hex_bytes must be BARE hex (no 0x) — Rosetta clients hex-decode the signing payload
+      // directly and reject a 0x prefix.
       assert.ok(body.payloads[0].hex_bytes);
+      assert.doesNotMatch(body.payloads[0].hex_bytes, /^0x/);
+      assert.match(body.payloads[0].hex_bytes, /^[0-9a-f]+$/);
     });
 
     test('rejects operations without a fee', async () => {
@@ -327,9 +332,10 @@ describe('/construction/payloads', () => {
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
 
-      // Should return unsigned transaction hex
+      // Should return unsigned transaction hex, 0x-prefixed
       assert.ok(body.unsigned_transaction);
       assert.ok(body.unsigned_transaction.length > 0);
+      assert.match(body.unsigned_transaction, /^0x/);
 
       // Should return exactly one signing payload
       assert.ok(body.payloads);
@@ -337,7 +343,11 @@ describe('/construction/payloads', () => {
       assert.equal(body.payloads[0].account_identifier.address, senderAddress);
       assert.equal(body.payloads[0].address, senderAddress);
       assert.equal(body.payloads[0].signature_type, 'ecdsa_recovery');
+      // hex_bytes must be BARE hex (no 0x) — Rosetta clients hex-decode the signing payload
+      // directly and reject a 0x prefix.
       assert.ok(body.payloads[0].hex_bytes);
+      assert.doesNotMatch(body.payloads[0].hex_bytes, /^0x/);
+      assert.match(body.payloads[0].hex_bytes, /^[0-9a-f]+$/);
     });
 
     test('accepts metadata options with values in different order and undefined fields', async () => {
@@ -433,9 +443,10 @@ describe('/construction/payloads', () => {
       assert.equal(res.statusCode, 200);
       const body = JSON.parse(res.body);
 
-      // Should return unsigned transaction hex
+      // Should return unsigned transaction hex, 0x-prefixed
       assert.ok(body.unsigned_transaction);
       assert.ok(body.unsigned_transaction.length > 0);
+      assert.match(body.unsigned_transaction, /^0x/);
 
       // Should return exactly one signing payload
       assert.ok(body.payloads);
@@ -443,7 +454,11 @@ describe('/construction/payloads', () => {
       assert.equal(body.payloads[0].account_identifier.address, senderAddress);
       assert.equal(body.payloads[0].address, senderAddress);
       assert.equal(body.payloads[0].signature_type, 'ecdsa_recovery');
+      // hex_bytes must be BARE hex (no 0x) — Rosetta clients hex-decode the signing payload
+      // directly and reject a 0x prefix.
       assert.ok(body.payloads[0].hex_bytes);
+      assert.doesNotMatch(body.payloads[0].hex_bytes, /^0x/);
+      assert.match(body.payloads[0].hex_bytes, /^[0-9a-f]+$/);
     });
   });
 });
