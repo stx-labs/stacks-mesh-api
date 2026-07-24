@@ -18,6 +18,16 @@ import {
   ConstructionTokenTransferOptions,
 } from '@stacks/mesh-schemas';
 import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
+import { MIN_TX_FEE } from '../../src/utils/construction.js';
+
+// The suggested fee is estimated from the full serialized tx size at the node's per-byte rate, with
+// a floor — so it's node-dependent. Assert its shape/floor rather than an exact value.
+function assertSuggestedFee(suggestedFee: { value: string; currency: unknown }[]) {
+  assert.equal(suggestedFee.length, 1);
+  assert.deepEqual(suggestedFee[0].currency, { decimals: 6, symbol: 'STX' });
+  assert.match(suggestedFee[0].value, /^\d+$/);
+  assert.ok(Number(suggestedFee[0].value) >= MIN_TX_FEE);
+}
 
 describe('/construction/metadata', () => {
   let fastify: FastifyInstance;
@@ -60,32 +70,22 @@ describe('/construction/metadata', () => {
     });
     assert.equal(res.statusCode, 200, res.body);
     const body = JSON.parse(res.body);
-    assert.deepEqual(body, {
-      metadata: {
-        options: {
-          sender_address: senderAddress,
-          recipient_address: recipientAddress,
-          type: 'token_transfer',
-          max_fee: options.max_fee,
-          suggested_fee_multiplier: options.suggested_fee_multiplier,
-          amount: options.amount,
-          memo: options.memo,
-        },
-        sender_account_info: {
-          nonce: 0,
-          balance: '10000000000000000',
-        },
+    assert.deepEqual(body.metadata, {
+      options: {
+        sender_address: senderAddress,
+        recipient_address: recipientAddress,
+        type: 'token_transfer',
+        max_fee: options.max_fee,
+        suggested_fee_multiplier: options.suggested_fee_multiplier,
+        amount: options.amount,
+        memo: options.memo,
       },
-      suggested_fee: [
-        {
-          currency: {
-            decimals: 6,
-            symbol: 'STX',
-          },
-          value: '98',
-        },
-      ],
+      sender_account_info: {
+        nonce: 0,
+        balance: '10000000000000000',
+      },
     });
+    assertSuggestedFee(body.suggested_fee);
   });
 
   test('accepts unprefixed public key hex_bytes', async () => {
@@ -127,32 +127,22 @@ describe('/construction/metadata', () => {
     });
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
-    assert.deepEqual(body, {
-      metadata: {
-        options: {
-          sender_address: senderAddress,
-          type: 'contract_call',
-          contract_identifier: options.contract_identifier,
-          function_name: options.function_name,
-          args: options.args,
-          max_fee: options.max_fee,
-          suggested_fee_multiplier: options.suggested_fee_multiplier,
-        },
-        sender_account_info: {
-          nonce: 0,
-          balance: '10000000000000000',
-        },
+    assert.deepEqual(body.metadata, {
+      options: {
+        sender_address: senderAddress,
+        type: 'contract_call',
+        contract_identifier: options.contract_identifier,
+        function_name: options.function_name,
+        args: options.args,
+        max_fee: options.max_fee,
+        suggested_fee_multiplier: options.suggested_fee_multiplier,
       },
-      suggested_fee: [
-        {
-          currency: {
-            decimals: 6,
-            symbol: 'STX',
-          },
-          value: '72',
-        },
-      ],
+      sender_account_info: {
+        nonce: 0,
+        balance: '10000000000000000',
+      },
     });
+    assertSuggestedFee(body.suggested_fee);
   });
 
   test('returns metadata for contract_deploy', async () => {
@@ -172,31 +162,21 @@ describe('/construction/metadata', () => {
     });
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
-    assert.deepEqual(body, {
-      metadata: {
-        options: {
-          sender_address: senderAddress,
-          type: 'contract_deploy',
-          contract_name: options.contract_name,
-          clarity_version: options.clarity_version,
-          source_code: options.source_code,
-          max_fee: options.max_fee,
-          suggested_fee_multiplier: options.suggested_fee_multiplier,
-        },
-        sender_account_info: {
-          nonce: 0,
-          balance: '10000000000000000',
-        },
+    assert.deepEqual(body.metadata, {
+      options: {
+        sender_address: senderAddress,
+        type: 'contract_deploy',
+        contract_name: options.contract_name,
+        clarity_version: options.clarity_version,
+        source_code: options.source_code,
+        max_fee: options.max_fee,
+        suggested_fee_multiplier: options.suggested_fee_multiplier,
       },
-      suggested_fee: [
-        {
-          currency: {
-            decimals: 6,
-            symbol: 'STX',
-          },
-          value: '44',
-        },
-      ],
+      sender_account_info: {
+        nonce: 0,
+        balance: '10000000000000000',
+      },
     });
+    assertSuggestedFee(body.suggested_fee);
   });
 });

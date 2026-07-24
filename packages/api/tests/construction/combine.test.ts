@@ -12,7 +12,12 @@ import {
   SENDER_PUBLIC_KEY,
   SENDER_PRIVATE_KEY,
 } from './helpers.js';
-import { signWithKey } from '@stacks/transactions';
+import {
+  signMessageHashRsv,
+  deserializeTransaction,
+  publicKeyFromSignatureVrs,
+  isSingleSig,
+} from '@stacks/transactions';
 import { addHexPrefix, removeHexPrefix } from '../../src/serializers/index.js';
 import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
 
@@ -46,7 +51,12 @@ describe('/construction/combine', () => {
 
     test('combines unsigned transaction with a valid signature', async () => {
       // Sign the sighash offline
-      const signature = addHexPrefix(signWithKey(SENDER_PRIVATE_KEY, removeHexPrefix(sighash)));
+      const signature = addHexPrefix(
+        signMessageHashRsv({
+          privateKey: SENDER_PRIVATE_KEY,
+          messageHash: removeHexPrefix(sighash),
+        })
+      );
 
       const res = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
@@ -74,11 +84,27 @@ describe('/construction/combine', () => {
       const body = JSON.parse(res.body);
       assert.ok(body.signed_transaction);
       assert.ok(body.signed_transaction.length >= unsignedTx.length);
+
+      // The signature was supplied in Rosetta [R|S|V] order; combine must have reordered it to the
+      // [V|R|S] order Stacks stores. Verify by recovering the public key from the stored signature —
+      // it only recovers to the sender if the byte order (and thus the signature) is correct.
+      const signedTx = deserializeTransaction(removeHexPrefix(body.signed_transaction));
+      assert.ok(isSingleSig(signedTx.auth.spendingCondition));
+      const recovered = publicKeyFromSignatureVrs(
+        removeHexPrefix(sighash),
+        signedTx.auth.spendingCondition.signature.data
+      );
+      assert.equal(recovered, SENDER_PUBLIC_KEY);
     });
 
     test('combines unsigned transaction when signing payload address is omitted', async () => {
       // Sign the sighash offline
-      const signature = addHexPrefix(signWithKey(SENDER_PRIVATE_KEY, removeHexPrefix(sighash)));
+      const signature = addHexPrefix(
+        signMessageHashRsv({
+          privateKey: SENDER_PRIVATE_KEY,
+          messageHash: removeHexPrefix(sighash),
+        })
+      );
 
       const res = await post(fastify, '/construction/combine', {
         network_identifier: NETWORK_IDENTIFIER,
