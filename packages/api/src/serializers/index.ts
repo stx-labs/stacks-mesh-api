@@ -9,6 +9,7 @@ import { ApiConfig } from '../api/index.js';
 import {
   DecodedStacksTransaction,
   getDeclaredTxFee,
+  prefetchBlockMetadata,
   serializeReplayedNakamotoTransaction,
   serializeStacksTransactionOperations,
 } from './transactions.js';
@@ -87,6 +88,11 @@ export async function serializeReplayedNakamotoBlock(
       },
     },
   };
+  // Decode every transaction once, then warm the ABI/token caches for the whole block concurrently
+  // so the serial serialization below hits warm caches instead of blocking on per-event node calls.
+  const decodedTxs = replay.transactions.map(tx => codec.decodeTransaction(tx.hex));
+  await prefetchBlockMetadata(replay.transactions, decodedTxs, config);
+
   for (let i = 0; i < replay.transactions.length; i++) {
     // TODO: `tx_index` does not work from Stacks core (it's always 0).
     const tx = replay.transactions[i];
@@ -95,7 +101,7 @@ export async function serializeReplayedNakamotoBlock(
     block.metadata!.execution_cost!.runtime += tx.execution_cost.runtime;
     block.metadata!.execution_cost!.write_count += tx.execution_cost.write_count;
     block.metadata!.execution_cost!.write_length += tx.execution_cost.write_length;
-    const serializedTx = await serializeReplayedNakamotoTransaction(tx, i, config);
+    const serializedTx = await serializeReplayedNakamotoTransaction(tx, decodedTxs[i], i, config);
     block.transactions.push(serializedTx);
   }
 
@@ -120,7 +126,12 @@ export async function serializeTransactionFromReplayedNakamotoBlock(
   let index = 0;
   for (const tx of replay.transactions) {
     if (addHexPrefix(tx.txid) === normalizedTxId) {
-      return serializeReplayedNakamotoTransaction(tx, index, config);
+      return serializeReplayedNakamotoTransaction(
+        tx,
+        codec.decodeTransaction(tx.hex),
+        index,
+        config
+      );
     }
     index++;
   }
