@@ -20,18 +20,17 @@ export function reorderSignatureToVrs(signatureHex: string): string {
 }
 
 /**
- * Estimate a transaction's fee from its full serialized byte length and a per-byte fee rate, with a
- * floor (`defaultFee`). The size is taken from the *whole* serialized transaction (not just the
- * payload) — the unsigned tx already includes the fixed-size signature field, so its length matches
- * the signed size — which is what the node's min relay fee is computed against.
+ * Estimate a transaction's fee from its full serialized byte length at a per-byte fee rate. The
+ * size is taken from the *whole* serialized transaction (not just the payload) — the unsigned tx
+ * already includes the fixed-size signature field, so its length matches the signed size, which is
+ * what the node's min relay fee is computed against.
  *
- * @param defaultFee - Floor/fallback fee (µSTX), from `CONSTRUCTION_DEFAULT_FEE`.
+ * This is NOT floored: callers use the configured default fee only when this can't be computed.
  */
 export function estimateTransactionFee(
   tx: StacksTransactionWire,
-  defaultFee: number,
   feeRatePerByte: number = FEE_RATE_PER_BYTE
 ): number {
   const byteLength = serializeTransaction(tx).length / 2; // serialize returns bare hex
-  return Math.max(defaultFee, Math.ceil(byteLength * feeRatePerByte));
+  return Math.ceil(byteLength * feeRatePerByte);
 }

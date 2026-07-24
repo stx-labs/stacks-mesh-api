@@ -18,15 +18,13 @@ import {
   ConstructionTokenTransferOptions,
 } from '@stacks/mesh-schemas';
 import type { DockerTestContainerConfig } from '@stacks/api-test-toolkit';
-// The suggested fee is estimated from the full serialized tx size at a base per-byte rate, floored
-// at the configured CONSTRUCTION_DEFAULT_FEE (200 in the test server). Assert its shape/floor rather
-// than an exact value (it depends on the tx size).
-const TEST_DEFAULT_FEE = 200;
+// The suggested fee is estimated from the full serialized tx size at a base per-byte rate (times
+// the fee multiplier). Assert its shape rather than an exact value, since it depends on tx size.
 function assertSuggestedFee(suggestedFee: { value: string; currency: unknown }[]) {
   assert.equal(suggestedFee.length, 1);
   assert.deepEqual(suggestedFee[0].currency, { decimals: 6, symbol: 'STX' });
   assert.match(suggestedFee[0].value, /^\d+$/);
-  assert.ok(Number(suggestedFee[0].value) >= TEST_DEFAULT_FEE);
+  assert.ok(Number(suggestedFee[0].value) > 0);
 }
 
 describe('/construction/metadata', () => {

@@ -27,7 +27,7 @@ describe('reorderSignatureToVrs', () => {
 });
 
 describe('estimateTransactionFee', () => {
-  test('estimates from the full serialized tx size at the given per-byte rate, with a floor', async () => {
+  test('estimates from the full serialized tx size at the given per-byte rate', async () => {
     const publicKey = privateKeyToPublic(
       '753b7cc01a1a2e86221266a154af739463fce51219d97e4f856cd7200c3bd2a601'
     );
@@ -39,13 +39,10 @@ describe('estimateTransactionFee', () => {
       publicKey,
     });
     const byteLength = serializeTransaction(tx).length / 2;
-    const defaultFee = 200;
 
-    // Default rate (1) uses the full tx size, floored at defaultFee.
-    assert.equal(estimateTransactionFee(tx, defaultFee), Math.max(defaultFee, byteLength));
-    // High rate: fee scales with the full tx byte length (well above the floor).
-    assert.equal(estimateTransactionFee(tx, defaultFee, 10), Math.ceil(byteLength * 10));
-    // Floor applies when rate*size would be below it.
-    assert.equal(estimateTransactionFee(tx, defaultFee, 0.0001), defaultFee);
+    // Default rate (1) → the full tx byte length. No floor is applied.
+    assert.equal(estimateTransactionFee(tx), byteLength);
+    // Scales with the per-byte rate.
+    assert.equal(estimateTransactionFee(tx, 10), Math.ceil(byteLength * 10));
   });
 });

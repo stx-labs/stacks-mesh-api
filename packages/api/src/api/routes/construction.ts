@@ -135,46 +135,53 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
         // TODO: this is a size-based estimate. The node's fee endpoints (`/v2/fees/transaction`,
         // `/v2/fees/transfer`) could give network-aware rates, but historically returned inaccurate
         // values, so we keep a self-contained estimate for now.
-        let suggestedFee = config.constructionDefaultFee; // used if the operation type is unrecognized
+        // Fee = full serialized tx byte length × the base rate. If a dummy tx can't be built/sized
+        // (unexpected op type or a build error), fall back to the configured default fee.
+        let suggestedFee = config.constructionDefaultFee;
         const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
-        switch (options.type) {
-          case 'token_transfer': {
-            const dummyTx = await makeUnsignedSTXTokenTransfer({
-              recipient: options.recipient_address,
-              amount: 1,
-              fee: 0,
-              nonce: 0,
-              publicKey: dummyPubKey,
-              network,
-            });
-            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
-            break;
+        try {
+          switch (options.type) {
+            case 'token_transfer': {
+              const dummyTx = await makeUnsignedSTXTokenTransfer({
+                recipient: options.recipient_address,
+                amount: 1,
+                fee: 0,
+                nonce: 0,
+                publicKey: dummyPubKey,
+                network,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
+            case 'contract_call': {
+              // TODO: Should we check if the contract exists?
+              const [contractAddress, contractName] = options.contract_identifier.split('.');
+              const dummyTx = await makeUnsignedContractCall({
+                contractAddress,
+                contractName,
+                functionName: options.function_name,
+                functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
+                publicKey: dummyPubKey,
+                fee: 0,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
+            case 'contract_deploy': {
+              const dummyTx = await makeUnsignedContractDeploy({
+                contractName: options.contract_name,
+                codeBody: options.source_code,
+                clarityVersion: options.clarity_version,
+                publicKey: dummyPubKey,
+                fee: 0,
+              });
+              suggestedFee = estimateTransactionFee(dummyTx);
+              break;
+            }
           }
-          case 'contract_call': {
-            // TODO: Should we check if the contract exists?
-            const [contractAddress, contractName] = options.contract_identifier.split('.');
-            const dummyTx = await makeUnsignedContractCall({
-              contractAddress,
-              contractName,
-              functionName: options.function_name,
-              functionArgs: options.args.map(arg => hexToCV(addHexPrefix(arg))),
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
-            break;
-          }
-          case 'contract_deploy': {
-            const dummyTx = await makeUnsignedContractDeploy({
-              contractName: options.contract_name,
-              codeBody: options.source_code,
-              clarityVersion: options.clarity_version,
-              publicKey: dummyPubKey,
-              fee: 0,
-            });
-            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
-            break;
-          }
+        } catch {
+          // Couldn't build/serialize a dummy transaction to size the fee — use the default.
+          suggestedFee = config.constructionDefaultFee;
         }
         // Apply fee multiplier if specified
         const feeMultiplier = options?.suggested_fee_multiplier
