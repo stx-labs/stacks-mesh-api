@@ -66,6 +66,7 @@ The API is configured via environment variables (a `.env` file is also supported
 | `TOKEN_METADATA_ERROR_CACHE_TTL_MS` | `7200000` | TTL for negatively-cached token metadata lookups — tokens whose SIP-010 getters failed (default 2 hours) |
 | `CONTRACT_ABI_CACHE_SIZE` | `100` | Max entries in the contract ABI LRU cache |
 | `CONTRACT_ABI_CACHE_TTL_MS` | `86400000` | Contract ABI cache TTL (default 24 h) |
+| `CONSTRUCTION_DEFAULT_FEE` | `200` | Default/fallback suggested fee (µSTX) and floor for `/construction/metadata` estimates |
 
 ### Offline mode
 

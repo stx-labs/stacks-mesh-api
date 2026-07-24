@@ -55,6 +55,12 @@ const schema = Type.Object({
   CONTRACT_ABI_CACHE_SIZE: Type.Integer({ default: 100, minimum: 0 }),
   /** TTL of the contract ABI cache in milliseconds. Defaults to 24 hours. */
   CONTRACT_ABI_CACHE_TTL_MS: Type.Integer({ default: 1000 * 60 * 60 * 24, minimum: 0 }),
+
+  /**
+   * Default/fallback suggested fee (µSTX) for `/construction/metadata`, used as the floor for the
+   * size-based fee estimate. Defaults to 200.
+   */
+  CONSTRUCTION_DEFAULT_FEE: Type.Integer({ default: 200, minimum: 0 }),
 });
 type Env = Static<typeof schema>;
 

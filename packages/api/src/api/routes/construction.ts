@@ -40,12 +40,7 @@ import type {
   ConstructionOperation,
 } from '@stacks/mesh-schemas';
 import { STX_CURRENCY } from '../../utils/constants.js';
-import {
-  estimateTransactionFee,
-  reorderSignatureToVrs,
-  FALLBACK_FEE_RATE_PER_BYTE,
-  MIN_TX_FEE,
-} from '../../utils/construction.js';
+import { estimateTransactionFee, reorderSignatureToVrs } from '../../utils/construction.js';
 import { MeshErrors } from '../../utils/errors.js';
 import {
   addHexPrefix,
@@ -134,19 +129,13 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       async (request, reply) => {
         const { options, public_keys } = request.body;
 
-        // Estimate the fee from the full serialized transaction size at the network's current
-        // per-byte rate (from `/v2/fees/transfer`), with a floor (see `estimateTransactionFee`).
-        // This is the simple fee-rate endpoint, not the cost-based `/v2/fees/transaction`
-        // estimation, which historically returned inaccurate values.
-        let feeRatePerByte = FALLBACK_FEE_RATE_PER_BYTE;
-        try {
-          const rate = Number(await rpcClient.request('GET', '/v2/fees/transfer'));
-          if (Number.isFinite(rate) && rate > 0) feeRatePerByte = rate;
-        } catch {
-          // Node rate unavailable — fall back to the base per-byte rate.
-        }
-
-        let suggestedFee = MIN_TX_FEE; // floor, used if the operation type is unrecognized
+        // Estimate the fee from the full serialized transaction size at a base per-byte rate, with
+        // a floor (see `estimateTransactionFee`).
+        //
+        // TODO: this is a size-based estimate. The node's fee endpoints (`/v2/fees/transaction`,
+        // `/v2/fees/transfer`) could give network-aware rates, but historically returned inaccurate
+        // values, so we keep a self-contained estimate for now.
+        let suggestedFee = config.constructionDefaultFee; // used if the operation type is unrecognized
         const dummyPubKey = removeHexPrefix(public_keys?.[0]?.hex_bytes ?? '0'.repeat(66));
         switch (options.type) {
           case 'token_transfer': {
@@ -158,7 +147,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               publicKey: dummyPubKey,
               network,
             });
-            suggestedFee = estimateTransactionFee(dummyTx, feeRatePerByte);
+            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
             break;
           }
           case 'contract_call': {
@@ -172,7 +161,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               publicKey: dummyPubKey,
               fee: 0,
             });
-            suggestedFee = estimateTransactionFee(dummyTx, feeRatePerByte);
+            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
             break;
           }
           case 'contract_deploy': {
@@ -183,7 +172,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
               publicKey: dummyPubKey,
               fee: 0,
             });
-            suggestedFee = estimateTransactionFee(dummyTx, feeRatePerByte);
+            suggestedFee = estimateTransactionFee(dummyTx, config.constructionDefaultFee);
             break;
           }
         }
