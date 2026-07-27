@@ -4,7 +4,7 @@ import { logger } from '@stacks/api-toolkit';
 // on the default export object, so `codec.Pox5EventName` is `undefined` at runtime —
 // always import them by name.
 import { Pox5EventName, type Pox5Event } from '@stacks/codec';
-import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
+import { DecodedStacksTransaction } from './transactions.js';
 
 /**
  * Maps a decoded pox-5 (bitcoin-staking) synthetic print event to a Mesh operation.
@@ -16,15 +16,20 @@ import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
  *   `pg-write-store.ts` pox-5 event switch.
  * - Ground truth for anything ambiguous: stacks-core `pox-5.clar`.
  *
+ * These operations are INFORMATIONAL — none carries an `amount`. Following the reference rosetta
+ * (stacks-blockchain-api ignored pox print events entirely), the actual balance movement is
+ * represented by the separate `stx_lock` / `stx_transfer` / `ft_transfer` events, which the block
+ * serializer already turns into balance-affecting operations. Emitting an `amount` here too would
+ * double-count (e.g. a `stx_lock` of −N plus a `stake` of +N nets to zero). The staked/updated
+ * amounts are kept in `metadata` (`amount_ustx`) for visibility.
+ *
  * Key differences from pox-4 (`makeSyntheticPoxOperation`):
- * - pox-5 events have NO top-level `locked` / `balance` / `burnchain_unlock_height`
- *   envelope — everything is inside `data`. Post-event spendable balance must be
- *   read from the node (`/v2/accounts/{principal}`), not from the event.
- * - Rewards are paid in **sBTC** (a SIP-010 asset), not STX — see the reward events.
+ * - pox-5 events have NO top-level `locked` / `balance` / `burnchain_unlock_height` envelope —
+ *   everything is inside `data`. Post-event spendable balance must be read from the node.
+ * - Rewards are paid in **sBTC** (a SIP-010 asset), not STX.
  * - These events only appear after Stacks 4.0 / pox-5 activation.
  *
- * Returns `null` for events that do not correspond to a balance-affecting STX
- * operation (signer/allowlist/bond-admin/reward-calculation bookkeeping).
+ * Returns `null` only for an event the codec knows but this switch doesn't map.
  */
 export function makeSyntheticPox5Operation(
   poxEvent: Pox5Event,
@@ -40,11 +45,8 @@ export function makeSyntheticPox5Operation(
         type: 'stake',
         status: tx.status,
         account: { address: poxEvent.data.staker },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           signer: poxEvent.data.signer,
           num_cycles: parseInt(poxEvent.data.num_cycles),
           first_reward_cycle: parseInt(poxEvent.data.first_reward_cycle),
@@ -61,11 +63,8 @@ export function makeSyntheticPox5Operation(
         type: 'stake_update',
         status: tx.status,
         account: { address: poxEvent.data.staker },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           signer: poxEvent.data.signer,
           old_signer: poxEvent.data.old_signer,
           amount_increase: poxEvent.data.amount_increase,
@@ -88,11 +87,8 @@ export function makeSyntheticPox5Operation(
         type: 'unstake',
         status: tx.status,
         account: { address: poxEvent.data.staker },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           signer: poxEvent.data.signer,
           first_reward_cycle: parseInt(poxEvent.data.first_reward_cycle),
           unlock_cycle: parseInt(poxEvent.data.unlock_cycle),
@@ -110,11 +106,8 @@ export function makeSyntheticPox5Operation(
         type: 'register_for_bond',
         status: tx.status,
         account: { address: poxEvent.data.staker },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           signer: poxEvent.data.signer,
           bond_index: parseInt(poxEvent.data.bond_index),
           sats_total: poxEvent.data.sats_total,
@@ -135,11 +128,8 @@ export function makeSyntheticPox5Operation(
         type: 'update_bond_registration',
         status: tx.status,
         account: { address: poxEvent.data.staker },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           signer: poxEvent.data.signer,
           old_signer: poxEvent.data.old_signer,
           bond_index: parseInt(poxEvent.data.bond_index),

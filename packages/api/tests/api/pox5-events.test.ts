@@ -14,7 +14,6 @@ const tx = { status: 'success' } as unknown as DecodedStacksTransaction;
 const SIGNER = 'SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.signer-manager';
 const OLD_SIGNER = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.signer-manager';
 const STAKER = 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7';
-const STX = { symbol: 'STX', decimals: 6 };
 
 describe('synthetic pox-5 operations', () => {
   test('stake → locks STX under a signer', () => {
@@ -36,8 +35,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'stake',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '5000000', currency: STX },
       metadata: {
+        amount_ustx: '5000000',
         signer: SIGNER,
         num_cycles: 6,
         first_reward_cycle: 8,
@@ -69,8 +68,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'stake_update',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '7000000', currency: STX },
       metadata: {
+        amount_ustx: '7000000',
         signer: SIGNER,
         old_signer: OLD_SIGNER,
         amount_increase: '2000000',
@@ -102,8 +101,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'unstake',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '5000000', currency: STX },
       metadata: {
+        amount_ustx: '5000000',
         signer: SIGNER,
         first_reward_cycle: 8,
         unlock_cycle: 20,
@@ -136,8 +135,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'register_for_bond',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '10000000', currency: STX },
       metadata: {
+        amount_ustx: '10000000',
         signer: SIGNER,
         bond_index: 0,
         sats_total: '1000',
@@ -170,8 +169,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'update_bond_registration',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '9000000', currency: STX },
       metadata: {
+        amount_ustx: '9000000',
         signer: SIGNER,
         old_signer: OLD_SIGNER,
         bond_index: 0,

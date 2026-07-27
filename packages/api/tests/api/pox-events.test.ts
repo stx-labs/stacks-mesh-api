@@ -70,9 +70,8 @@ describe('synthetic pox events', () => {
     const delegateStx = json.transaction.operations[5];
     assert.strictEqual(delegateStx.type, 'delegate_stx');
     assert.strictEqual(delegateStx.account.address, 'SP3KMYS5X3XJ1K9H7J39J1ZZYRGRM8VFEXG46W1V6');
-    assert.strictEqual(delegateStx.amount.value, '3049000000');
-    assert.strictEqual(delegateStx.amount.currency.decimals, 6);
-    assert.strictEqual(delegateStx.amount.currency.symbol, 'STX');
+    assert.strictEqual(delegateStx.amount, undefined);
+    assert.strictEqual(delegateStx.metadata.amount_ustx, '3049000000');
     assert.strictEqual(delegateStx.metadata.locked, '549000000');
     assert.strictEqual(delegateStx.metadata.balance, '2554498546');
     assert.strictEqual(delegateStx.metadata.burnchain_unlock_height, 939050);
@@ -154,9 +153,8 @@ describe('synthetic pox events', () => {
       delegateStackIncrease.account.address,
       'SPYEMA86Q731HX4ND3HFSQR9X08QJ4MVHK303S47'
     );
-    assert.strictEqual(delegateStackIncrease.amount.value, '2349804');
-    assert.strictEqual(delegateStackIncrease.amount.currency.decimals, 6);
-    assert.strictEqual(delegateStackIncrease.amount.currency.symbol, 'STX');
+    assert.strictEqual(delegateStackIncrease.amount, undefined);
+    assert.strictEqual(delegateStackIncrease.metadata.increase_by, '2349804');
     assert.strictEqual(delegateStackIncrease.metadata.locked, '333349804');
     assert.strictEqual(delegateStackIncrease.metadata.balance, '1000000');
     assert.strictEqual(delegateStackIncrease.metadata.burnchain_unlock_height, 941150);
@@ -197,9 +195,8 @@ describe('synthetic pox events', () => {
       stackAggregationIncrease.account.address,
       'SP37NDP02F9Q8Q3RYKRNYN1QNP5N2RDQYM6R9Z4PK'
     );
-    assert.strictEqual(stackAggregationIncrease.amount.value, '25528422772');
-    assert.strictEqual(stackAggregationIncrease.amount.currency.decimals, 6);
-    assert.strictEqual(stackAggregationIncrease.amount.currency.symbol, 'STX');
+    assert.strictEqual(stackAggregationIncrease.amount, undefined);
+    assert.strictEqual(stackAggregationIncrease.metadata.amount_ustx, '25528422772');
     assert.strictEqual(stackAggregationIncrease.metadata.locked, '0');
     assert.strictEqual(stackAggregationIncrease.metadata.balance, '212403384');
     assert.strictEqual(stackAggregationIncrease.metadata.burnchain_unlock_height, 0);
@@ -237,9 +234,8 @@ describe('synthetic pox events', () => {
       stackAggregationCommitIndexed.account.address,
       'SP249RRK1HD531X0ZSMWYKKP4T94YBQT1NSYVFWPQ.contributor'
     );
-    assert.strictEqual(stackAggregationCommitIndexed.amount.value, '74989152876659');
-    assert.strictEqual(stackAggregationCommitIndexed.amount.currency.decimals, 6);
-    assert.strictEqual(stackAggregationCommitIndexed.amount.currency.symbol, 'STX');
+    assert.strictEqual(stackAggregationCommitIndexed.amount, undefined);
+    assert.strictEqual(stackAggregationCommitIndexed.metadata.amount_ustx, '74989152876659');
     assert.strictEqual(stackAggregationCommitIndexed.metadata.locked, '0');
     assert.strictEqual(stackAggregationCommitIndexed.metadata.balance, '0');
     assert.strictEqual(stackAggregationCommitIndexed.metadata.burnchain_unlock_height, 0);
@@ -322,9 +318,8 @@ describe('synthetic pox events', () => {
       delegateStackStx.account.address,
       'SP11XVDN6J7RSE0EMY8KDQ8MMT1BHKA15S3BYTYNM'
     );
-    assert.strictEqual(delegateStackStx.amount.value, '234000000');
-    assert.strictEqual(delegateStackStx.amount.currency.decimals, 6);
-    assert.strictEqual(delegateStackStx.amount.currency.symbol, 'STX');
+    assert.strictEqual(delegateStackStx.amount, undefined);
+    assert.strictEqual(delegateStackStx.metadata.lock_amount, '234000000');
     assert.strictEqual(delegateStackStx.metadata.locked, '234000000');
     assert.strictEqual(delegateStackStx.metadata.balance, '4697150');
     assert.strictEqual(delegateStackStx.metadata.burnchain_unlock_height, 941150);
@@ -367,9 +362,8 @@ describe('synthetic pox events', () => {
       stackAggregationCommit.account.address,
       'SP2BTV05PX5XNCY5CMKP4HA3CRK811GNSA1DYNTCA'
     );
-    assert.strictEqual(stackAggregationCommit.amount.value, '120005000000');
-    assert.strictEqual(stackAggregationCommit.amount.currency.decimals, 6);
-    assert.strictEqual(stackAggregationCommit.amount.currency.symbol, 'STX');
+    assert.strictEqual(stackAggregationCommit.amount, undefined);
+    assert.strictEqual(stackAggregationCommit.metadata.amount_ustx, '120005000000');
     assert.strictEqual(stackAggregationCommit.metadata.locked, '0');
     assert.strictEqual(stackAggregationCommit.metadata.balance, '23303920');
     assert.strictEqual(stackAggregationCommit.metadata.burnchain_unlock_height, 0);
@@ -408,9 +402,8 @@ describe('synthetic pox events', () => {
     const stackStx = json.transaction.operations[3];
     assert.strictEqual(stackStx.type, 'stack_stx');
     assert.strictEqual(stackStx.account.address, 'SP1Y7GTHNJ1XWZYPP5WDGSNVAE9H5M4M2ADBG9C33');
-    assert.strictEqual(stackStx.amount.value, '10000000000000');
-    assert.strictEqual(stackStx.amount.currency.decimals, 6);
-    assert.strictEqual(stackStx.amount.currency.symbol, 'STX');
+    assert.strictEqual(stackStx.amount, undefined);
+    assert.strictEqual(stackStx.metadata.lock_amount, '10000000000000');
     assert.strictEqual(stackStx.metadata.locked, '10000000000000');
     assert.strictEqual(stackStx.metadata.balance, '55542857244786');
     assert.strictEqual(stackStx.metadata.burnchain_unlock_height, 964250);
@@ -450,9 +443,8 @@ describe('synthetic pox events', () => {
     const stackIncrease = json.transaction.operations[3];
     assert.strictEqual(stackIncrease.type, 'stack_increase');
     assert.strictEqual(stackIncrease.account.address, 'SP13CM9QN6J23B6T6415SC0T8JQZ3YADPD1TJ27WZ');
-    assert.strictEqual(stackIncrease.amount.value, '50000000000');
-    assert.strictEqual(stackIncrease.amount.currency.decimals, 6);
-    assert.strictEqual(stackIncrease.amount.currency.symbol, 'STX');
+    assert.strictEqual(stackIncrease.amount, undefined);
+    assert.strictEqual(stackIncrease.metadata.increase_by, '50000000000');
     assert.strictEqual(stackIncrease.metadata.locked, '180000000000');
     assert.strictEqual(stackIncrease.metadata.balance, '45088624598');
     assert.strictEqual(stackIncrease.metadata.burnchain_unlock_height, 924350);
