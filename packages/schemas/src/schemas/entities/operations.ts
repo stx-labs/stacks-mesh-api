@@ -482,6 +482,13 @@ const RegisterForBondOperationSchema = Type.Composite([
       first_reward_cycle: Type.Integer(),
       unlock_burn_height: Type.Integer(),
       unlock_cycle: Type.Integer(),
+      // How the BTC was locked: `type: 'l1'` with proof outputs, or `type: 'l2'` (sBTC) with null.
+      btc_lockup: Type.Object({
+        type: Type.String(),
+        txs: Nullable(
+          Type.Array(Type.Object({ txid: Type.String(), output_index: Type.String() }))
+        ),
+      }),
     }),
   }),
 ]);

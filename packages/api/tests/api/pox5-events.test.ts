@@ -144,6 +144,7 @@ describe('synthetic pox-5 operations', () => {
         first_reward_cycle: 8,
         unlock_burn_height: 10000,
         unlock_cycle: 20,
+        btc_lockup: { type: 'l2', txs: null },
       },
     });
   });

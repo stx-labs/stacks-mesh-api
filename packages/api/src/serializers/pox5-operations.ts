@@ -115,8 +115,9 @@ export function makeSyntheticPox5Operation(
           first_reward_cycle: parseInt(poxEvent.data.first_reward_cycle),
           unlock_burn_height: parseInt(poxEvent.data.unlock_burn_height),
           unlock_cycle: parseInt(poxEvent.data.unlock_cycle),
-          // TODO: represent the BTC/sBTC lockup (`sats_total`, `btc_lockup`) — this is
-          //       a non-STX asset, so it needs a decision on whether/how Mesh models it.
+          // How the BTC was locked: L1 proof outputs (`type: 'l1'`, `txs` present) vs sBTC
+          // (`type: 'l2'`, `txs: null`). Displayed only — the sats side is not an STX balance.
+          btc_lockup: poxEvent.data.btc_lockup,
         },
       };
 
