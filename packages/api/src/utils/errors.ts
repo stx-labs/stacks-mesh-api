@@ -21,6 +21,7 @@ export const ErrorCodes = {
   // Account errors (4xxx)
   ACCOUNT_NOT_FOUND: 300,
   INVALID_ACCOUNT_IDENTIFIER: 301,
+  INVALID_SUB_ACCOUNT: 302,
 
   // Construction errors (5xxx)
   INVALID_PUBLIC_KEY: 400,
@@ -120,6 +121,14 @@ export const MeshErrors = {
       reason
     ),
 
+  invalidSubAccount: (subAccount: string): ErrorResponse =>
+    createMeshError(
+      ErrorCodes.INVALID_SUB_ACCOUNT,
+      'Invalid sub-account',
+      false,
+      `The sub-account "${subAccount}" is not supported`
+    ),
+
   invalidPublicKey: (reason: string): ErrorResponse =>
     createMeshError(ErrorCodes.INVALID_PUBLIC_KEY, 'Invalid public key', false, reason),
 
@@ -167,6 +176,7 @@ export function getAllErrors(): ErrorResponse[] {
     createMeshError(ErrorCodes.TRANSACTION_PARSE_ERROR, 'Transaction parse error', false),
     createMeshError(ErrorCodes.ACCOUNT_NOT_FOUND, 'Account not found', true),
     createMeshError(ErrorCodes.INVALID_ACCOUNT_IDENTIFIER, 'Invalid account identifier', false),
+    createMeshError(ErrorCodes.INVALID_SUB_ACCOUNT, 'Invalid sub-account', false),
     createMeshError(ErrorCodes.INVALID_PUBLIC_KEY, 'Invalid public key', false),
     createMeshError(ErrorCodes.INVALID_SIGNATURE, 'Invalid signature', false),
     createMeshError(ErrorCodes.INVALID_CURVE_TYPE, 'Invalid curve type', false),

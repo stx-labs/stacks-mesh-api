@@ -268,6 +268,82 @@ describe('/account', () => {
       assert.strictEqual(json.metadata.unlock_height, 160000);
     });
 
+    describe('sub-accounts', () => {
+      const tipHeight = 5437107;
+      const tipHash = '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124';
+
+      function mockBalanceEndpoints() {
+        const mockPool = mockAgent.get('http://test.stacks.node:20444');
+        const accountInfo = makeAccountInfo({
+          balance: '0x00000000000000000000001D1A94A200', // 125_000_000_000
+          locked: '0x000000000000000000000002540BE400', // 10_000_000_000
+          unlock_height: 160000,
+          nonce: 42,
+        });
+        mockPool
+          .intercept({
+            path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+            method: 'GET',
+          })
+          .reply(200, accountInfo, {
+            headers: { 'content-type': 'application/json' },
+          });
+        mockPool.intercept({ path: '/v2/info', method: 'GET' }).reply(200, makeNodeInfo(), {
+          headers: { 'content-type': 'application/json' },
+        });
+        mockPool
+          .intercept({ path: `/v3/blocks/height/${tipHeight}`, method: 'GET' })
+          .reply(200, loadBinaryFixture('blocks/coinbase.header.bin'), {
+            headers: { 'content-type': 'application/octet-stream' },
+          });
+      }
+
+      async function requestBalance(subAccount: string) {
+        return fastify.inject({
+          url: '/account/balance',
+          method: 'POST',
+          payload: JSON.stringify({
+            network_identifier: { blockchain: 'stacks', network: 'mainnet' },
+            account_identifier: {
+              address: TEST_ADDRESS,
+              sub_account: { address: subAccount },
+            },
+          }),
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+
+      const subAccountCases = [
+        { subAccount: 'SpendableBalance', expected: '125000000000' },
+        { subAccount: 'StackedBalance', expected: '10000000000' },
+        { subAccount: 'VestingLockedBalance', expected: '0' },
+        { subAccount: 'VestingUnlockedBalance', expected: '0' },
+      ];
+      for (const { subAccount, expected } of subAccountCases) {
+        test(`should return ${expected} for sub_account "${subAccount}"`, async () => {
+          mockBalanceEndpoints();
+
+          const response = await requestBalance(subAccount);
+
+          assert.strictEqual(response.statusCode, 200);
+          const json = JSON.parse(response.body);
+          assert.strictEqual(json.balances[0].value, expected);
+        });
+      }
+
+      test('should return invalid sub-account error for unknown sub_account', async () => {
+        mockBalanceEndpoints();
+
+        const response = await requestBalance('NotARealSubAccount');
+
+        assert.strictEqual(response.statusCode, 500);
+        const json = JSON.parse(response.body);
+        assert.strictEqual(json.code, 302);
+        assert.strictEqual(json.message, 'Invalid sub-account');
+        assert.strictEqual(json.retriable, false);
+      });
+    });
+
     test('should handle zero balance account', async () => {
       const mockPool = mockAgent.get('http://test.stacks.node:20444');
       const nodeInfo = makeNodeInfo();
