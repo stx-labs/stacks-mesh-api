@@ -75,8 +75,28 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
       // `locked` is the locked balance.
       const locked = BigNumber(accountInfo.locked);
 
-      const isLockedSubAccount = account_identifier.sub_account?.address === 'locked';
-      const reportedBalance = isLockedSubAccount ? locked : balance;
+      // Sub-account names follow the legacy Stacks Rosetta implementation, with
+      // `locked` kept as an alias of `StackedBalance`.
+      let reportedBalance: BigNumber;
+      const subAccount = account_identifier.sub_account?.address;
+      switch (subAccount) {
+        case undefined:
+        case 'SpendableBalance':
+          reportedBalance = balance;
+          break;
+        case 'StackedBalance':
+        case 'locked':
+          reportedBalance = locked;
+          break;
+        case 'VestingLockedBalance':
+        case 'VestingUnlockedBalance':
+          // All token-offering vesting schedules have fully unlocked, so no
+          // addresses have vestable tokens remaining.
+          reportedBalance = BigNumber(0);
+          break;
+        default:
+          return reply.status(500).send(MeshErrors.invalidSubAccount(subAccount));
+      }
 
       const response: AccountBalanceResponse = {
         block_identifier: tipIdentifier,
