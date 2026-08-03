@@ -96,10 +96,11 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       },
     },
     async (request, reply) => {
-      const { operations, max_fee, suggested_fee_multiplier } = request.body;
+      const { operations, metadata, max_fee, suggested_fee_multiplier } = request.body;
       try {
         const options = buildConstructionOptionsFromOperations({
           operations,
+          memo: metadata?.memo ?? undefined,
           maxFee: max_fee?.[0]?.value,
           suggestedFeeMultiplier: suggested_fee_multiplier,
         });
@@ -240,7 +241,34 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
       } catch (error) {
         return reply.status(500).send(MeshErrors.invalidTransaction((error as Error).message));
       }
-      if (!isUnorderedDeepStrictEqual(options, metadata.options)) {
+
+      // The memo may arrive on the operations, at the top level of the request metadata (legacy
+      // Rosetta style), or inside the metadata options (when it was given to
+      // /construction/preprocess). Operation-level memos take precedence; conflicting sources are
+      // rejected. The memo is resolved before the options equality check below so a memo that
+      // rides in only via metadata does not fail the comparison.
+      const operationMemo = options.type === 'token_transfer' ? options.memo : undefined;
+      const metadataMemo =
+        metadata.memo ??
+        (metadata.options.type === 'token_transfer' ? metadata.options.memo : undefined);
+      if (
+        operationMemo !== undefined &&
+        metadataMemo !== undefined &&
+        operationMemo !== metadataMemo
+      ) {
+        return reply
+          .status(500)
+          .send(
+            MeshErrors.invalidTransaction(
+              'Memo from operations does not match the memo in metadata'
+            )
+          );
+      }
+      if (options.type === 'token_transfer') {
+        options.memo = operationMemo ?? metadataMemo ?? undefined;
+      }
+
+      if (!isUnorderedDeepStrictEqual(withoutMemo(options), withoutMemo(metadata.options))) {
         return reply
           .status(500)
           .send(
@@ -515,12 +543,25 @@ function isUnorderedDeepStrictEqual(left: unknown, right: unknown): boolean {
   );
 }
 
+/**
+ * Options with the memo removed, for the payloads options equality check. The memo is validated
+ * and resolved separately because it may legitimately be present on only one side (e.g. supplied
+ * via request metadata but not on the operations).
+ */
+function withoutMemo(options: ConstructionOptions): ConstructionOptions {
+  if (options.type !== 'token_transfer' || options.memo === undefined) return options;
+  const { memo: _memo, ...rest } = options;
+  return rest;
+}
+
 function buildConstructionOptionsFromOperations(args: {
   operations: ConstructionOperation[];
+  /** Request-level memo (legacy Rosetta style); operation-level memos take precedence. */
+  memo?: string;
   maxFee?: string;
   suggestedFeeMultiplier?: number;
 }): ConstructionOptions {
-  const { operations, maxFee, suggestedFeeMultiplier } = args;
+  const { operations, memo, maxFee, suggestedFeeMultiplier } = args;
   const maxFeeObject = maxFee ? { max_fee: maxFee } : undefined;
   const suggestedFeeMultiplierObject = suggestedFeeMultiplier
     ? { suggested_fee_multiplier: suggestedFeeMultiplier }
@@ -601,7 +642,7 @@ function buildConstructionOptionsFromOperations(args: {
         sender_address: senderAddress,
         recipient_address: recipientAddress,
         amount: value1.abs().toString(),
-        memo: memo1,
+        memo: memo1 ?? memo,
         ...maxFeeObject,
         ...suggestedFeeMultiplierObject,
       };

@@ -8,7 +8,7 @@ import {
   PublicKeySchema,
   SignatureSchema,
 } from '../entities/construction.js';
-import { HexStringSchema } from '../entities/common.js';
+import { HexStringSchema, Nullable } from '../entities/common.js';
 
 export const ConstructionDeriveRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
@@ -19,6 +19,9 @@ export type ConstructionDeriveRequest = Static<typeof ConstructionDeriveRequestS
 export const ConstructionPreprocessRequestSchema = Type.Object({
   network_identifier: NetworkIdentifierSchema,
   operations: Type.Array(ConstructionOperationSchema),
+  // Request-level metadata: the legacy Rosetta implementation accepted the token transfer memo
+  // here (`metadata.memo`) rather than on the operations.
+  metadata: Type.Optional(Type.Object({ memo: Type.Optional(Nullable(Type.String())) })),
   max_fee: Type.Optional(Type.Array(AmountSchema)),
   suggested_fee_multiplier: Type.Optional(Type.Number()),
 });
