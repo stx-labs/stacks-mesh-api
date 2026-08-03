@@ -15,7 +15,7 @@ import {
   getChainTipNakamotoBlock,
   getNakamotoBlockFromPartialBlockIdentifier,
 } from '../../stacks-rpc/helpers.js';
-import { addHexPrefix } from '../../serializers/index.js';
+import { addHexPrefix, removeHexPrefix } from '../../serializers/index.js';
 import { selectDisplayBlockHash } from '../../utils/block-hash.js';
 
 export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
@@ -62,11 +62,12 @@ export const AccountRoutes: FastifyPluginAsyncTypebox<OnlineApiConfig> = async (
         }),
       };
 
-      // Get the account balance at the resolved block.
+      // Get the account balance at the resolved block. The node cannot parse a 0x-prefixed `tip`
+      // and silently falls back to the current chain tip, so the prefix must be stripped.
       const accountInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
         params: {
           path: { principal: account_identifier.address },
-          query: { proof: 0, tip: indexBlockHash },
+          query: { proof: 0, tip: removeHexPrefix(indexBlockHash) },
         },
       });
 

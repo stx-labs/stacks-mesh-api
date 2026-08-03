@@ -74,7 +74,7 @@ describe('/account', () => {
       const tipHash = '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124';
       mockPool
         .intercept({
-          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash.slice(2)}`,
           method: 'GET',
         })
         .reply(200, accountInfo, {
@@ -132,7 +132,7 @@ describe('/account', () => {
 
       mockPool
         .intercept({
-          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${historicalHash}`,
+          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${historicalHash.slice(2)}`,
           method: 'GET',
         })
         .reply(200, accountInfo, {
@@ -184,7 +184,7 @@ describe('/account', () => {
       const tipHash = '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124';
       mockPool
         .intercept({
-          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash.slice(2)}`,
           method: 'GET',
         })
         .reply(200, accountInfo, {
@@ -232,7 +232,7 @@ describe('/account', () => {
       const tipHash = '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124';
       mockPool
         .intercept({
-          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash.slice(2)}`,
           method: 'GET',
         })
         .reply(200, accountInfo, {
@@ -282,7 +282,7 @@ describe('/account', () => {
         });
         mockPool
           .intercept({
-            path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+            path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash.slice(2)}`,
             method: 'GET',
           })
           .reply(200, accountInfo, {
@@ -356,7 +356,7 @@ describe('/account', () => {
       const tipHash = '0x26fd7463e9e0ebf8c24b1abd24cd6a9340aeaf7483f7097b0dfb29f7c7d10124';
       mockPool
         .intercept({
-          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash}`,
+          path: `/v2/accounts/${TEST_ADDRESS}?proof=0&tip=${tipHash.slice(2)}`,
           method: 'GET',
         })
         .reply(200, accountInfo, {
