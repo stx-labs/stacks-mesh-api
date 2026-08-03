@@ -191,12 +191,13 @@ const BasePoxOperationMetadataSchema = Type.Object({
 });
 
 const DelegateStxOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('delegate_stx'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        amount_ustx: Type.String(),
         delegate_to: Type.String(),
         unlock_burn_height: Nullable(Type.Integer()),
         start_cycle_id: Nullable(Type.Integer()),
@@ -208,12 +209,13 @@ const DelegateStxOperationSchema = Type.Composite([
 export type DelegateStxOperation = Static<typeof DelegateStxOperationSchema>;
 
 const DelegateStackStxOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('delegate_stack_stx'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        lock_amount: Type.String(),
         lock_period: Type.String(),
         delegator: Type.String(),
         burnchain_start_height: Nullable(Type.Integer()),
@@ -242,12 +244,13 @@ const RevokeDelegateStxOperationSchema = Type.Composite([
 export type RevokeDelegateStxOperation = Static<typeof RevokeDelegateStxOperationSchema>;
 
 const DelegateStackIncreaseOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('delegate_stack_increase'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        increase_by: Type.String(),
         delegator: Type.String(),
         start_cycle_id: Nullable(Type.Integer()),
         end_cycle_id: Nullable(Type.Integer()),
@@ -258,12 +261,13 @@ const DelegateStackIncreaseOperationSchema = Type.Composite([
 export type DelegateStackIncreaseOperation = Static<typeof DelegateStackIncreaseOperationSchema>;
 
 const StackAggregationIncreaseOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stack_aggregation_increase'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        amount_ustx: Type.String(),
         reward_cycle: Type.Integer(),
         start_cycle_id: Nullable(Type.Integer()),
         end_cycle_id: Nullable(Type.Integer()),
@@ -276,12 +280,13 @@ export type StackAggregationIncreaseOperation = Static<
 >;
 
 const StackAggregationCommitOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stack_aggregation_commit'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        amount_ustx: Type.String(),
         reward_cycle: Type.Integer(),
         signer_key: Nullable(Type.String()),
         start_cycle_id: Nullable(Type.Integer()),
@@ -293,12 +298,13 @@ const StackAggregationCommitOperationSchema = Type.Composite([
 export type StackAggregationCommitOperation = Static<typeof StackAggregationCommitOperationSchema>;
 
 const StackAggregationCommitIndexedOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stack_aggregation_commit_indexed'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        amount_ustx: Type.String(),
         reward_cycle: Type.Integer(),
         signer_key: Nullable(Type.String()),
         start_cycle_id: Nullable(Type.Integer()),
@@ -344,12 +350,13 @@ const HandleUnlockOperationSchema = Type.Composite([
 export type HandleUnlockOperation = Static<typeof HandleUnlockOperationSchema>;
 
 const StackStxOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stack_stx'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        lock_amount: Type.String(),
         lock_period: Type.Integer(),
         burnchain_start_height: Type.Integer(),
         signer_key: Nullable(Type.String()),
@@ -362,12 +369,13 @@ const StackStxOperationSchema = Type.Composite([
 export type StackStxOperation = Static<typeof StackStxOperationSchema>;
 
 const StackIncreaseOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stack_increase'),
     metadata: Type.Composite([
       BasePoxOperationMetadataSchema,
       Type.Object({
+        increase_by: Type.String(),
         signer_key: Nullable(Type.String()),
         start_cycle_id: Nullable(Type.Integer()),
         end_cycle_id: Nullable(Type.Integer()),
@@ -412,10 +420,11 @@ export type ContractLogOperation = Static<typeof ContractLogOperationSchema>;
 // spendable balance must be read from the node, not derived from the operation.
 
 const StakeOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stake'),
     metadata: Type.Object({
+      amount_ustx: Type.String(),
       signer: Type.String(),
       num_cycles: Type.Integer(),
       first_reward_cycle: Type.Integer(),
@@ -427,10 +436,11 @@ const StakeOperationSchema = Type.Composite([
 export type StakeOperation = Static<typeof StakeOperationSchema>;
 
 const StakeUpdateOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('stake_update'),
     metadata: Type.Object({
+      amount_ustx: Type.String(),
       signer: Type.String(),
       old_signer: Type.String(),
       amount_increase: Type.String(),
@@ -445,10 +455,11 @@ const StakeUpdateOperationSchema = Type.Composite([
 export type StakeUpdateOperation = Static<typeof StakeUpdateOperationSchema>;
 
 const UnstakeOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('unstake'),
     metadata: Type.Object({
+      amount_ustx: Type.String(),
       signer: Type.String(),
       first_reward_cycle: Type.Integer(),
       unlock_cycle: Type.Integer(),
@@ -459,10 +470,11 @@ const UnstakeOperationSchema = Type.Composite([
 export type UnstakeOperation = Static<typeof UnstakeOperationSchema>;
 
 const RegisterForBondOperationSchema = Type.Composite([
-  BaseAmountOperationSchema,
+  BaseAccountOperationSchema,
   Type.Object({
     type: Type.Literal('register_for_bond'),
     metadata: Type.Object({
+      amount_ustx: Type.String(),
       signer: Type.String(),
       bond_index: Type.Integer(),
       sats_total: Type.String(),
@@ -470,10 +482,270 @@ const RegisterForBondOperationSchema = Type.Composite([
       first_reward_cycle: Type.Integer(),
       unlock_burn_height: Type.Integer(),
       unlock_cycle: Type.Integer(),
+      // How the BTC was locked: `type: 'l1'` with proof outputs, or `type: 'l2'` (sBTC) with null.
+      btc_lockup: Type.Object({
+        type: Type.String(),
+        txs: Nullable(
+          Type.Array(Type.Object({ txid: Type.String(), output_index: Type.String() }))
+        ),
+      }),
     }),
   }),
 ]);
 export type RegisterForBondOperation = Static<typeof RegisterForBondOperationSchema>;
+
+// Updating a bond registration can change the locked STX amount (like `stake_update` for bonds).
+const UpdateBondRegistrationOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('update_bond_registration'),
+    metadata: Type.Object({
+      amount_ustx: Type.String(),
+      signer: Type.String(),
+      old_signer: Type.String(),
+      bond_index: Type.Integer(),
+      amount_sats: Type.String(),
+      first_reward_cycle: Type.Integer(),
+      num_cycles: Type.Integer(),
+      is_l1_lock: Type.Boolean(),
+    }),
+  }),
+]);
+export type UpdateBondRegistrationOperation = Static<typeof UpdateBondRegistrationOperationSchema>;
+
+// The remaining pox-5 events (bond/signer administration, reward accounting, and non-STX asset
+// movements like sBTC unstakes) don't move an STX balance, so they carry no `amount`. They're
+// surfaced so every pox-5 event is visible in a transaction, each with its own typed metadata.
+
+const SetBondAdminOperationSchema = Type.Composite([
+  BaseOperationSchema,
+  Type.Object({
+    type: Type.Literal('set_bond_admin'),
+    metadata: Type.Object({
+      old_admin: Type.String(),
+      new_admin: Type.String(),
+    }),
+  }),
+]);
+export type SetBondAdminOperation = Static<typeof SetBondAdminOperationSchema>;
+
+const SetupBondOperationSchema = Type.Composite([
+  BaseOperationSchema,
+  Type.Object({
+    type: Type.Literal('setup_bond'),
+    metadata: Type.Object({
+      bond_index: Type.Integer(),
+      target_rate: Type.Integer(),
+      stx_value_ratio: Type.String(),
+      min_ustx_ratio: Type.String(),
+      early_unlock_bytes: Type.String(),
+      first_reward_cycle: Type.Integer(),
+      bond_start_height: Type.Integer(),
+      unlock_cycle: Type.Integer(),
+      unlock_burn_height: Type.Integer(),
+    }),
+  }),
+]);
+export type SetupBondOperation = Static<typeof SetupBondOperationSchema>;
+
+const AddToAllowlistOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('add_to_allowlist'),
+    metadata: Type.Object({
+      max_sats: Type.String(),
+      bond_index: Type.Integer(),
+    }),
+  }),
+]);
+export type AddToAllowlistOperation = Static<typeof AddToAllowlistOperationSchema>;
+
+const RegisterSignerOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('register_signer'),
+    metadata: Type.Object({
+      signer_key: Type.String(),
+    }),
+  }),
+]);
+export type RegisterSignerOperation = Static<typeof RegisterSignerOperationSchema>;
+
+const AnnounceL1EarlyExitOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('announce_l1_early_exit'),
+    metadata: Type.Object({
+      signer: Type.String(),
+      bond_index: Type.Integer(),
+      amount_sats_released: Type.String(),
+    }),
+  }),
+]);
+export type AnnounceL1EarlyExitOperation = Static<typeof AnnounceL1EarlyExitOperationSchema>;
+
+const UnstakeSbtcOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('unstake_sbtc'),
+    metadata: Type.Object({
+      signer: Type.String(),
+      bond_index: Type.Integer(),
+      amount_withdrawn_sats: Type.String(),
+      new_amount_sats: Type.String(),
+    }),
+  }),
+]);
+export type UnstakeSbtcOperation = Static<typeof UnstakeSbtcOperationSchema>;
+
+const CalculateRewardsOperationSchema = Type.Composite([
+  BaseOperationSchema,
+  Type.Object({
+    type: Type.Literal('calculate_rewards'),
+    metadata: Type.Object({
+      bond_periods: Type.Array(Type.String()),
+      calculation_height: Type.Integer(),
+      gross_accrued_rewards: Type.String(),
+      total_bond_rewards: Type.String(),
+      reserve_deposit: Type.String(),
+      reserve_balance: Type.String(),
+      stx_cycle: Type.Integer(),
+      total_stx_staker_rewards: Type.String(),
+      cycle_staked_ustx: Type.String(),
+      accrued_rewards_per_ustx: Type.String(),
+      cumulative_rewards_per_ustx: Type.String(),
+    }),
+  }),
+]);
+export type CalculateRewardsOperation = Static<typeof CalculateRewardsOperationSchema>;
+
+const BondDistributionOperationSchema = Type.Composite([
+  BaseOperationSchema,
+  Type.Object({
+    type: Type.Literal('bond_distribution'),
+    metadata: Type.Object({
+      bond_index: Type.Integer(),
+      target_yield: Type.String(),
+      bond_rewards: Type.String(),
+      bond_staked_sats: Type.String(),
+      accrued_rewards_per_sat: Type.String(),
+      cumulative_rewards_per_sat: Type.String(),
+    }),
+  }),
+]);
+export type BondDistributionOperation = Static<typeof BondDistributionOperationSchema>;
+
+const ClaimRewardsOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('claim_rewards'),
+    metadata: Type.Object({
+      reward_cycle: Type.Integer(),
+      stx_rewards: Type.Object({
+        earned: Type.String(),
+        rewards_per_token: Type.String(),
+      }),
+      bond_rewards: Type.Array(
+        Type.Object({
+          bond_index: Type.Integer(),
+          earned: Type.String(),
+          rewards_per_token: Type.String(),
+        })
+      ),
+      bond_totals: Type.String(),
+      total_rewards: Type.String(),
+    }),
+  }),
+]);
+export type ClaimRewardsOperation = Static<typeof ClaimRewardsOperationSchema>;
+
+const ClaimStakerRewardsForSignerOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('claim_staker_rewards_for_signer'),
+    metadata: Type.Object({
+      signer_manager: Type.String(),
+      reward_cycle: Type.Integer(),
+      bond_index: Nullable(Type.Integer()),
+      rewards_claimed: Type.String(),
+    }),
+  }),
+]);
+export type ClaimStakerRewardsForSignerOperation = Static<
+  typeof ClaimStakerRewardsForSignerOperationSchema
+>;
+
+const GrantSignerKeyOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('grant_signer_key'),
+    metadata: Type.Object({
+      signer_key: Type.String(),
+      auth_id: Type.String(),
+    }),
+  }),
+]);
+export type GrantSignerKeyOperation = Static<typeof GrantSignerKeyOperationSchema>;
+
+const RevokeSignerGrantOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('revoke_signer_grant'),
+    metadata: Type.Object({
+      signer_key: Type.String(),
+    }),
+  }),
+]);
+export type RevokeSignerGrantOperation = Static<typeof RevokeSignerGrantOperationSchema>;
+
+const AllowContractCallerOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('allow_contract_caller'),
+    metadata: Type.Object({
+      contract_caller: Type.String(),
+      until_burn_ht: Nullable(Type.Integer()),
+    }),
+  }),
+]);
+export type AllowContractCallerOperation = Static<typeof AllowContractCallerOperationSchema>;
+
+const DisallowContractCallerOperationSchema = Type.Composite([
+  BaseAccountOperationSchema,
+  Type.Object({
+    type: Type.Literal('disallow_contract_caller'),
+    metadata: Type.Object({
+      contract_caller: Type.String(),
+    }),
+  }),
+]);
+export type DisallowContractCallerOperation = Static<typeof DisallowContractCallerOperationSchema>;
+
+// pox-5 (bitcoin staking) operations, grouped into their own union. Referencing this once in the
+// main `OperationSchema` keeps that union small enough to avoid TS "excessively deep" instantiation
+// errors from the response-schema type provider.
+const Pox5OperationSchema = Type.Union([
+  StakeOperationSchema,
+  StakeUpdateOperationSchema,
+  UnstakeOperationSchema,
+  RegisterForBondOperationSchema,
+  UpdateBondRegistrationOperationSchema,
+  SetBondAdminOperationSchema,
+  SetupBondOperationSchema,
+  AddToAllowlistOperationSchema,
+  RegisterSignerOperationSchema,
+  AnnounceL1EarlyExitOperationSchema,
+  UnstakeSbtcOperationSchema,
+  CalculateRewardsOperationSchema,
+  BondDistributionOperationSchema,
+  ClaimRewardsOperationSchema,
+  ClaimStakerRewardsForSignerOperationSchema,
+  GrantSignerKeyOperationSchema,
+  RevokeSignerGrantOperationSchema,
+  AllowContractCallerOperationSchema,
+  DisallowContractCallerOperationSchema,
+]);
+export type Pox5Operation = Static<typeof Pox5OperationSchema>;
 
 export const OperationSchema = Type.Union([
   CoinbaseOperationSchema,
@@ -486,12 +758,9 @@ export const OperationSchema = Type.Union([
   FeeOperationSchema,
   HandleUnlockOperationSchema,
   PoisonMicroblockOperationSchema,
-  RegisterForBondOperationSchema,
+  Pox5OperationSchema,
   RevokeDelegateStxOperationSchema,
   SmartContractOperationSchema,
-  StakeOperationSchema,
-  StakeUpdateOperationSchema,
-  UnstakeOperationSchema,
   StackAggregationCommitIndexedOperationSchema,
   StackAggregationCommitOperationSchema,
   StackAggregationIncreaseOperationSchema,

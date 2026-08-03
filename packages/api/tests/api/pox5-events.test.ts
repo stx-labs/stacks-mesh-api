@@ -14,7 +14,6 @@ const tx = { status: 'success' } as unknown as DecodedStacksTransaction;
 const SIGNER = 'SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.signer-manager';
 const OLD_SIGNER = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR.signer-manager';
 const STAKER = 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7';
-const STX = { symbol: 'STX', decimals: 6 };
 
 describe('synthetic pox-5 operations', () => {
   test('stake → locks STX under a signer', () => {
@@ -36,8 +35,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'stake',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '5000000', currency: STX },
       metadata: {
+        amount_ustx: '5000000',
         signer: SIGNER,
         num_cycles: 6,
         first_reward_cycle: 8,
@@ -69,8 +68,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'stake_update',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '7000000', currency: STX },
       metadata: {
+        amount_ustx: '7000000',
         signer: SIGNER,
         old_signer: OLD_SIGNER,
         amount_increase: '2000000',
@@ -102,8 +101,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'unstake',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '5000000', currency: STX },
       metadata: {
+        amount_ustx: '5000000',
         signer: SIGNER,
         first_reward_cycle: 8,
         unlock_cycle: 20,
@@ -136,8 +135,8 @@ describe('synthetic pox-5 operations', () => {
       type: 'register_for_bond',
       status: 'success',
       account: { address: STAKER },
-      amount: { value: '10000000', currency: STX },
       metadata: {
+        amount_ustx: '10000000',
         signer: SIGNER,
         bond_index: 0,
         sats_total: '1000',
@@ -145,11 +144,46 @@ describe('synthetic pox-5 operations', () => {
         first_reward_cycle: 8,
         unlock_burn_height: 10000,
         unlock_cycle: 20,
+        btc_lockup: { type: 'l2', txs: null },
       },
     });
   });
 
-  test('reward claims map to no STX operation (rewards are sBTC)', () => {
+  test('update-bond-registration → STX amount, sats side in metadata', () => {
+    const event: Pox5Event = {
+      pox_version: 'pox5',
+      name: Pox5EventName.UpdateBondRegistration,
+      data: {
+        staker: STAKER,
+        signer: SIGNER,
+        old_signer: OLD_SIGNER,
+        bond_index: '0',
+        amount_ustx: '9000000',
+        amount_sats: '2000',
+        first_reward_cycle: '8',
+        num_cycles: '6',
+        is_l1_lock: true,
+      },
+    };
+    assert.deepStrictEqual(makeSyntheticPox5Operation(event, 0, tx), {
+      operation_identifier: { index: 1 },
+      type: 'update_bond_registration',
+      status: 'success',
+      account: { address: STAKER },
+      metadata: {
+        amount_ustx: '9000000',
+        signer: SIGNER,
+        old_signer: OLD_SIGNER,
+        bond_index: 0,
+        amount_sats: '2000',
+        first_reward_cycle: 8,
+        num_cycles: 6,
+        is_l1_lock: true,
+      },
+    });
+  });
+
+  test('reward claims are surfaced as informational operations (no STX amount)', () => {
     const event: Pox5Event = {
       pox_version: 'pox5',
       name: Pox5EventName.ClaimStakerRewardsForSigner,
@@ -161,16 +195,54 @@ describe('synthetic pox-5 operations', () => {
         rewards_claimed: '1234',
       },
     };
-    assert.strictEqual(makeSyntheticPox5Operation(event, 0, tx), null);
+    // Rewards are paid in sBTC (a separate asset), so no STX `amount` — but the event is still
+    // displayed, with the staker as the account and its typed fields in metadata.
+    assert.deepStrictEqual(makeSyntheticPox5Operation(event, 0, tx), {
+      operation_identifier: { index: 1 },
+      type: 'claim_staker_rewards_for_signer',
+      status: 'success',
+      account: { address: STAKER },
+      metadata: {
+        signer_manager: SIGNER,
+        reward_cycle: 8,
+        bond_index: null,
+        rewards_claimed: '1234',
+      },
+    });
   });
 
-  test('non-balance admin events map to no operation', () => {
+  test('admin events are surfaced as informational operations (no amount)', () => {
     const event: Pox5Event = {
       pox_version: 'pox5',
       name: Pox5EventName.RegisterSigner,
       data: { signer: SIGNER, signer_key: '0x' + '02'.repeat(33) },
     };
-    assert.strictEqual(makeSyntheticPox5Operation(event, 0, tx), null);
+    assert.deepStrictEqual(makeSyntheticPox5Operation(event, 0, tx), {
+      operation_identifier: { index: 1 },
+      type: 'register_signer',
+      status: 'success',
+      account: { address: SIGNER },
+      metadata: { signer_key: '0x' + '02'.repeat(33) },
+    });
+  });
+
+  test('accounting events with no principal have no account', () => {
+    const event: Pox5Event = {
+      pox_version: 'pox5',
+      name: Pox5EventName.BondDistribution,
+      data: {
+        bond_index: '0',
+        target_yield: '5',
+        bond_rewards: '10',
+        bond_staked_sats: '1000',
+        accrued_rewards_per_sat: '1',
+        cumulative_rewards_per_sat: '2',
+      },
+    };
+    const op = makeSyntheticPox5Operation(event, 0, tx);
+    assert.equal(op?.type, 'bond_distribution');
+    assert.equal('account' in (op as object), false);
+    assert.equal('amount' in (op as object), false);
   });
 
   test('dispatcher routes pox_version=pox5 events to the pox-5 serializer', () => {
