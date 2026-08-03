@@ -80,6 +80,9 @@ export const ConstructionMetadataSchema = Type.Object({
     nonce: Type.Number(),
     balance: Type.String(),
   }),
+  // The legacy Rosetta implementation read the token transfer memo from the top level of the
+  // payloads request metadata; accepted here for compatibility with those callers.
+  memo: Type.Optional(Nullable(Type.String())),
 });
 export type ConstructionMetadata = Static<typeof ConstructionMetadataSchema>;
 

@@ -70,6 +70,58 @@ describe('/construction/preprocess', () => {
       assert.equal(body.required_public_keys[0].address, senderAddress);
     });
 
+    test('reads the memo from the top-level request metadata', async () => {
+      // Legacy Rosetta callers supply the memo at the request level rather than per operation.
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          },
+        ],
+        metadata: { memo: 'from-metadata' },
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      assert.equal(body.options.type, 'token_transfer');
+      assert.equal(body.options.memo, 'from-metadata');
+    });
+
+    test('operation-level memo takes precedence over the request metadata memo', async () => {
+      const res = await post(fastify, '/construction/preprocess', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations: [
+          {
+            operation_identifier: { index: 0 },
+            type: 'token_transfer',
+            account: { address: senderAddress },
+            amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'from-ops' },
+          },
+          {
+            operation_identifier: { index: 1 },
+            type: 'token_transfer',
+            account: { address: recipientAddress },
+            amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+            metadata: { memo: 'from-ops' },
+          },
+        ],
+        metadata: { memo: 'from-metadata' },
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      assert.equal(body.options.memo, 'from-ops');
+    });
+
     test('rejects when only one operation is provided', async () => {
       const res = await post(fastify, '/construction/preprocess', {
         network_identifier: NETWORK_IDENTIFIER,

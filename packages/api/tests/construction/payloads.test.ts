@@ -105,6 +105,148 @@ describe('/construction/payloads', () => {
       assert.match(body.payloads[0].hex_bytes, /^[0-9a-f]+$/);
     });
 
+    test('builds the memo from metadata options when operations carry none', async () => {
+      // Memo supplied to /construction/preprocess via request metadata flows back here inside
+      // metadata.options; the operations never carry it.
+      const operations = [
+        {
+          operation_identifier: { index: 0 },
+          type: 'fee',
+          account: { address: senderAddress },
+          amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 1 },
+          type: 'token_transfer',
+          account: { address: senderAddress },
+          amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 2 },
+          type: 'token_transfer',
+          account: { address: recipientAddress },
+          amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+        },
+      ];
+      const metadata = {
+        sender_account_info: {
+          nonce: 0,
+          balance: '1000000',
+        },
+        options: {
+          sender_address: senderAddress,
+          recipient_address: recipientAddress,
+          amount: '1000000',
+          memo: 'from-metadata',
+          type: 'token_transfer',
+        },
+      };
+      const res = await post(fastify, '/construction/payloads', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations,
+        metadata,
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      // The memo bytes must be present in the serialized transaction.
+      assert.ok(body.unsigned_transaction.includes(Buffer.from('from-metadata').toString('hex')));
+    });
+
+    test('builds the memo from the top-level payloads metadata (legacy callers)', async () => {
+      // The legacy Rosetta implementation read the memo from the top level of the payloads
+      // request metadata; some callers inject it there directly.
+      const operations = [
+        {
+          operation_identifier: { index: 0 },
+          type: 'fee',
+          account: { address: senderAddress },
+          amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 1 },
+          type: 'token_transfer',
+          account: { address: senderAddress },
+          amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 2 },
+          type: 'token_transfer',
+          account: { address: recipientAddress },
+          amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+        },
+      ];
+      const metadata = {
+        sender_account_info: {
+          nonce: 0,
+          balance: '1000000',
+        },
+        options: {
+          sender_address: senderAddress,
+          recipient_address: recipientAddress,
+          amount: '1000000',
+          type: 'token_transfer',
+        },
+        memo: 'legacy-memo',
+      };
+      const res = await post(fastify, '/construction/payloads', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations,
+        metadata,
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
+      });
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.body);
+      assert.ok(body.unsigned_transaction.includes(Buffer.from('legacy-memo').toString('hex')));
+    });
+
+    test('rejects conflicting memos between operations and metadata', async () => {
+      const operations = [
+        {
+          operation_identifier: { index: 0 },
+          type: 'fee',
+          account: { address: senderAddress },
+          amount: { value: '-200', currency: { symbol: 'STX', decimals: 6 } },
+        },
+        {
+          operation_identifier: { index: 1 },
+          type: 'token_transfer',
+          account: { address: senderAddress },
+          amount: { value: '-1000000', currency: { symbol: 'STX', decimals: 6 } },
+          metadata: { memo: 'hello' },
+        },
+        {
+          operation_identifier: { index: 2 },
+          type: 'token_transfer',
+          account: { address: recipientAddress },
+          amount: { value: '1000000', currency: { symbol: 'STX', decimals: 6 } },
+          metadata: { memo: 'hello' },
+        },
+      ];
+      const metadata = {
+        sender_account_info: {
+          nonce: 0,
+          balance: '1000000',
+        },
+        options: {
+          sender_address: senderAddress,
+          recipient_address: recipientAddress,
+          amount: '1000000',
+          memo: 'world',
+          type: 'token_transfer',
+        },
+      };
+      const res = await post(fastify, '/construction/payloads', {
+        network_identifier: NETWORK_IDENTIFIER,
+        operations,
+        metadata,
+        public_keys: [{ hex_bytes: senderPublicKey, curve_type: 'secp256k1' }],
+      });
+      assert.equal(res.statusCode, 500);
+      const body = JSON.parse(res.body);
+      assert.match(body.description, /does not match the memo/);
+    });
+
     test('rejects operations without a fee', async () => {
       const operations = [
         {
