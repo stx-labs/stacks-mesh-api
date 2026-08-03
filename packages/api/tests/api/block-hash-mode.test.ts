@@ -121,9 +121,13 @@ describe('block hash mode = block_hash', () => {
     mockPool
       .intercept({ path: `/v3/blocks/height/${HEIGHT}`, method: 'GET' })
       .reply(200, loadBinaryFixture(HEADER_BIN), headerReply);
-    // The tip MUST be the index_block_hash — if the code sent the block_hash this mock wouldn't match.
+    // The tip MUST be the unprefixed index_block_hash — if the code sent the block_hash or a
+    // 0x-prefixed hash this mock wouldn't match.
     mockPool
-      .intercept({ path: `/v2/accounts/${ADDRESS}?proof=0&tip=${INDEX_BLOCK_HASH}`, method: 'GET' })
+      .intercept({
+        path: `/v2/accounts/${ADDRESS}?proof=0&tip=${INDEX_BLOCK_HASH.slice(2)}`,
+        method: 'GET',
+      })
       .reply(200, { balance: '1000', locked: '0', nonce: 1, unlock_height: 0 }, jsonReply);
 
     const res = await post(fastify, '/account/balance', {
