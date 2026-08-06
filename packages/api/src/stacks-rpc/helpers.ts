@@ -1,6 +1,6 @@
 import { BlockReplay, CoreRpcClient, CoreRpcError, NodeInfo } from '@stacks/rpc-client';
 import { StacksRpcBlockNotFoundError, StacksRpcSmartContractError } from './errors.js';
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber.js';
 import codec, {
   ClarityTypeID,
   type ClarityValue,

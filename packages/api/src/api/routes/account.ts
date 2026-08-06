@@ -10,7 +10,7 @@ import {
 } from '../../../../schemas/dist/index.js';
 import { STX_CURRENCY } from '../../utils/constants.js';
 import { MeshErrors } from '../../utils/errors.js';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber.js';
 import {
   getChainTipNakamotoBlock,
   getNakamotoBlockFromPartialBlockIdentifier,
