@@ -47,7 +47,7 @@ import {
   removeHexPrefix,
   serializeDecodedTransactionOperations,
 } from '../../serializers/index.js';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../../utils/bignumber.js';
 import { isDeepStrictEqual } from 'node:util';
 
 export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (fastify, config) => {
@@ -183,17 +183,17 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           // Couldn't build/serialize a dummy transaction to size the fee — use the default.
           suggestedFee = config.constructionDefaultFee;
         }
+        // Multiplier and cap arithmetic in BigNumber: `max_fee` is a caller-supplied µSTX amount
+        // that can exceed Number precision, and the final fee must render as a plain digit string.
+        let fee = BigNumber(suggestedFee);
         // Apply fee multiplier if specified
-        const feeMultiplier = options?.suggested_fee_multiplier
-          ? Number(options.suggested_fee_multiplier)
-          : undefined;
-        if (feeMultiplier !== undefined) {
-          suggestedFee = Math.round(suggestedFee * feeMultiplier);
+        if (options?.suggested_fee_multiplier) {
+          fee = fee.times(options.suggested_fee_multiplier).integerValue(BigNumber.ROUND_HALF_UP);
         }
         // Cap fee if max_fee was specified in options
-        const maxFee = options?.max_fee ? Number(options.max_fee) : undefined;
-        if (maxFee !== undefined && suggestedFee > maxFee) {
-          suggestedFee = maxFee;
+        const maxFee = options?.max_fee ? BigNumber(options.max_fee) : undefined;
+        if (maxFee !== undefined && fee.gt(maxFee)) {
+          fee = maxFee;
         }
 
         const senderInfo = await rpcClient.request('GET', '/v2/accounts/{principal}', {
@@ -209,7 +209,7 @@ export const ConstructionRoutes: FastifyPluginAsyncTypebox<ApiConfig> = async (f
           },
           suggested_fee: [
             {
-              value: String(suggestedFee),
+              value: fee.toString(),
               currency: STX_CURRENCY,
             },
           ],

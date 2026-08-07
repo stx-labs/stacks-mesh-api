@@ -708,6 +708,44 @@ describe('/block', () => {
       );
       assert.strictEqual(ftBurnOp.account.address, 'SPZD2MFC5R2FC0SNZ8SNZ9YCVM0YB4ZA0GRE1364');
     });
+
+    test('should serialize amounts beyond 20 digits as plain integers, not scientific notation', async () => {
+      // u128 FT amounts (e.g. large AMM LP token burns) exceed the 20-digit threshold where
+      // bignumber.js switches toString() to scientific notation ("-1.339e+21") by default.
+      const bigAmount = '1339000000000000000000123'; // 25 digits
+      const bigFixture = structuredClone(fixture);
+      const burnEvent = bigFixture.transactions[1].events.find(
+        (e: { type: string }) => e.type === 'ft_burn_event'
+      );
+      burnEvent.ft_burn_event.amount = bigAmount;
+
+      const mockPool = mockAgent.get('http://test.stacks.node:20444');
+      mockReplay(mockPool, bigFixture.block_id, bigFixture);
+
+      const response = await postBlock(fastify, bigFixture.block_id);
+      assert.strictEqual(response.statusCode, 200);
+      const block = JSON.parse(response.body).block;
+
+      const ftBurnOp = block.transactions[1].operations.find(
+        (op: { type: string; amount?: { currency?: { metadata?: { token_type: string } } } }) =>
+          op.type === 'token_burn' && op.amount?.currency?.metadata?.token_type === 'ft'
+      );
+      assert.ok(ftBurnOp, 'Expected an FT burn operation');
+      assert.strictEqual(ftBurnOp.amount.value, `-${bigAmount}`);
+
+      // No operation amount anywhere in the block may use scientific notation.
+      for (const tx of block.transactions) {
+        for (const op of tx.operations) {
+          if (op.amount?.value) {
+            assert.match(
+              op.amount.value,
+              /^-?\d+$/,
+              `operation amount "${op.amount.value}" is not a plain integer string`
+            );
+          }
+        }
+      }
+    });
   });
 
   describe('contract event block', () => {

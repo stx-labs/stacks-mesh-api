@@ -21,7 +21,7 @@ import { isPoxPrintEvent, makeSyntheticPoxOperation } from './pox-operations.js'
 import { ApiConfig } from '../api/index.js';
 import { serializePostConditions } from './post-conditions.js';
 import { addHexPrefix, decodeClarityValue, removeHexPrefix } from './index.js';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from '../utils/bignumber.js';
 import type {
   BlockReplayTransaction,
   BlockReplayTransactionContractEvent,
