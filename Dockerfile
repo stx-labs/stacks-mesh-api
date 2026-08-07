@@ -18,4 +18,4 @@ RUN cd packages/api && \
 RUN apk del .build-deps
 
 WORKDIR /app/packages/api
-CMD ["node", "./dist/src/index.js"]
+CMD ["node", "./dist/index.js"]
