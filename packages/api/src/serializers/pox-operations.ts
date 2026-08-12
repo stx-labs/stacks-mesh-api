@@ -2,7 +2,7 @@ import { Operation } from '@stacks/mesh-schemas';
 // Enums/types are NAMED exports of @stacks/codec (not on the default export).
 import { Pox4EventName, type PoxEvent } from '@stacks/codec';
 import { PoxContractIdentifiers } from '../utils/constants.js';
-import { DecodedStacksTransaction, makeStxCurrency } from './transactions.js';
+import { DecodedStacksTransaction } from './transactions.js';
 import { BlockReplayTransactionContractEvent } from '@stacks/rpc-client';
 import { makeSyntheticPox5Operation } from './pox5-operations.js';
 
@@ -30,11 +30,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -56,11 +53,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.lock_amount,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          lock_amount: poxEvent.data.lock_amount,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -83,11 +77,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.increase_by,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          increase_by: poxEvent.data.increase_by,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -127,11 +118,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -150,11 +138,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -174,11 +159,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.amount_ustx,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          amount_ustx: poxEvent.data.amount_ustx,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -234,11 +216,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.lock_amount,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          lock_amount: poxEvent.data.lock_amount,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
@@ -259,11 +238,8 @@ export function makeSyntheticPoxOperation(
         account: {
           address: poxEvent.stacker,
         },
-        amount: {
-          value: poxEvent.data.increase_by,
-          currency: makeStxCurrency(),
-        },
         metadata: {
+          increase_by: poxEvent.data.increase_by,
           locked: poxEvent.locked,
           balance: poxEvent.balance,
           burnchain_unlock_height: parseInt(poxEvent.burnchain_unlock_height),
