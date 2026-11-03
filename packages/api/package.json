@@ -44,7 +44,7 @@
     "@fastify/type-provider-typebox": "6.1.0",
     "@sinclair/typebox": "0.34.48",
     "@stacks/api-toolkit": "1.13.0",
-    "@stacks/codec": "2.1.0",
+    "@stacks/codec": "2.2.0",
     "@stacks/mesh-schemas": "*",
     "@stacks/network": "7.5.0",
     "@stacks/rpc-client": "2.0.1",
